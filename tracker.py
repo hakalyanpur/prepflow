@@ -515,6 +515,7 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interview Prep Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
 <style>
 :root, [data-theme="dark"] {
   --bg: #0d1117; --surface: #161b22; --border: #30363d;
@@ -634,6 +635,21 @@ tr:hover { background: var(--hover-row); }
 .week-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
 .week-header.collapsed .chevron { transform: rotate(-90deg); }
 .week-body.hidden { display: none; }
+/* Week in Review */
+.week-review { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+.week-review-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.week-review-header h2 { font-size: 1.05rem; margin: 0; }
+.week-review-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
+.week-review-header.collapsed .chevron { transform: rotate(-90deg); }
+.week-review-body.hidden { display: none; }
+.week-review-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+.week-review-stat { text-align: center; padding: 12px; background: var(--bg); border-radius: 6px; }
+.week-review-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.week-review-stat .label { color: var(--muted); font-size: .8rem; }
+.week-review-list { margin: 8px 0; }
+.week-review-list h3 { font-size: .9rem; color: var(--muted); margin-bottom: 6px; }
+.week-review-list ul { list-style: none; padding: 0; }
+.week-review-list li { padding: 4px 0; font-size: .85rem; display: flex; align-items: center; gap: 8px; }
 /* Links */
 a.prob-link { color: var(--text); text-decoration: none; }
 a.prob-link:hover { color: var(--accent); text-decoration: underline; }
@@ -678,6 +694,113 @@ function weekDates(w) {
   end.setDate(end.getDate() + 6);
   const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
   return `${fmt(d)} – ${fmt(end)}`;
+}
+
+function getWeekRange(offsetWeeks = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + (offsetWeeks * 7));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return { start: monday, end: sunday };
+}
+
+function getWeekAttempts() {
+  const {start, end} = getWeekRange();
+  const startStr = start.toISOString().split('T')[0];
+  const endStr = end.toISOString().split('T')[0];
+  const results = { done: [], struggled: [], totalTime: 0, totalAttempts: 0 };
+  const seen = new Set();
+
+  [...problems, ...sdProblems].forEach(p => {
+    p.attempts.forEach(a => {
+      if (a.date >= startStr && a.date <= endStr) {
+        results.totalTime += a.duration_sec;
+        results.totalAttempts++;
+        if (!seen.has(p.id)) {
+          seen.add(p.id);
+          if (a.result === 'done') results.done.push(p);
+          else if (a.result === 'struggled') results.struggled.push(p);
+        }
+      }
+    });
+  });
+  return results;
+}
+
+let weekReviewCollapsed = localStorage.getItem('weekReviewCollapsed') === 'true';
+
+function toggleWeekReview() {
+  weekReviewCollapsed = !weekReviewCollapsed;
+  localStorage.setItem('weekReviewCollapsed', weekReviewCollapsed);
+  renderReview();
+}
+
+function renderWeekReview() {
+  const {start, end} = getWeekRange();
+  const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  const dateRange = `${fmt(start)} – ${fmt(end)}`;
+  const wa = getWeekAttempts();
+
+  const hrs = Math.floor(wa.totalTime / 3600);
+  const mins = Math.floor((wa.totalTime % 3600) / 60);
+  const timeStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+
+  // Coming up next week: find the next study plan week's pending problems
+  const {start: nextStart} = getWeekRange(1);
+  const nextStartStr = nextStart.toISOString().split('T')[0];
+  // Determine which study plan week corresponds to next week
+  const planStart = new Date(START_MONDAY + 'T00:00:00');
+  const diffDays = Math.floor((nextStart - planStart) / (1000*60*60*24));
+  const nextPlanWeek = Math.floor(diffDays / 7) + 1;
+  const comingUp = problems.filter(p => p.week === nextPlanWeek && p.status === 'pending');
+
+  let html = '<div class="week-review">';
+  html += `<div class="week-review-header ${weekReviewCollapsed ? 'collapsed' : ''}" onclick="toggleWeekReview()">
+    <h2>Week in Review — ${dateRange}</h2>
+    <span class="chevron">&#9660;</span>
+  </div>`;
+  html += `<div class="week-review-body ${weekReviewCollapsed ? 'hidden' : ''}">`;
+
+  // Stat cards
+  html += '<div class="week-review-stats">';
+  html += `<div class="week-review-stat"><div class="num">${wa.done.length}</div><div class="label">Problems Done</div></div>`;
+  html += `<div class="week-review-stat"><div class="num">${wa.struggled.length}</div><div class="label">Struggled</div></div>`;
+  html += `<div class="week-review-stat"><div class="num">${wa.totalAttempts}</div><div class="label">Total Attempts</div></div>`;
+  html += `<div class="week-review-stat"><div class="num">${timeStr}</div><div class="label">Time Invested</div></div>`;
+  html += '</div>';
+
+  // Completed list
+  if (wa.done.length) {
+    html += '<div class="week-review-list"><h3>Completed</h3><ul>';
+    wa.done.forEach(p => {
+      html += `<li><span class="diff-${p.difficulty}">${{E:'E',M:'M',H:'H'}[p.difficulty]}</span> ${p.title}</li>`;
+    });
+    html += '</ul></div>';
+  }
+
+  // Struggled list
+  if (wa.struggled.length) {
+    html += '<div class="week-review-list"><h3>Need More Practice</h3><ul>';
+    wa.struggled.forEach(p => {
+      html += `<li><span class="diff-${p.difficulty}">${{E:'E',M:'M',H:'H'}[p.difficulty]}</span> ${p.title}</li>`;
+    });
+    html += '</ul></div>';
+  }
+
+  // Coming up
+  if (comingUp.length) {
+    html += `<div class="week-review-list"><h3>Coming Up (Week ${nextPlanWeek})</h3><ul>`;
+    comingUp.forEach(p => {
+      html += `<li><span class="diff-${p.difficulty}">${{E:'E',M:'M',H:'H'}[p.difficulty]}</span> ${p.title}</li>`;
+    });
+    html += '</ul></div>';
+  }
+
+  html += '</div></div>';
+  return html;
 }
 
 async function fetchProblems() {
@@ -904,14 +1027,15 @@ function filterAll() {
 
 function renderReview() {
   const el = document.getElementById('review');
+  let html = renderWeekReview();
   const today = new Date().toISOString().split('T')[0];
   const due = problems.filter(p => p.next_review && p.next_review <= today);
   const sdDue = sdProblems.filter(p => p.next_review && p.next_review <= today);
   if (!due.length && !sdDue.length) {
-    el.innerHTML = '<p style="color:var(--muted);padding:24px;text-align:center">No problems due for review today. Nice!</p>';
+    html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems due for review today. Nice!</p>';
+    el.innerHTML = html;
     return;
   }
-  let html = '';
   if (due.length) {
     html += `<p style="margin-bottom:8px;color:var(--muted)"><strong>Coding</strong> — ${due.length} due</p>`;
     html += tableHeader();
