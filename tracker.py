@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""LeetCode Study Plan — Lightweight Web Dashboard
+"""Interview Prep Hub — Lightweight Web Dashboard
 
 Run:  python tracker.py
 Open: http://localhost:5050
 """
 
-import json, os, re, datetime, webbrowser
+import json, os, re, datetime, webbrowser, sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 PORT = 5050
@@ -14,6 +14,8 @@ START_MONDAY = "2026-02-23"
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progress.json")
 MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetcode_study_plan.md")
 PATTERNS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patterns.md")
+SD_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sd_progress.json")
+TIPS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tips.json")
 
 # ---------------------------------------------------------------------------
 # Markdown parser — seeds progress.json on first run
@@ -255,6 +257,95 @@ def save_data(problems):
     os.replace(tmp, DATA_FILE)
 
 # ---------------------------------------------------------------------------
+# System Design data
+# ---------------------------------------------------------------------------
+
+SD_BASE = "https://www.hellointerview.com/learn/system-design/problem-breakdowns"
+
+SD_PROBLEMS = [
+    # Easy
+    {"id": "sd-1",  "title": "Bit.ly",                "difficulty": "E", "slug": "bitly",          "week": 1},
+    {"id": "sd-2",  "title": "Dropbox",               "difficulty": "E", "slug": "dropbox",        "week": 1},
+    {"id": "sd-3",  "title": "Local Delivery Service", "difficulty": "E", "slug": "local-delivery", "week": 2},
+    {"id": "sd-4",  "title": "News Aggregator",        "difficulty": "E", "slug": "google-news",    "week": 2},
+    # Medium
+    {"id": "sd-5",  "title": "Ticketmaster",           "difficulty": "M", "slug": "ticketmaster",   "week": 3},
+    {"id": "sd-6",  "title": "FB News Feed",           "difficulty": "M", "slug": "fb-news-feed",   "week": 3},
+    {"id": "sd-7",  "title": "Tinder",                 "difficulty": "M", "slug": "tinder",         "week": 4},
+    {"id": "sd-8",  "title": "LeetCode",               "difficulty": "M", "slug": "leetcode",       "week": 4},
+    {"id": "sd-9",  "title": "WhatsApp",               "difficulty": "M", "slug": "whatsapp",       "week": 5},
+    {"id": "sd-10", "title": "Yelp",                   "difficulty": "M", "slug": "yelp",           "week": 5},
+    {"id": "sd-11", "title": "Strava",                 "difficulty": "M", "slug": "strava",         "week": 6},
+    {"id": "sd-12", "title": "Rate Limiter",           "difficulty": "M", "slug": "distributed-rate-limiter", "week": 6},
+    {"id": "sd-13", "title": "Online Auction",         "difficulty": "M", "slug": "online-auction", "week": 7},
+    {"id": "sd-14", "title": "FB Live Comments",       "difficulty": "M", "slug": "fb-live-comments", "week": 7},
+    {"id": "sd-15", "title": "FB Post Search",         "difficulty": "M", "slug": "fb-post-search", "week": 8},
+    {"id": "sd-16", "title": "Price Tracking Service", "difficulty": "M", "slug": "price-tracking", "week": 8},
+    # Hard
+    {"id": "sd-17", "title": "Instagram",              "difficulty": "H", "slug": "instagram",      "week": 9},
+    {"id": "sd-18", "title": "YouTube Top K",          "difficulty": "H", "slug": "top-k",          "week": 9},
+    {"id": "sd-19", "title": "Uber",                   "difficulty": "H", "slug": "uber",           "week": 10},
+    {"id": "sd-20", "title": "Robinhood",              "difficulty": "H", "slug": "robinhood",      "week": 10},
+    {"id": "sd-21", "title": "Google Docs",            "difficulty": "H", "slug": "google-docs",    "week": 11},
+    {"id": "sd-22", "title": "Distributed Cache",      "difficulty": "H", "slug": "distributed-cache", "week": 11},
+    {"id": "sd-23", "title": "YouTube",                "difficulty": "H", "slug": "youtube",        "week": 12},
+    {"id": "sd-24", "title": "Job Scheduler",          "difficulty": "H", "slug": "job-scheduler",  "week": 12},
+    {"id": "sd-25", "title": "Web Crawler",            "difficulty": "H", "slug": "web-crawler",    "week": 13},
+    {"id": "sd-26", "title": "Ad Click Aggregator",    "difficulty": "H", "slug": "ad-click-aggregator", "week": 13},
+    {"id": "sd-27", "title": "Payment System",         "difficulty": "H", "slug": "payment-system", "week": 14},
+    {"id": "sd-28", "title": "Metrics Monitoring",     "difficulty": "H", "slug": "metrics-monitoring", "week": 14},
+]
+
+_sd_cache = None
+
+def load_sd_data():
+    global _sd_cache
+    if _sd_cache is not None:
+        return _sd_cache
+    if os.path.exists(SD_DATA_FILE):
+        with open(SD_DATA_FILE, "r") as f:
+            _sd_cache = json.load(f)
+        return _sd_cache
+    # Seed
+    _sd_cache = []
+    for p in SD_PROBLEMS:
+        _sd_cache.append({
+            "id": p["id"],
+            "title": p["title"],
+            "difficulty": p["difficulty"],
+            "url": f"{SD_BASE}/{p['slug']}",
+            "week": p["week"],
+            "status": "pending",
+            "attempts": [],
+            "next_review": None,
+            "review_interval": 1,
+            "notes": "",
+        })
+    save_sd_data(_sd_cache)
+    return _sd_cache
+
+
+def save_sd_data(problems):
+    global _sd_cache
+    _sd_cache = problems
+    tmp = SD_DATA_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(problems, f, indent=2)
+    os.replace(tmp, SD_DATA_FILE)
+
+# ---------------------------------------------------------------------------
+# Python Tips data
+# ---------------------------------------------------------------------------
+
+def load_tips():
+    """Read tips.json from disk each time (no caching) so newly generated tips
+    appear on the next browser refresh without restarting the server."""
+    if os.path.exists(TIPS_FILE):
+        with open(TIPS_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+# ---------------------------------------------------------------------------
 # HTTP Server
 # ---------------------------------------------------------------------------
 
@@ -287,12 +378,16 @@ class Handler(BaseHTTPRequestHandler):
             return self._html(HTML.replace("__START_MONDAY__", START_MONDAY))
         if self.path == "/api/problems":
             return self._json(load_data())
+        if self.path == "/api/sd/problems":
+            return self._json(load_sd_data())
         if self.path == "/api/patterns":
             try:
                 with open(PATTERNS_FILE, "r") as f:
                     return self._json({"content": f.read()})
             except FileNotFoundError:
                 return self._json({"content": "_No patterns file found at:_\n\n`" + PATTERNS_FILE + "`"})
+        if self.path == "/api/tips":
+            return self._json(load_tips())
         self.send_error(404)
 
     def do_POST(self):
@@ -353,6 +448,61 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(p)
             return self._json({"error": "not found"}, 404)
 
+        # /api/sd/problems/<id>/status
+        m = re.match(r"/api/sd/problems/(sd-\d+)/status", self.path)
+        if m:
+            pid = m.group(1)
+            body = self._read_body()
+            problems = load_sd_data()
+            for p in problems:
+                if p["id"] == pid:
+                    p["status"] = body.get("status", p["status"])
+                    if p["status"] == "done":
+                        p["review_interval"] = min(p.get("review_interval", 1) * 2, 30)
+                        if p["review_interval"] < 1: p["review_interval"] = 1
+                        p["next_review"] = (datetime.date.today() + datetime.timedelta(days=p["review_interval"])).isoformat()
+                    elif p["status"] == "struggled":
+                        p["review_interval"] = 1
+                        p["next_review"] = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+                    elif p["status"] == "review":
+                        p["next_review"] = datetime.date.today().isoformat()
+                    elif p["status"] == "pending":
+                        p["next_review"] = None
+                        p["review_interval"] = 1
+                    save_sd_data(problems)
+                    return self._json(p)
+            return self._json({"error": "not found"}, 404)
+
+        # /api/sd/problems/<id>/attempt
+        m = re.match(r"/api/sd/problems/(sd-\d+)/attempt", self.path)
+        if m:
+            pid = m.group(1)
+            body = self._read_body()
+            problems = load_sd_data()
+            for p in problems:
+                if p["id"] == pid:
+                    p["attempts"].append({
+                        "duration_sec": body.get("duration_sec", 0),
+                        "date": datetime.date.today().isoformat(),
+                        "result": p["status"],
+                    })
+                    save_sd_data(problems)
+                    return self._json(p)
+            return self._json({"error": "not found"}, 404)
+
+        # /api/sd/problems/<id>/notes
+        m = re.match(r"/api/sd/problems/(sd-\d+)/notes", self.path)
+        if m:
+            pid = m.group(1)
+            body = self._read_body()
+            problems = load_sd_data()
+            for p in problems:
+                if p["id"] == pid:
+                    p["notes"] = body.get("notes", "")
+                    save_sd_data(problems)
+                    return self._json(p)
+            return self._json({"error": "not found"}, 404)
+
         self.send_error(404)
 
 # ---------------------------------------------------------------------------
@@ -364,7 +514,7 @@ HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LeetCode Tracker</title>
+<title>Interview Prep Hub</title>
 <style>
 :root, [data-theme="dark"] {
   --bg: #0d1117; --surface: #161b22; --border: #30363d;
@@ -447,6 +597,24 @@ tr:hover { background: var(--hover-row); }
 .md-body table { border-collapse: collapse; margin: 10px 0; width: 100%; }
 .md-body th, .md-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
 .md-body th { background: var(--bg); }
+/* Python Tips */
+.tips-toolbar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+.tips-toolbar button { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: .85rem; font-weight: 600; }
+.tips-toolbar button:hover { opacity: .85; }
+.tips-toolbar .tip-count { color: var(--muted); font-size: .85rem; }
+.tips-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.tip-card .tip-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.tip-card .tip-cat { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .7rem; font-weight: 600; background: rgba(88,166,255,.12); color: var(--accent); }
+.tip-card .tip-title { font-size: .95rem; font-weight: 600; margin-bottom: 8px; }
+.tip-card pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; overflow-x: auto; margin: 0; }
+.tip-card pre code { font-family: 'SF Mono', Menlo, monospace; font-size: .82rem; line-height: 1.5; color: var(--text); }
+.tip-card .tip-note { font-size: .82rem; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+/* Tag bar for tips filtering */
+.tag-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.tag-btn { display: inline-block; padding: 4px 14px; border-radius: 14px; font-size: .75rem; font-weight: 600; background: rgba(88,166,255,.12); color: var(--accent); border: 1px solid transparent; cursor: pointer; transition: all .15s; }
+.tag-btn:hover { border-color: var(--accent); }
+.tag-btn.active { background: var(--accent); color: #fff; }
 /* Stats */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
@@ -457,6 +625,9 @@ tr:hover { background: var(--hover-row); }
 .big-stat { text-align: center; padding: 24px; }
 .big-stat .num { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
 .big-stat .label { color: var(--muted); font-size: .85rem; }
+/* Side-by-side stats */
+.stats-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 800px) { .stats-columns { grid-template-columns: 1fr; } }
 /* Week group header */
 .week-header { background: var(--surface); padding: 8px 12px; font-weight: 600; font-size: .9rem; border-radius: 6px; margin: 12px 0 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .week-header:hover { background: var(--week-hover); }
@@ -471,24 +642,26 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <body>
 <div class="container">
 <div class="header-row">
-  <h1>LeetCode 150 Tracker</h1>
+  <h1>Interview Prep Hub</h1>
   <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
 </div>
-<p class="subtitle">NeetCode 150 — Interactive Study Dashboard</p>
+<p class="subtitle">NeetCode 150 + System Design + Python Tips — Interactive Study Dashboard</p>
 
 <div class="tabs">
   <div class="tab active" data-tab="weekly">Weekly Plan</div>
   <div class="tab" data-tab="all">All Problems</div>
   <div class="tab" data-tab="review">Review Today</div>
   <div class="tab" data-tab="stats">Stats</div>
-  <div class="tab" data-tab="patterns">Patterns</div>
+  <div class="tab" data-tab="sysdesign">System Design</div>
+  <div class="tab" data-tab="pytips">Python Tips</div>
 </div>
 
 <div id="weekly" class="panel active"></div>
 <div id="all" class="panel"></div>
 <div id="review" class="panel"></div>
 <div id="stats" class="panel"></div>
-<div id="patterns" class="panel"></div>
+<div id="sysdesign" class="panel"></div>
+<div id="pytips" class="panel"></div>
 </div>
 
 <script>
@@ -733,18 +906,28 @@ function renderReview() {
   const el = document.getElementById('review');
   const today = new Date().toISOString().split('T')[0];
   const due = problems.filter(p => p.next_review && p.next_review <= today);
-  if (!due.length) {
+  const sdDue = sdProblems.filter(p => p.next_review && p.next_review <= today);
+  if (!due.length && !sdDue.length) {
     el.innerHTML = '<p style="color:var(--muted);padding:24px;text-align:center">No problems due for review today. Nice!</p>';
     return;
   }
-  let html = `<p style="margin-bottom:12px;color:var(--muted)">${due.length} problem${due.length>1?'s':''} due for review</p>`;
-  html += tableHeader();
-  due.forEach(p => html += problemRow(p));
-  html += '</tbody></table>';
+  let html = '';
+  if (due.length) {
+    html += `<p style="margin-bottom:8px;color:var(--muted)"><strong>Coding</strong> — ${due.length} due</p>`;
+    html += tableHeader();
+    due.forEach(p => html += problemRow(p));
+    html += '</tbody></table>';
+  }
+  if (sdDue.length) {
+    html += `<p style="margin:16px 0 8px;color:var(--muted)"><strong>System Design</strong> — ${sdDue.length} due</p>`;
+    html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
+    sdDue.forEach(p => html += sdRow(p));
+    html += '</tbody></table>';
+  }
   el.innerHTML = html;
 }
 
-function renderStats() {
+async function renderStats() {
   const el = document.getElementById('stats');
   const cats = {};
   let totalDone = 0, totalTime = 0, totalAttempts = 0;
@@ -758,7 +941,10 @@ function renderStats() {
   const avgTime = totalAttempts ? Math.round(totalTime / totalAttempts) : 0;
   const pct = problems.length ? Math.round(totalDone/problems.length*100) : 0;
 
-  let html = `<div class="stat-grid">
+  // --- Build LeetCode column ---
+  let lcHtml = `<div class="stats-col">`;
+  lcHtml += `<h2 style="margin-bottom:12px;font-size:1.1rem;">LeetCode</h2>`;
+  lcHtml += `<div class="stat-grid">
     <div class="stat-card big-stat"><div class="num">${pct}%</div><div class="label">${totalDone} / ${problems.length} completed</div></div>
     <div class="stat-card big-stat"><div class="num">${fmtTime(avgTime)}</div><div class="label">avg solve time (${totalAttempts} attempts)</div></div>
   </div><div class="stat-grid" style="margin-top:12px">`;
@@ -766,14 +952,47 @@ function renderStats() {
   Object.keys(cats).sort().forEach(c => {
     const {total, done} = cats[c];
     const p = Math.round(done/total*100);
-    html += `<div class="stat-card">
+    lcHtml += `<div class="stat-card">
       <h3>${c}</h3>
       <div class="bar-bg"><div class="bar-fill" style="width:${p}%"></div></div>
       <div class="stat-nums"><span>${done}/${total}</span><span>${p}%</span></div>
     </div>`;
   });
-  html += '</div>';
-  el.innerHTML = html;
+  lcHtml += '</div></div>';
+
+  // --- Build System Design column ---
+  if (!sdProblems.length) await fetchSD();
+  let sdDone = 0, sdTime = 0, sdAttempts = 0;
+  const sdDiffs = {E:{total:0,done:0}, M:{total:0,done:0}, H:{total:0,done:0}};
+  sdProblems.forEach(p => {
+    if (sdDiffs[p.difficulty]) { sdDiffs[p.difficulty].total++; }
+    if (p.status === 'done') { sdDone++; if (sdDiffs[p.difficulty]) sdDiffs[p.difficulty].done++; }
+    p.attempts.forEach(a => { sdTime += a.duration_sec; sdAttempts++; });
+  });
+  const sdAvg = sdAttempts ? Math.round(sdTime / sdAttempts) : 0;
+  const sdPct = sdProblems.length ? Math.round(sdDone / sdProblems.length * 100) : 0;
+
+  let sdHtml = `<div class="stats-col">`;
+  sdHtml += `<h2 style="margin-bottom:12px;font-size:1.1rem;">System Design</h2>`;
+  sdHtml += `<div class="stat-grid">
+    <div class="stat-card big-stat"><div class="num">${sdPct}%</div><div class="label">${sdDone} / ${sdProblems.length} completed</div></div>
+    <div class="stat-card big-stat"><div class="num">${fmtTime(sdAvg)}</div><div class="label">avg solve time (${sdAttempts} attempts)</div></div>
+  </div><div class="stat-grid" style="margin-top:12px">`;
+
+  const diffLabels = {E:'Easy', M:'Medium', H:'Hard'};
+  const diffColors = {E:'var(--green)', M:'var(--yellow)', H:'var(--red)'};
+  ['E','M','H'].forEach(d => {
+    const {total, done} = sdDiffs[d];
+    const p = total ? Math.round(done/total*100) : 0;
+    sdHtml += `<div class="stat-card">
+      <h3>${diffLabels[d]}</h3>
+      <div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:${diffColors[d]}"></div></div>
+      <div class="stat-nums"><span>${done}/${total}</span><span>${p}%</span></div>
+    </div>`;
+  });
+  sdHtml += '</div></div>';
+
+  el.innerHTML = `<div class="stats-columns">${lcHtml}${sdHtml}</div>`;
 }
 
 function activeTab() {
@@ -874,21 +1093,6 @@ async function loadPatterns() {
   renderPatternsContent();
 }
 
-function renderPatterns() {
-  const el = document.getElementById('patterns');
-  el.innerHTML = `<div class="patterns-toolbar">
-    <input id="p-search" placeholder="Search patterns..." value="${patternsSearch.replace(/"/g,'&quot;')}" />
-    <button onclick="loadPatterns()">Refresh</button>
-  </div>
-  <div class="md-body" id="patterns-body"></div>`;
-  document.getElementById('p-search').oninput = e => {
-    patternsSearch = e.target.value;
-    renderPatternsContent();
-  };
-  if (!patternsCache) loadPatterns();
-  else renderPatternsContent();
-}
-
 function renderPatternsContent() {
   const el = document.getElementById('patterns-body');
   if (!el) return;
@@ -911,13 +1115,250 @@ function renderPatternsContent() {
   }
 }
 
+// --- Python Tips ---
+let pythonTips = [];
+let currentTips = [];
+let activeCategory = '';
+
+async function fetchTips() {
+  const r = await fetch('/api/tips');
+  pythonTips = await r.json();
+}
+
+function shuffleTips() {
+  activeCategory = '';
+  const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
+  currentTips = shuffled.slice(0, 5);
+  renderPyTips();
+}
+
+function filterByCategory(cat) {
+  if (activeCategory === cat) {
+    activeCategory = '';
+    const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
+    currentTips = shuffled.slice(0, 5);
+  } else {
+    activeCategory = cat;
+    if (cat !== 'Interview Patterns') {
+      currentTips = pythonTips.filter(t => t.cat === cat);
+    }
+  }
+  renderPyTips();
+}
+
+async function renderPyTips() {
+  const el = document.getElementById('pytips');
+  if (!pythonTips.length) await fetchTips();
+  if (!currentTips.length && !activeCategory) {
+    const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
+    currentTips = shuffled.slice(0, 5);
+  }
+
+  const cats = [...new Set(pythonTips.map(t => t.cat))].sort();
+  // Ensure Interview Patterns tag exists even if no tips have that cat
+  if (!cats.includes('Interview Patterns')) cats.push('Interview Patterns');
+  cats.sort();
+
+  const isPatterns = activeCategory === 'Interview Patterns';
+  const countLabel = isPatterns
+    ? 'Showing interview patterns'
+    : activeCategory
+      ? `${currentTips.length} / ${pythonTips.length} tips in "${activeCategory}"`
+      : `${pythonTips.length} tips · showing 5`;
+
+  let html = `<div class="tips-toolbar">
+    <button onclick="shuffleTips()">Shuffle Tips</button>
+    <span class="tip-count">${countLabel}</span>
+  </div>
+  <div class="tag-bar">
+    <span class="tag-btn ${activeCategory===''?'active':''}" onclick="shuffleTips()">All</span>
+    ${cats.map(c => `<span class="tag-btn ${activeCategory===c?'active':''}" onclick="filterByCategory('${c.replace(/'/g,"\\'")}')">${c}</span>`).join('')}
+  </div>`;
+
+  if (isPatterns) {
+    html += `<div class="patterns-toolbar">
+      <input id="p-search" placeholder="Search patterns..." value="${patternsSearch.replace(/"/g,'&quot;')}" />
+    </div>
+    <div class="md-body" id="patterns-body"></div>`;
+    el.innerHTML = html;
+    document.getElementById('p-search').oninput = e => {
+      patternsSearch = e.target.value;
+      renderPatternsContent();
+    };
+    if (!patternsCache) await loadPatterns();
+    else renderPatternsContent();
+  } else {
+    html += `<div class="tips-grid" id="tips-grid"></div>`;
+    el.innerHTML = html;
+    renderTipsContent();
+  }
+}
+
+function renderTipsContent() {
+  const el = document.getElementById('tips-grid');
+  if (!el) return;
+  el.innerHTML = currentTips.map(t => `<div class="tip-card">
+    <div class="tip-meta"><span class="tip-cat">${t.cat}</span></div>
+    <div class="tip-title">${t.title}</div>
+    <pre><code>${t.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>
+    ${t.note ? `<div class="tip-note">${t.note}</div>` : ''}
+  </div>`).join('');
+}
+
+// --- System Design tab ---
+let sdProblems = [];
+let sdTimers = {};
+const sdCollapsed = new Set();
+const sdExpandedNotes = new Set();
+
+async function fetchSD() {
+  const r = await fetch('/api/sd/problems');
+  sdProblems = await r.json();
+}
+
+async function sdSetStatus(pid, status) {
+  await fetch(`/api/sd/problems/${pid}/status`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  const p = sdProblems.find(x => x.id === pid);
+  if (p) {
+    p.status = status;
+    if (status === 'done') {
+      p.review_interval = Math.min((p.review_interval || 1) * 2, 30);
+      const d = new Date(); d.setDate(d.getDate() + p.review_interval);
+      p.next_review = d.toISOString().split('T')[0];
+    } else if (status === 'struggled') {
+      p.review_interval = 1;
+      const d = new Date(); d.setDate(d.getDate() + 1);
+      p.next_review = d.toISOString().split('T')[0];
+    } else if (status === 'pending') {
+      p.next_review = null; p.review_interval = 1;
+    }
+  }
+  renderSD();
+}
+
+function sdCycleStatus(pid) {
+  const p = sdProblems.find(x => x.id === pid);
+  if (!p) return;
+  const i = STATUS_CYCLE.indexOf(p.status);
+  sdSetStatus(pid, STATUS_CYCLE[(i + 1) % STATUS_CYCLE.length]);
+}
+
+function sdToggleTimer(pid) {
+  if (sdTimers[pid]) {
+    const elapsed = Math.floor((Date.now() - sdTimers[pid].start) / 1000);
+    clearInterval(sdTimers[pid].interval);
+    delete sdTimers[pid];
+    fetch(`/api/sd/problems/${pid}/attempt`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({duration_sec: elapsed})
+    });
+    const p = sdProblems.find(x => x.id === pid);
+    if (p) p.attempts.push({duration_sec: elapsed, date: new Date().toISOString().split('T')[0], result: p.status});
+    renderSD();
+  } else {
+    const start = Date.now();
+    const iv = setInterval(() => {
+      const el = document.getElementById(`sd-td-${pid}`);
+      if (el) {
+        const s = Math.floor((Date.now() - start) / 1000);
+        el.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+      }
+    }, 250);
+    sdTimers[pid] = {start, interval: iv};
+    renderSD();
+  }
+}
+
+function sdOpenNotes(pid) {
+  sdExpandedNotes.add(pid);
+  renderSD();
+  const el = document.getElementById('sd-notes-' + pid);
+  if (el) el.focus();
+}
+
+async function sdSaveNotes(pid) {
+  const el = document.getElementById('sd-notes-' + pid);
+  if (!el) return;
+  const notes = el.value.trim();
+  await fetch(`/api/sd/problems/${pid}/notes`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({notes})
+  });
+  const p = sdProblems.find(x => x.id === pid);
+  if (p) p.notes = notes;
+  sdExpandedNotes.delete(pid);
+  renderSD();
+}
+
+function sdRow(p) {
+  const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
+  const running = !!sdTimers[p.id];
+  const note = p.notes || '';
+  let notesHtml;
+  if (sdExpandedNotes.has(p.id)) {
+    notesHtml = `<div class="notes-inner"><textarea class="notes-input" id="sd-notes-${p.id}" rows="2">${note.replace(/</g,'&lt;')}</textarea><button class="notes-save" onclick="sdSaveNotes('${p.id}')">Save</button></div>`;
+  } else if (note) {
+    notesHtml = `<span class="notes-preview" onclick="sdOpenNotes('${p.id}')" title="${note.replace(/"/g,'&quot;')}">${note.replace(/</g,'&lt;')}</span>`;
+  } else {
+    notesHtml = `<button class="notes-toggle" onclick="sdOpenNotes('${p.id}')">+ add</button>`;
+  }
+  return `<tr>
+    <td><a class="prob-link" href="${p.url}" target="_blank" rel="noopener">${p.title}</a></td>
+    <td>${diffHTML(p.difficulty)}</td>
+    <td><span class="badge badge-${p.status}" onclick="sdCycleStatus('${p.id}')">${p.status}</span></td>
+    <td>${notesHtml}</td>
+    <td>${lastAttempt}</td>
+    <td><span class="timer-display" id="sd-td-${p.id}">${running?'':''}</span>
+      <button class="timer-btn ${running?'running':''}" onclick="sdToggleTimer('${p.id}')">${running?'Stop':'Start'}</button></td>
+  </tr>`;
+}
+
+function renderSD() {
+  const el = document.getElementById('sysdesign');
+  if (!sdProblems.length) { fetchSD().then(renderSD); return; }
+
+  const weeks = {};
+  sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||[]).push(p); });
+  const totalDone = sdProblems.filter(p => p.status === 'done').length;
+  const pct = Math.round(totalDone / sdProblems.length * 100);
+
+  let html = `<p style="margin-bottom:12px;color:var(--muted)">28 problems · 14 weeks · 2/week — ${totalDone}/${sdProblems.length} done (${pct}%)</p>`;
+
+  Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
+    const label = `Week ${w} · ${weekDates(Number(w))}`;
+    const done = weeks[w].filter(p => p.status === 'done').length;
+    const total = weeks[w].length;
+    const collapsed = sdCollapsed.has(w);
+    const wpct = Math.round(done/total*100);
+    html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="sdToggleWeek('${w}')">
+      <span>${label} — ${done}/${total} done (${wpct}%)</span>
+      <span class="chevron">&#9660;</span>
+    </div>`;
+    html += `<div class="week-body ${collapsed?'hidden':''}">`;
+    html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
+    weeks[w].forEach(p => html += sdRow(p));
+    html += '</tbody></table></div>';
+  });
+  el.innerHTML = html;
+}
+
+function sdToggleWeek(w) {
+  if (sdCollapsed.has(w)) sdCollapsed.delete(w);
+  else sdCollapsed.add(w);
+  renderSD();
+}
+
 function render() {
   const tab = activeTab();
   if (tab === 'weekly') renderWeekly();
   else if (tab === 'all') renderAll();
   else if (tab === 'review') renderReview();
   else if (tab === 'stats') renderStats();
-  else if (tab === 'patterns') renderPatterns();
+  else if (tab === 'sysdesign') renderSD();
+  else if (tab === 'pytips') renderPyTips();
 }
 
 // Tabs
@@ -927,9 +1368,22 @@ document.querySelectorAll('.tab').forEach(t => {
     document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     document.getElementById(t.dataset.tab).classList.add('active');
+    localStorage.setItem('activeTab', t.dataset.tab);
     render();
   });
 });
+
+// Restore saved tab
+const savedTab = localStorage.getItem('activeTab');
+if (savedTab) {
+  const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
+  if (tabEl) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    tabEl.classList.add('active');
+    document.getElementById(savedTab).classList.add('active');
+  }
+}
 
 function toggleTheme() {
   const html = document.documentElement;
@@ -959,7 +1413,8 @@ if __name__ == "__main__":
     server = HTTPServer(("localhost", PORT), Handler)
     url = f"http://localhost:{PORT}"
     print(f"Dashboard: {url}")
-    webbrowser.open(url)
+    if "--no-open" not in sys.argv:
+        webbrowser.open(url)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
