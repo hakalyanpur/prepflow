@@ -1,0 +1,1 @@
+/Users/harikeshkalyanpur/Documents/hk-organizer/Python/coding-patterns-guide.md
