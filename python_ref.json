@@ -1,0 +1,1078 @@
+{
+  "topics": [
+    {
+      "id": "patterns",
+      "name": "Pattern Recognition",
+      "icon": "🧭",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Keywords → Pattern",
+          "items": [
+            { "label": "\"subarray\", \"contiguous\", \"window\"", "code": "→ Sliding Window / Prefix Sum", "link": "tpl-sliding-window", "note": "Problems: 53, 209, 560, 3, 76" },
+            { "label": "\"substring\" with condition", "code": "→ Sliding Window + HashMap", "link": "tpl-sliding-window", "note": "Problems: 3, 76, 438, 567" },
+            { "label": "\"top k\", \"k most frequent\", \"kth largest\"", "code": "→ Heap / Bucket Sort", "note": "Problems: 347, 215, 692, 973" },
+            { "label": "\"all combinations\", \"all permutations\", \"generate all\"", "code": "→ Backtracking", "link": "tpl-backtracking", "note": "Problems: 39, 46, 78, 17" },
+            { "label": "\"shortest path\", \"minimum steps\", \"fewest moves\"", "code": "→ BFS (unweighted) / Dijkstra (weighted)", "link": "tpl-bfs", "note": "Problems: 127, 743, 787, 994" },
+            { "label": "\"number of islands\", \"connected\", \"regions\"", "code": "→ DFS / BFS / Union-Find", "link": "tpl-dfs", "note": "Problems: 200, 323, 695, 547" },
+            { "label": "\"parentheses\", \"brackets\", \"valid nesting\"", "code": "→ Stack", "note": "Problems: 20, 32, 394, 856" },
+            { "label": "\"next greater\", \"next smaller\", \"stock span\"", "code": "→ Monotonic Stack", "link": "tpl-monotonic-stack", "note": "Problems: 739, 84, 496, 503" },
+            { "label": "\"palindrome\"", "code": "→ Two Pointers (from center or edges) / DP", "link": "tpl-two-pointer", "note": "Problems: 125, 5, 647, 131" },
+            { "label": "\"anagram\", \"permutation of\"", "code": "→ Counter / Sorted Comparison", "note": "Problems: 242, 49, 438, 567" },
+            { "label": "\"duplicate\", \"contains\", \"seen before\"", "code": "→ Set / HashMap", "note": "Problems: 217, 1, 128, 36" },
+            { "label": "\"sorted array\" + search", "code": "→ Binary Search", "link": "tpl-binary-search", "note": "Problems: 33, 34, 153, 4" },
+            { "label": "\"minimum cost\", \"maximum profit\", \"number of ways\"", "code": "→ DP (or Greedy)", "link": "tpl-dp", "note": "Problems: 70, 322, 198, 62" },
+            { "label": "\"merge intervals\", \"overlapping\"", "code": "→ Sort by Start + Scan", "link": "tpl-intervals", "note": "Problems: 56, 57, 435, 252" },
+            { "label": "\"in-place\", \"O(1) space\"", "code": "→ Two Pointers / Swap Trick", "link": "tpl-two-pointer", "note": "Problems: 26, 27, 41, 283" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Constraints → Complexity",
+          "items": [
+            { "label": "n ≤ 10-20", "code": "→ O(2^n) or O(n!)  →  Backtracking, Bitmask DP", "note": "Small n = brute force is fine" },
+            { "label": "n ≤ 100-500", "code": "→ O(n²) or O(n³)  →  DP (2D), Nested loops", "note": "Quadratic is acceptable" },
+            { "label": "n ≤ 10⁴-10⁵", "code": "→ O(n log n)  →  Sort, Heap, Binary Search, Divide & Conquer", "note": "Most common constraint range" },
+            { "label": "n ≤ 10⁵-10⁶", "code": "→ O(n)  →  HashMap, Sliding Window, Prefix Sum, Bucket Sort", "note": "Linear or bust" },
+            { "label": "n ≤ 10⁹+", "code": "→ O(log n) or O(1)  →  Binary Search, Math, Bit Manipulation", "note": "Can't even iterate n" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Input Shape → First Instinct",
+          "items": [
+            { "label": "Array of numbers", "code": "→ Two Pointers, Sliding Window, Prefix Sum, Sort", "link": "tpl-two-pointer", "note": "Ask: is it sorted? Does order matter?" },
+            { "label": "String", "code": "→ Sliding Window, Stack, DP, Two Pointers", "note": "Immutable — think about building with list + join" },
+            { "label": "Matrix / Grid", "code": "→ BFS/DFS (flood fill), DP (paths)", "link": "tpl-dfs", "note": "4-directional: dirs = [(0,1),(0,-1),(1,0),(-1,0)]" },
+            { "label": "Tree", "code": "→ DFS (recursive), BFS (level order)", "note": "Most tree problems are DFS with return values" },
+            { "label": "Graph (edge list)", "code": "→ Build adjacency list → BFS/DFS/Topological Sort", "note": "Check: directed? weighted? cyclic?" },
+            { "label": "Sorted input", "code": "→ Binary Search, Two Pointers", "link": "tpl-binary-search", "note": "Sorted = free O(log n) search" },
+            { "label": "Unsorted but need order", "code": "→ Sort first, then Scan / Two Pointers / Greedy", "note": "Sorting is O(n log n) — often worth it" },
+            { "label": "Linked List", "code": "→ Two Pointers (slow/fast), Dummy Head", "note": "Fast/slow detects cycles, finds middle" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "Technique Selection (same problem, multiple tools)",
+          "items": [
+            { "label": "Top K problems", "code": "Bounded range (count ≤ n)?     → Bucket sort    O(n)\nNeed streaming / online?       → Heap           O(n log k)\nOne-shot, average case OK?     → Quickselect    O(n) avg\nJust need answer, not optimal? → Sort           O(n log n)", "note": "347, 215, 692, 973, 378" },
+            { "label": "Existence / lookup problems", "code": "Just yes/no lookup?            → Set            O(1)\nNeed associated value?         → HashMap        O(1)\nAlready sorted?                → Binary Search  O(log n)\nNeed to check range/window?    → Sorted + bisect", "note": "1, 217, 128, 36" },
+            { "label": "Subarray with constraint", "code": "Contiguous, shrinkable window? → Sliding Window   O(n)\nSum equals target?             → Prefix Sum + Map O(n)\nFixed size window?             → Sliding Window    O(n)\nNeed min/max in window?        → Monotonic Deque   O(n)", "link": "tpl-sliding-window", "note": "3, 76, 560, 239, 209" },
+            { "label": "Ordering / next element", "code": "Next greater/smaller element?  → Monotonic Stack  O(n)\nNeed relative ordering?        → Sort             O(n log n)\nNested intervals/parens?       → Stack            O(n)", "link": "tpl-monotonic-stack", "note": "739, 84, 20, 150, 853" },
+            { "label": "Graph traversal", "code": "Shortest path, unweighted?     → BFS             O(V+E)\nExplore/count components?      → DFS or UF       O(V+E)\nShortest path, weighted?       → Dijkstra (heap) O(E log V)\nDynamic connectivity?          → Union-Find      O(α(n))", "link": "tpl-bfs", "note": "200, 133, 127, 743, 323" },
+            { "label": "Optimization problems", "code": "Optimal substructure + overlap? → DP\nLocally optimal = globally?     → Greedy\nNeed all combinations?          → Backtracking\nYes/no feasibility + monotonic? → Binary Search on Answer", "link": "tpl-dp", "note": "70, 322, 55, 39, 410" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "The 5-Step Checklist",
+          "items": [
+            { "label": "1. What input?", "code": "array / string / tree / graph / matrix / linked list", "note": "Input shape narrows your options immediately" },
+            { "label": "2. What keywords?", "code": "subarray → window    shortest → BFS\nall → backtrack      sorted → binary search\ntop k → heap         duplicate → set/map", "note": "Keywords in the problem map to patterns" },
+            { "label": "3. What constraints?", "code": "n size → allowed time complexity\nn ≤ 20: brute force    n ≤ 10⁵: O(n log n) or O(n)\nn ≤ 500: O(n²)         n ≤ 10⁹: O(log n)", "note": "Constraints tell you WHICH approach to pick" },
+            { "label": "4. Does sorting help?", "code": "If order doesn't matter → sort first\nSorting unlocks: two pointers, binary search, greedy", "note": "Sorting is O(n log n) — often the key insight" },
+            { "label": "5. Do I need to remember something?", "code": "Previously seen values → HashMap / Set\nPrevious computed results → DP table\nPrevious states → Stack / Queue", "note": "If yes → pick the right memory structure" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-two-pointer",
+      "name": "Template: Two Pointers",
+      "icon": "👉",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Converging Pointers", "code": "def solve(nums, target):\n    left, right = 0, len(nums) - 1\n    while left < right:\n        curr = nums[left] + nums[right]\n        if curr == target:\n            return [left, right]\n        elif curr < target:\n            left += 1       # need larger sum\n        else:\n            right -= 1      # need smaller sum\n    return []" },
+            { "label": "Same-Direction (Partitioning)", "code": "def remove_duplicates(nums):\n    slow = 0                          # write pointer\n    for fast in range(len(nums)):     # read pointer\n        if nums[fast] != nums[slow]:\n            slow += 1\n            nums[slow] = nums[fast]\n    return slow + 1" },
+            { "label": "Fast / Slow (Cycle Detection)", "code": "def has_cycle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Pointer Initialization", "code": "Converging:   left=0, right=n-1   (sorted input, pair search)\nSame-dir:     slow=0, fast=0       (partition, remove dupes)\nFast/slow:    both at head         (cycle detect, find middle)", "note": "Converging requires sorted input or search from both ends" },
+            { "label": "Loop Condition", "code": "left < right       → converging, don't want pointers to cross\nleft <= right      → when single-element answer is valid\nfast < n           → same-direction scan\nfast and fast.next → linked list cycle detection", "note": "Off-by-one: < vs <= changes whether you process the meeting point" },
+            { "label": "Move Criteria", "code": "Converging: move the pointer that gets closer to target\nSame-dir:   fast always moves; slow moves on condition\nFast/slow:  slow moves 1, fast moves 2 every step", "note": "For 3Sum: fix one, two-pointer on rest → O(n²)" },
+            { "label": "Computation", "code": "Track: current sum, window contents, write position\nUpdate answer when condition is met\nFor partitioning: swap or overwrite at slow pointer" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "3Sum / kSum", "code": "Sort + fix outer elements + two-pointer inner\nSkip duplicates: while l < r and nums[l] == nums[l-1]: l += 1", "note": "Problems: 15, 16, 18" },
+            { "label": "Container With Most Water", "code": "Move the shorter side inward (greedy)\narea = min(h[l], h[r]) * (r - l)", "note": "Problem: 11" },
+            { "label": "Trapping Rain Water", "code": "Two pointers + track left_max, right_max\nProcess the smaller side: water = max_height - curr_height", "note": "Problem: 42" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "167 Two Sum II (converging)\n 15 3Sum (sort + converging)\n 11 Container With Most Water (greedy converging)\n 26 Remove Duplicates (same-direction)\n283 Move Zeroes (same-direction swap)\n141 Linked List Cycle (fast/slow)\n 42 Trapping Rain Water (two-pointer + tracking)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-sliding-window",
+      "name": "Template: Sliding Window",
+      "icon": "🪟",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Variable-Size Window", "code": "def sliding_window(s):\n    left = 0\n    window = {}          # or set, counter, running sum\n    result = 0\n    for right in range(len(s)):\n        # EXPAND: add s[right] to window\n        window[s[right]] = window.get(s[right], 0) + 1\n\n        # SHRINK: while window is invalid\n        while WINDOW_INVALID:\n            # remove s[left] from window\n            window[s[left]] -= 1\n            if window[s[left]] == 0:\n                del window[s[left]]\n            left += 1\n\n        # UPDATE: result with current valid window\n        result = max(result, right - left + 1)\n    return result" },
+            { "label": "Fixed-Size Window", "code": "def fixed_window(nums, k):\n    window_sum = sum(nums[:k])\n    result = window_sum\n    for i in range(k, len(nums)):\n        window_sum += nums[i] - nums[i - k]   # slide\n        result = max(result, window_sum)\n    return result" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Window State", "code": "HashMap/Counter → character frequencies (substring problems)\nRunning sum     → subarray sum problems\nSet             → unique element tracking\nDeque           → sliding window min/max", "note": "Choose based on what constraint you're tracking" },
+            { "label": "Shrink Condition", "code": "len(window) > k          → too many distinct chars\nwindow_sum > target      → sum exceeds target\nnot all_chars_covered    → haven't met requirement yet (expand more)", "note": "Minimum window → shrink when valid; Maximum window → shrink when invalid" },
+            { "label": "When to Update Result", "code": "Maximum window: update AFTER shrinking (window is valid)\nMinimum window: update WHILE shrinking (each valid state)\nFixed window:   update every step after reaching size k" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Minimum Window Substring", "code": "Track need (Counter of t) and have (count of satisfied chars)\nShrink while have == len(need) → update min each time", "note": "Problem: 76" },
+            { "label": "Longest Substring Without Repeats", "code": "Set-based window; shrink while s[right] in window", "note": "Problem: 3" },
+            { "label": "Subarray Sum Equals K (not sliding window!)", "code": "Use prefix sum + HashMap instead\nCan't shrink window when sum can decrease (negative numbers)", "note": "Problem: 560 — common trap: this is NOT a sliding window problem" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "  3 Longest Substring Without Repeating (variable)\n 76 Minimum Window Substring (variable, min)\n209 Minimum Size Subarray Sum (variable, min)\n424 Longest Repeating Character Replacement (variable)\n567 Permutation in String (fixed concept)\n239 Sliding Window Maximum (fixed + deque)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-binary-search",
+      "name": "Template: Binary Search",
+      "icon": "🔍",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Exact Match", "code": "def binary_search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1" },
+            { "label": "Left Bound (bisect_left)", "code": "def left_bound(nums, target):\n    lo, hi = 0, len(nums)      # hi = n, not n-1\n    while lo < hi:              # < not <=\n        mid = (lo + hi) // 2\n        if nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid           # mid could be answer\n    return lo                  # first index where nums[i] >= target" },
+            { "label": "Binary Search on Answer", "code": "def search_on_answer(nums, target):\n    lo, hi = MIN_ANSWER, MAX_ANSWER\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if feasible(mid):      # can we achieve this?\n            hi = mid           # try smaller\n        else:\n            lo = mid + 1       # need larger\n    return lo" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Loop Condition", "code": "lo <= hi  → exact match (search space shrinks to 0)\nlo < hi   → boundary search (converge to 1 element)\nlo < hi-1 → when you need to check both lo and hi after", "note": "Most common mistake: wrong loop condition → infinite loop or off-by-one" },
+            { "label": "Boundaries", "code": "Exact:       lo=0, hi=n-1, while lo<=hi\nLeft bound:  lo=0, hi=n,   while lo<hi\nRight bound: lo=0, hi=n,   while lo<hi  (flip condition)\nOn answer:   lo=min_possible, hi=max_possible", "note": "hi=n (not n-1) for boundary searches to handle 'not found'" },
+            { "label": "Midpoint Update", "code": "Found exact:     return mid\nGo right:        lo = mid + 1\nGo left:         hi = mid - 1  (exact) or hi = mid (boundary)\nNEVER: lo = mid with lo < hi → infinite loop", "note": "For right bound: lo = mid + 1 when nums[mid] <= target" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Rotated Sorted Array", "code": "Find which half is sorted, check if target is in that half\nif nums[lo] <= nums[mid]: left half sorted\nelse: right half sorted", "note": "Problems: 33, 81, 153" },
+            { "label": "Search on Answer", "code": "Min: lo=min, hi=max → shrink hi when feasible\nMax: lo=min, hi=max → shrink lo when feasible\nKey: define feasible() and monotonicity", "note": "Problems: 410, 875, 1011 — 'minimum maximum' or 'maximum minimum'" },
+            { "label": "2D Matrix Search", "code": "Treat m×n matrix as sorted array of length m*n\nrow = mid // n, col = mid % n", "note": "Problem: 74" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": " 33 Search in Rotated Sorted Array\n 34 Find First and Last Position\n153 Find Minimum in Rotated Array\n875 Koko Eating Bananas (search on answer)\n410 Split Array Largest Sum (search on answer)\n  4 Median of Two Sorted Arrays (hard)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-bfs",
+      "name": "Template: BFS",
+      "icon": "🌊",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Basic BFS (Graph)", "code": "from collections import deque\n\ndef bfs(graph, start):\n    queue = deque([start])\n    visited = {start}\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)" },
+            { "label": "Level-Order BFS", "code": "def bfs_levels(graph, start):\n    queue = deque([start])\n    visited = {start}\n    level = 0\n    while queue:\n        for _ in range(len(queue)):   # process entire level\n            node = queue.popleft()\n            # process node at this level\n            for nei in graph[node]:\n                if nei not in visited:\n                    visited.add(nei)\n                    queue.append(nei)\n        level += 1\n    return level" },
+            { "label": "Grid BFS (Shortest Path)", "code": "def shortest_path(grid, start, end):\n    rows, cols = len(grid), len(grid[0])\n    queue = deque([(start[0], start[1], 0)])  # r, c, dist\n    visited = {(start[0], start[1])}\n    dirs = [(0,1),(0,-1),(1,0),(-1,0)]\n    while queue:\n        r, c, dist = queue.popleft()\n        if (r, c) == end:\n            return dist\n        for dr, dc in dirs:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < rows and 0 <= nc < cols and (nr,nc) not in visited and grid[nr][nc] != '#':\n                visited.add((nr, nc))\n                queue.append((nr, nc, dist + 1))\n    return -1" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "When to Use BFS vs DFS", "code": "BFS: shortest path (unweighted), level-order, nearest X\nDFS: explore all paths, connected components, cycle detect\nBFS guarantees shortest path; DFS does NOT", "note": "BFS = breadth first = queue; DFS = depth first = stack/recursion" },
+            { "label": "When to Track Levels", "code": "Need distance/depth?         → track level with for-loop\nJust reachability?           → basic BFS (no level tracking)\nMulti-source (rotten oranges) → start with ALL sources in queue", "note": "Level = distance from source in unweighted graph" },
+            { "label": "Visited Set Timing", "code": "Add to visited WHEN ENQUEUING (not when processing)\nThis prevents duplicate entries in queue\nFor grid: visited.add((nr,nc)) BEFORE queue.append()", "note": "Common bug: adding to visited when popping → TLE from duplicates" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Multi-Source BFS", "code": "Start with ALL sources in queue at once\nqueue = deque(all_sources)\nvisited = set(all_sources)\n# Process normally — level = distance from nearest source", "note": "Problems: 994 (Rotting Oranges), 286 (Walls and Gates)" },
+            { "label": "0-1 BFS", "code": "Edges with weight 0 or 1: use deque\nWeight 0 → appendleft; Weight 1 → append\nAchieves Dijkstra-like result in O(V+E)", "note": "Problem: 1091" },
+            { "label": "Topological Sort (BFS / Kahn's)", "code": "Start with all nodes with in-degree 0\nProcess → reduce neighbors' in-degree\nIf neighbor in-degree becomes 0 → enqueue", "note": "Problems: 207, 210 (Course Schedule)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "200 Number of Islands (grid BFS/DFS)\n994 Rotting Oranges (multi-source BFS)\n127 Word Ladder (shortest path BFS)\n207 Course Schedule (topological BFS)\n102 Binary Tree Level Order Traversal\n743 Network Delay Time (Dijkstra for weighted)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-dfs",
+      "name": "Template: DFS",
+      "icon": "🌲",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Recursive DFS (Graph)", "code": "def dfs(graph, node, visited):\n    visited.add(node)\n    # process node\n    for neighbor in graph[node]:\n        if neighbor not in visited:\n            dfs(graph, neighbor, visited)" },
+            { "label": "Iterative DFS (Stack)", "code": "def dfs_iterative(graph, start):\n    stack = [start]\n    visited = {start}\n    while stack:\n        node = stack.pop()\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                stack.append(neighbor)" },
+            { "label": "Grid DFS (Flood Fill)", "code": "def dfs_grid(grid, r, c, visited):\n    rows, cols = len(grid), len(grid[0])\n    if r < 0 or r >= rows or c < 0 or c >= cols:\n        return\n    if (r, c) in visited or grid[r][c] == '0':\n        return\n    visited.add((r, c))\n    for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n        dfs_grid(grid, r + dr, c + dc, visited)" },
+            { "label": "DFS with Return Value (Trees)", "code": "def max_depth(root):\n    if not root:\n        return 0\n    left = max_depth(root.left)\n    right = max_depth(root.right)\n    return 1 + max(left, right)" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Recursive vs Iterative", "code": "Recursive: cleaner, natural for trees, uses call stack\nIterative: avoids stack overflow for deep graphs\nPython recursion limit: ~1000 (sys.setrecursionlimit(N))", "note": "Use iterative for very deep graphs (n > 1000)" },
+            { "label": "Visited Strategy", "code": "Global visited set → explore all reachable nodes\nPath visited (add/remove) → detect cycles in directed graph\nModify grid in-place → mark visited by changing cell value", "note": "In-place marking (grid[r][c] = '#') avoids extra space" },
+            { "label": "Return Value Design", "code": "Count components → return nothing, count dfs() calls\nMax depth/diameter → return depth, track answer globally\nPath exists → return True/False\nCollect results → append to shared list" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Connected Components", "code": "count = 0\nfor node in range(n):\n    if node not in visited:\n        dfs(graph, node, visited)\n        count += 1", "note": "Problems: 200, 323, 547" },
+            { "label": "Cycle Detection (Directed)", "code": "Use 3 colors: WHITE (unvisited), GRAY (in current path), BLACK (done)\nCycle exists if we visit a GRAY node", "note": "Problem: 207" },
+            { "label": "Tree Diameter", "code": "Track max diameter globally\nAt each node: diameter = left_depth + right_depth\nReturn 1 + max(left, right) as depth", "note": "Problem: 543" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "200 Number of Islands (grid flood fill)\n695 Max Area of Island (grid DFS + return size)\n133 Clone Graph (DFS + HashMap)\n104 Maximum Depth of Binary Tree\n543 Diameter of Binary Tree (DFS return value)\n417 Pacific Atlantic Water Flow (multi-source DFS)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-backtracking",
+      "name": "Template: Backtracking",
+      "icon": "🔙",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "General Backtracking", "code": "def backtrack(result, path, choices):\n    if IS_COMPLETE(path):          # base case\n        result.append(path[:])     # copy path!\n        return\n    for choice in choices:\n        if not is_valid(choice):   # pruning\n            continue\n        path.append(choice)        # choose\n        backtrack(result, path, NEXT_CHOICES)\n        path.pop()                 # un-choose (backtrack)" },
+            { "label": "Subsets", "code": "def subsets(nums):\n    result = []\n    def backtrack(start, path):\n        result.append(path[:])     # every path is a valid subset\n        for i in range(start, len(nums)):\n            path.append(nums[i])\n            backtrack(i + 1, path)  # i+1 avoids reuse\n            path.pop()\n    backtrack(0, [])\n    return result" },
+            { "label": "Permutations", "code": "def permutations(nums):\n    result = []\n    def backtrack(path, used):\n        if len(path) == len(nums):\n            result.append(path[:])\n            return\n        for i in range(len(nums)):\n            if used[i]:\n                continue\n            used[i] = True\n            path.append(nums[i])\n            backtrack(path, used)\n            path.pop()\n            used[i] = False\n    backtrack([], [False] * len(nums))\n    return result" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Subsets vs Permutations vs Combos", "code": "Subsets:       start index, no length requirement\nCombinations:  start index + target length or sum\nPermutations:  used[] array, all elements used\nKey: subsets/combos use start index; perms use used[]", "note": "Start index prevents [1,2] and [2,1] from both appearing" },
+            { "label": "When to Copy Path", "code": "result.append(path[:])   # MUST copy!\nresult.append(list(path)) # also works\n# WRONG: result.append(path) → all entries point to same list", "note": "path is mutated during backtracking, so you must snapshot it" },
+            { "label": "Handling Duplicates", "code": "Sort input first, then skip duplicates:\nif i > start and nums[i] == nums[i-1]: continue\nFor permutations:\nif i > 0 and nums[i] == nums[i-1] and not used[i-1]: continue", "note": "This is critical for problems like 40 (Combination Sum II), 47 (Permutations II)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Combination Sum (reuse allowed)", "code": "backtrack(i, path)  instead of backtrack(i+1, path)\nAllows same element to be chosen again", "note": "Problem: 39" },
+            { "label": "N-Queens / Sudoku", "code": "Validate placement before recursing\nTrack columns, diagonals in sets for O(1) check", "note": "Problems: 51, 37" },
+            { "label": "Word Search (grid backtracking)", "code": "Mark cell as visited → explore 4 directions → unmark\nCombines grid DFS with backtracking", "note": "Problem: 79" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": " 78 Subsets\n 46 Permutations\n 39 Combination Sum (reuse)\n 40 Combination Sum II (no reuse + dedup)\n 17 Letter Combinations of Phone Number\n 79 Word Search (grid backtracking)\n 51 N-Queens" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-dp",
+      "name": "Template: Dynamic Programming",
+      "icon": "📐",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "1D DP (Bottom-Up)", "code": "def solve(nums):\n    n = len(nums)\n    dp = [0] * (n + 1)          # dp[i] = answer for first i items\n    dp[0] = BASE_CASE\n    for i in range(1, n + 1):\n        dp[i] = RECURRENCE(dp, i, nums)\n    return dp[n]" },
+            { "label": "1D DP — Climbing Stairs Pattern", "code": "def climb(n):\n    if n <= 2: return n\n    prev2, prev1 = 1, 2\n    for i in range(3, n + 1):\n        curr = prev1 + prev2     # recurrence\n        prev2, prev1 = prev1, curr\n    return prev1                 # space-optimized to O(1)" },
+            { "label": "2D DP", "code": "def solve(text1, text2):\n    m, n = len(text1), len(text2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if text1[i-1] == text2[j-1]:\n                dp[i][j] = dp[i-1][j-1] + 1\n            else:\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1])\n    return dp[m][n]" },
+            { "label": "Top-Down (Memoization)", "code": "from functools import lru_cache\n\ndef solve(nums):\n    @lru_cache(maxsize=None)\n    def dp(i, state):\n        if i == len(nums):       # base case\n            return 0\n        # option 1: skip\n        res = dp(i + 1, state)\n        # option 2: take (if valid)\n        if CAN_TAKE:\n            res = max(res, nums[i] + dp(i + 1, NEW_STATE))\n        return res\n    return dp(0, INITIAL_STATE)" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Identify the State", "code": "What changes between subproblems?\nIndex i              → 1D DP\nTwo indices (i, j)   → 2D DP\nIndex + extra flag   → state machine DP\nBitmask of used items → bitmask DP (n ≤ 20)", "note": "State = minimum info needed to make future decisions" },
+            { "label": "Write the Recurrence", "code": "dp[i] = max/min of:\n  - dp[i-1] + something   (take current)\n  - dp[i-1]               (skip current)\n  - dp[i-k] + ...         (jump from earlier state)\n\nCommon: dp[i] = max(dp[i-1], dp[i-2] + nums[i])  (House Robber)", "note": "Start with brute-force recursion, then memoize" },
+            { "label": "Bottom-Up vs Top-Down", "code": "Top-down:  easier to write, only computes needed states\nBottom-up: faster (no recursion overhead), easier to optimize space\nSpace optimization: if dp[i] only depends on dp[i-1], use 2 vars", "note": "Top-down for complex state spaces; bottom-up for simple 1D/2D" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Knapsack Pattern", "code": "dp[i][w] = max(dp[i-1][w], dp[i-1][w-wt[i]] + val[i])\n0/1 knapsack: each item used once\nUnbounded: dp[i][w-wt[i]] (same row)", "note": "Problems: 416, 494, 322" },
+            { "label": "State Machine DP", "code": "Best Time to Buy/Sell Stock:\nhold[i] = max(hold[i-1], rest[i-1] - price)\nrest[i] = max(rest[i-1], hold[i-1] + price)", "note": "Problems: 121, 122, 309, 188" },
+            { "label": "Interval DP", "code": "for length in range(2, n+1):\n    for i in range(n - length + 1):\n        j = i + length - 1\n        dp[i][j] = min(dp[i][k] + dp[k+1][j] + cost)", "note": "Problems: 312 (Burst Balloons), 516 (Longest Palindromic Subseq)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": " 70 Climbing Stairs (1D intro)\n198 House Robber (1D skip/take)\n322 Coin Change (1D unbounded)\n300 Longest Increasing Subsequence (1D)\n1143 Longest Common Subsequence (2D)\n 62 Unique Paths (2D grid)\n416 Partition Equal Subset Sum (0/1 knapsack)\n121 Best Time to Buy/Sell Stock (state machine)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-monotonic-stack",
+      "name": "Template: Monotonic Stack",
+      "icon": "📊",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Next Greater Element", "code": "def next_greater(nums):\n    n = len(nums)\n    result = [-1] * n\n    stack = []               # stores indices, decreasing values\n    for i in range(n):\n        while stack and nums[stack[-1]] < nums[i]:\n            idx = stack.pop()\n            result[idx] = nums[i]   # nums[i] is the next greater\n        stack.append(i)\n    return result" },
+            { "label": "Previous Smaller Element", "code": "def prev_smaller(nums):\n    n = len(nums)\n    result = [-1] * n\n    stack = []               # stores indices, increasing values\n    for i in range(n):\n        while stack and nums[stack[-1]] >= nums[i]:\n            stack.pop()\n        if stack:\n            result[i] = nums[stack[-1]]\n        stack.append(i)\n    return result" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Monotonic Direction", "code": "Decreasing stack → finds NEXT GREATER  (pop when curr > top)\nIncreasing stack → finds NEXT SMALLER  (pop when curr < top)\nStack stores: indices (usually) or values", "note": "Decreasing = each new element ≤ top; pop when this breaks" },
+            { "label": "What Happens on Pop", "code": "Popped element found its answer:\n  Next greater: answer = current element\n  Next smaller: answer = current element\n  Histogram area: width = i - stack[-1] - 1 (or i if stack empty)", "note": "The 'pop' is where the magic happens — that's when you compute" },
+            { "label": "Circular Array", "code": "Iterate 2*n, use i % n for index\nHandles wrap-around (e.g., Next Greater Element II)", "note": "Problem: 503" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Largest Rectangle in Histogram", "code": "For each bar, find left and right boundaries\nArea = height[i] * (right_bound - left_bound - 1)\nUse monotonic increasing stack", "note": "Problem: 84 — extend to 85 (Maximal Rectangle) with row-by-row histograms" },
+            { "label": "Daily Temperatures", "code": "result[idx] = i - idx (distance, not value)", "note": "Problem: 739" },
+            { "label": "Stock Span", "code": "Count consecutive days with price ≤ today\nMonotonic decreasing stack of indices", "note": "Problem: 901" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "739 Daily Temperatures (next warmer day)\n496 Next Greater Element I\n 84 Largest Rectangle in Histogram\n 85 Maximal Rectangle (histogram extension)\n503 Next Greater Element II (circular)\n901 Online Stock Span" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-prefix-sum",
+      "name": "Template: Prefix Sum",
+      "icon": "➕",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Basic Prefix Sum", "code": "def build_prefix(nums):\n    prefix = [0]                       # prefix[0] = 0 (empty sum)\n    for x in nums:\n        prefix.append(prefix[-1] + x)\n    # sum(nums[i:j]) = prefix[j] - prefix[i]\n    return prefix" },
+            { "label": "Subarray Sum Equals K", "code": "def subarray_sum(nums, k):\n    count = 0\n    curr_sum = 0\n    prefix_counts = {0: 1}            # empty prefix\n    for x in nums:\n        curr_sum += x\n        # if curr_sum - k exists in prefix, we found a subarray\n        count += prefix_counts.get(curr_sum - k, 0)\n        prefix_counts[curr_sum] = prefix_counts.get(curr_sum, 0) + 1\n    return count" },
+            { "label": "2D Prefix Sum", "code": "def build_2d_prefix(matrix):\n    m, n = len(matrix), len(matrix[0])\n    prefix = [[0]*(n+1) for _ in range(m+1)]\n    for i in range(1, m+1):\n        for j in range(1, n+1):\n            prefix[i][j] = (matrix[i-1][j-1] + prefix[i-1][j]\n                           + prefix[i][j-1] - prefix[i-1][j-1])\n    return prefix\n# region_sum(r1,c1,r2,c2) = p[r2+1][c2+1] - p[r1][c2+1] - p[r2+1][c1] + p[r1][c1]" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "When to Use", "code": "Multiple range sum queries      → build prefix once, O(1) per query\nCount subarrays with sum = k   → prefix sum + HashMap\nSubarray sum with negative nums → prefix sum (NOT sliding window!)", "note": "Sliding window only works when all values are positive" },
+            { "label": "HashMap Pattern", "code": "Key insight: sum(nums[i:j]) = prefix[j] - prefix[i]\nSo subarray sum = k ⟺ prefix[j] - prefix[i] = k\n⟺ prefix[i] = prefix[j] - k\nStore prefix sum frequencies in HashMap", "note": "Initialize: {0: 1} to handle subarrays starting at index 0" },
+            { "label": "Prefix Sum vs Sliding Window", "code": "All positive + contiguous window → Sliding Window\nNegative numbers + sum condition → Prefix Sum + Map\nFixed-size window sum           → either works\nRange queries on static array   → Prefix Sum" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Running Sum / Cumulative", "code": "prefix[i] = prefix[i-1] + nums[i]\nDirect modification of array as prefix sum", "note": "Problem: 1480" },
+            { "label": "Subarray Divisible by K", "code": "Same HashMap pattern but track curr_sum % k\nTwo prefixes with same remainder → their difference is divisible by k", "note": "Problem: 974" },
+            { "label": "Product Except Self", "code": "Left prefix product + Right prefix product\nresult[i] = left_product[i] * right_product[i]", "note": "Problem: 238" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": "560 Subarray Sum Equals K (prefix + HashMap)\n238 Product of Array Except Self (prefix product)\n303 Range Sum Query - Immutable (basic prefix)\n304 Range Sum Query 2D (2D prefix)\n974 Subarray Sums Divisible by K\n523 Continuous Subarray Sum" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-intervals",
+      "name": "Template: Intervals",
+      "icon": "📏",
+      "sections": [
+        {
+          "type": "patterns",
+          "title": "Template",
+          "items": [
+            { "label": "Merge Intervals", "code": "def merge(intervals):\n    intervals.sort(key=lambda x: x[0])   # sort by start\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        if start <= merged[-1][1]:         # overlap\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged" },
+            { "label": "Insert Interval", "code": "def insert(intervals, new):\n    result = []\n    for i, (s, e) in enumerate(intervals):\n        if new[1] < s:              # new ends before current\n            result.append(new)\n            return result + intervals[i:]\n        elif new[0] > e:            # new starts after current\n            result.append([s, e])\n        else:                       # overlap → merge\n            new = [min(new[0], s), max(new[1], e)]\n    result.append(new)\n    return result" },
+            { "label": "Interval Overlap Check", "code": "def overlaps(a, b):\n    return a[0] < b[1] and b[0] < a[1]   # not (a ends before b starts or b ends before a starts)\n\ndef no_overlap(a, b):\n    return a[1] <= b[0] or b[1] <= a[0]" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Decision Points",
+          "items": [
+            { "label": "Sort Strategy", "code": "Merge intervals    → sort by start\nRemove min overlaps → sort by end (greedy: keep earliest-ending)\nMeeting rooms       → sort starts and ends separately, or sort by start", "note": "Sort order determines the greedy strategy" },
+            { "label": "Overlap Detection", "code": "Two intervals overlap: a.start < b.end AND b.start < a.end\nAdjacent (touching):   a.end == b.start (may or may not count)\nContained:             a.start <= b.start AND b.end <= a.end" },
+            { "label": "When to Use Sweep Line", "code": "Count max overlapping at any point → sweep line\nCreate events: +1 at start, -1 at end\nSort events, scan with running count → max = answer", "note": "Problems: 253, 731, 732" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Variants",
+          "items": [
+            { "label": "Meeting Rooms II (Min Rooms)", "code": "Sort by start; use min-heap of end times\nIf curr.start >= heap[0]: pop (room freed)\nAlways push curr.end; answer = max heap size", "note": "Problem: 253" },
+            { "label": "Non-Overlapping Intervals", "code": "Sort by end time (greedy)\nKeep track of last end; count removals when overlap", "note": "Problem: 435 — sort by END is key (not start)" },
+            { "label": "Sweep Line (Max Concurrent)", "code": "events = []\nfor s, e in intervals:\n    events.append((s, 1))    # start\n    events.append((e, -1))   # end\nevents.sort()\ncurr = max_concurrent = 0\nfor _, delta in events:\n    curr += delta\n    max_concurrent = max(max_concurrent, curr)", "note": "Useful when you need max/min overlap count" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Practice",
+          "items": [
+            { "label": "Essential Problems", "code": " 56 Merge Intervals\n 57 Insert Interval\n435 Non-overlapping Intervals (greedy by end)\n252 Meeting Rooms (sort + check)\n253 Meeting Rooms II (heap or sweep line)\n986 Interval List Intersections" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list",
+      "name": "List",
+      "icon": "📝",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Empty list", "code": "lst = []", "note": "Preferred over list()" },
+            { "label": "With values", "code": "lst = [1, 2, 3]" },
+            { "label": "Repeated value", "code": "lst = [0] * n", "note": "Careful: [[]] * n creates n refs to SAME inner list" },
+            { "label": "From range", "code": "lst = list(range(10))", "note": "[0, 1, ..., 9]" },
+            { "label": "From string", "code": "list('abc')  # ['a', 'b', 'c']" },
+            { "label": "2D matrix", "code": "grid = [[0] * cols for _ in range(rows)]", "note": "Must use comprehension, NOT [[0]*cols]*rows" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "append(x)", "code": "lst.append(x)", "complexity": "O(1)", "note": "Returns None! Not the list." },
+            { "label": "pop()", "code": "lst.pop()  # last\nlst.pop(i)  # at index", "complexity": "O(1) / O(n)", "note": "pop() is O(1), pop(i) is O(n)" },
+            { "label": "insert(i, x)", "code": "lst.insert(0, x)  # prepend", "complexity": "O(n)", "note": "Shifts all elements right" },
+            { "label": "extend", "code": "lst.extend([4, 5])  # or lst += [4, 5]", "complexity": "O(k)", "note": "k = len of added iterable" },
+            { "label": "remove(x)", "code": "lst.remove(x)  # first occurrence", "complexity": "O(n)", "note": "Raises ValueError if not found" },
+            { "label": "index(x)", "code": "lst.index(x)", "complexity": "O(n)", "note": "Raises ValueError if not found" },
+            { "label": "in", "code": "x in lst", "complexity": "O(n)" },
+            { "label": "sort", "code": "lst.sort()            # in-place, returns None\nsorted(lst)           # returns new list", "complexity": "O(n log n)" },
+            { "label": "reverse", "code": "lst.reverse()         # in-place, returns None\nlst[::-1]             # returns new list", "complexity": "O(n)" },
+            { "label": "slice", "code": "lst[1:4]    # index 1,2,3\nlst[::2]    # every 2nd\nlst[::-1]   # reversed", "complexity": "O(k)", "note": "k = slice size; creates a copy" },
+            { "label": "len / min / max / sum", "code": "len(lst), min(lst), max(lst), sum(lst)", "complexity": "O(n)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Mutating returns None", "code": "# WRONG: lst = lst.append(x)  -> lst is now None!\n# RIGHT: lst.append(x)", "note": "append(), sort(), reverse(), extend() all return None" },
+            { "label": "Shallow copy trap", "code": "a = [[1,2]]\nb = a.copy()      # or a[:]\nb[0].append(3)    # a is also [[1,2,3]]!", "note": "Use copy.deepcopy() for nested structures" },
+            { "label": "Modify while iterating", "code": "# WRONG: for x in lst: if cond: lst.remove(x)\n# RIGHT: lst = [x for x in lst if not cond]", "note": "Modifying a list during iteration skips elements" },
+            { "label": "Multiplied nested lists", "code": "# WRONG: grid = [[0]*3] * 3  (all rows are same ref)\n# RIGHT: grid = [[0]*3 for _ in range(3)]" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Two pointers", "code": "l, r = 0, len(nums) - 1\nwhile l < r:\n    if nums[l] + nums[r] == target: ...\n    elif nums[l] + nums[r] < target: l += 1\n    else: r -= 1" },
+            { "label": "Sliding window", "code": "l = 0\nfor r in range(len(nums)):\n    # expand window\n    while window_invalid:\n        # shrink from left\n        l += 1" },
+            { "label": "In-place swap", "code": "nums[i], nums[j] = nums[j], nums[i]" },
+            { "label": "Prefix sum", "code": "prefix = [0]\nfor x in nums:\n    prefix.append(prefix[-1] + x)\n# sum(nums[i:j]) = prefix[j] - prefix[i]" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dict",
+      "name": "Dict",
+      "icon": "🗂️",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Empty dict", "code": "d = {}" },
+            { "label": "With values", "code": "d = {'a': 1, 'b': 2}" },
+            { "label": "From pairs", "code": "d = dict(zip(keys, values))" },
+            { "label": "defaultdict", "code": "from collections import defaultdict\nd = defaultdict(list)   # d[key] auto-creates []\nd = defaultdict(int)    # d[key] auto-creates 0\nd = defaultdict(set)    # d[key] auto-creates set()" },
+            { "label": "Counter", "code": "from collections import Counter\nc = Counter('abracadabra')\nc.most_common(3)  # [('a',5), ('b',2), ('r',2)]" },
+            { "label": "OrderedDict", "code": "from collections import OrderedDict\n# Regular dict preserves insertion order (Python 3.7+)\n# OrderedDict needed for move_to_end() in LRU cache" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "get / set", "code": "d[key] = val\nval = d[key]          # KeyError if missing\nval = d.get(key, 0)   # default if missing", "complexity": "O(1) avg" },
+            { "label": "del", "code": "del d[key]            # KeyError if missing", "complexity": "O(1) avg" },
+            { "label": "in", "code": "key in d", "complexity": "O(1) avg" },
+            { "label": "setdefault", "code": "d.setdefault(key, []).append(val)", "complexity": "O(1) avg", "note": "Sets key to default if missing, then returns value" },
+            { "label": "pop", "code": "d.pop(key)         # KeyError if missing\nd.pop(key, None)   # returns None if missing", "complexity": "O(1) avg" },
+            { "label": "update", "code": "d.update(other_dict)", "complexity": "O(k)", "note": "Merges other_dict into d" },
+            { "label": "keys / values / items", "code": "d.keys()    # view of keys\nd.values()  # view of values\nd.items()   # view of (key, val) pairs", "complexity": "O(1)", "note": "Views, not copies. Iteration is O(n)." },
+            { "label": "Dict merge (3.9+)", "code": "merged = d1 | d2      # new dict\nd1 |= d2              # in-place", "complexity": "O(n+m)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Mutable default keys", "code": "# Lists can't be dict keys (unhashable)\n# Use tuple instead: d[(1,2)] = 'point'" },
+            { "label": "Modify while iterating", "code": "# WRONG: for k in d: del d[k]\n# RIGHT: for k in list(d): del d[k]\n# Or: d = {k:v for k,v in d.items() if cond}" },
+            { "label": "defaultdict in interviews", "code": "# defaultdict auto-creates missing keys\n# This can mask bugs — d[key] silently adds entry\n# Use d.get(key, default) when you don't want side effects" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Frequency count", "code": "freq = {}\nfor x in nums:\n    freq[x] = freq.get(x, 0) + 1\n# Or: freq = Counter(nums)" },
+            { "label": "Two Sum pattern", "code": "seen = {}\nfor i, x in enumerate(nums):\n    comp = target - x\n    if comp in seen:\n        return [seen[comp], i]\n    seen[x] = i" },
+            { "label": "Group anagrams", "code": "groups = defaultdict(list)\nfor s in strs:\n    key = tuple(sorted(s))\n    groups[key].append(s)" },
+            { "label": "Graph adjacency list", "code": "graph = defaultdict(list)\nfor u, v in edges:\n    graph[u].append(v)\n    graph[v].append(u)  # undirected" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set",
+      "name": "Set",
+      "icon": "🎯",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Empty set", "code": "s = set()  # NOT {} — that's a dict!", "note": "{} creates an empty dict, not a set" },
+            { "label": "With values", "code": "s = {1, 2, 3}" },
+            { "label": "From list", "code": "s = set([1, 2, 2, 3])  # {1, 2, 3}" },
+            { "label": "Frozenset", "code": "fs = frozenset([1, 2, 3])\n# Immutable — can be used as dict key or in another set" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "add", "code": "s.add(x)", "complexity": "O(1) avg" },
+            { "label": "remove / discard", "code": "s.remove(x)   # KeyError if missing\ns.discard(x)  # no error if missing", "complexity": "O(1) avg" },
+            { "label": "in", "code": "x in s", "complexity": "O(1) avg", "note": "Main advantage over lists" },
+            { "label": "union", "code": "s1 | s2  # or s1.union(s2)", "complexity": "O(n+m)" },
+            { "label": "intersection", "code": "s1 & s2  # or s1.intersection(s2)", "complexity": "O(min(n,m))" },
+            { "label": "difference", "code": "s1 - s2  # in s1 but not s2", "complexity": "O(n)" },
+            { "label": "symmetric diff", "code": "s1 ^ s2  # in one but not both", "complexity": "O(n+m)" },
+            { "label": "subset / superset", "code": "s1 <= s2   # s1 is subset of s2\ns1 >= s2   # s1 is superset of s2", "complexity": "O(n)" },
+            { "label": "pop", "code": "s.pop()  # remove & return arbitrary element", "complexity": "O(1)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Empty set syntax", "code": "s = set()  # correct\ns = {}     # WRONG — creates empty dict!" },
+            { "label": "Unhashable types", "code": "# Can't add lists, dicts, or sets to a set\n# Use tuples or frozensets instead\ns.add((1, 2))         # OK\ns.add(frozenset({1}))  # OK" },
+            { "label": "No indexing", "code": "# s[0] → TypeError\n# Sets are unordered — use list(s)[0] if needed" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Deduplicate", "code": "unique = list(set(nums))" },
+            { "label": "Visited tracking", "code": "visited = set()\ndef dfs(node):\n    if node in visited: return\n    visited.add(node)\n    for nei in graph[node]:\n        dfs(nei)" },
+            { "label": "Longest consecutive", "code": "s = set(nums)\nfor x in s:\n    if x - 1 not in s:  # start of sequence\n        length = 0\n        while x + length in s:\n            length += 1\n        best = max(best, length)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tuple",
+      "name": "Tuple",
+      "icon": "📦",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Empty tuple", "code": "t = ()   # or tuple()" },
+            { "label": "Single element", "code": "t = (1,)  # trailing comma required!\n# (1) is just the integer 1" },
+            { "label": "Multiple elements", "code": "t = (1, 2, 3)  # or t = 1, 2, 3" },
+            { "label": "From iterable", "code": "t = tuple([1, 2, 3])" },
+            { "label": "Named tuple", "code": "from collections import namedtuple\nPoint = namedtuple('Point', ['x', 'y'])\np = Point(1, 2)\np.x, p.y  # 1, 2" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "index / count", "code": "t.index(x)  # first occurrence\nt.count(x)  # number of occurrences", "complexity": "O(n)" },
+            { "label": "unpack", "code": "a, b, c = (1, 2, 3)\na, *rest = (1, 2, 3, 4)  # a=1, rest=[2,3,4]" },
+            { "label": "concatenate", "code": "t1 + t2  # new tuple", "complexity": "O(n+m)" },
+            { "label": "slice", "code": "t[1:3]  # like list slicing" },
+            { "label": "as dict key", "code": "d = {}\nd[(r, c)] = val  # tuples are hashable", "note": "Main advantage: hashable (can use as dict key / set element)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Single element trap", "code": "t = (1)    # int, NOT tuple\nt = (1,)   # tuple with one element" },
+            { "label": "Immutable but...", "code": "t = ([1, 2],)\nt[0].append(3)  # works! inner list is mutable\n# Tuple itself can't be reassigned, but mutable contents can change" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Grid coordinates", "code": "# Store (row, col) in sets/dicts\nvisited = set()\nvisited.add((r, c))\nif (r, c) in visited: ..." },
+            { "label": "Multiple return values", "code": "def divmod_custom(a, b):\n    return a // b, a % b\nq, r = divmod_custom(10, 3)" },
+            { "label": "Swap values", "code": "a, b = b, a  # tuple unpacking swap" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stack",
+      "name": "Stack",
+      "icon": "📚",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Use a list as stack", "code": "stack = []", "note": "Python has no built-in stack class — list works perfectly" },
+            { "label": "Initialize with values", "code": "stack = [1, 2, 3]  # 3 is top" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "push", "code": "stack.append(x)", "complexity": "O(1)" },
+            { "label": "pop", "code": "stack.pop()", "complexity": "O(1)", "note": "Raises IndexError if empty" },
+            { "label": "peek", "code": "stack[-1]", "complexity": "O(1)", "note": "Raises IndexError if empty" },
+            { "label": "is empty", "code": "if not stack:  # Pythonic\nif len(stack) == 0:  # also works", "complexity": "O(1)" },
+            { "label": "size", "code": "len(stack)", "complexity": "O(1)" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Check before pop", "code": "# WRONG: stack.pop()  — may raise IndexError\n# RIGHT: if stack: stack.pop()\n# Or: val = stack.pop() if stack else default" },
+            { "label": "Don't use pop(0)", "code": "# stack.pop(0) is O(n) — that's a queue operation\n# For FIFO, use collections.deque" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Valid parentheses", "code": "stack = []\nmatch = {')':'(', ']':'[', '}':'{'}\nfor c in s:\n    if c in match:\n        if not stack or stack[-1] != match[c]:\n            return False\n        stack.pop()\n    else:\n        stack.append(c)\nreturn not stack" },
+            { "label": "Monotonic stack", "code": "# Next greater element\nresult = [-1] * len(nums)\nstack = []  # indices\nfor i, x in enumerate(nums):\n    while stack and nums[stack[-1]] < x:\n        result[stack.pop()] = x\n    stack.append(i)" },
+            { "label": "DFS with stack", "code": "stack = [start]\nvisited = {start}\nwhile stack:\n    node = stack.pop()\n    for nei in graph[node]:\n        if nei not in visited:\n            visited.add(nei)\n            stack.append(nei)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queue",
+      "name": "Queue (deque)",
+      "icon": "🚶",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Import", "code": "from collections import deque" },
+            { "label": "Empty deque", "code": "q = deque()" },
+            { "label": "From list", "code": "q = deque([1, 2, 3])" },
+            { "label": "Max length", "code": "q = deque(maxlen=5)  # auto-discards oldest", "note": "Useful for sliding window of fixed size" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "enqueue (right)", "code": "q.append(x)", "complexity": "O(1)" },
+            { "label": "dequeue (left)", "code": "q.popleft()", "complexity": "O(1)", "note": "This is why deque > list for queues" },
+            { "label": "append left", "code": "q.appendleft(x)", "complexity": "O(1)" },
+            { "label": "pop right", "code": "q.pop()", "complexity": "O(1)" },
+            { "label": "peek front/back", "code": "q[0]    # front\nq[-1]   # back", "complexity": "O(1)" },
+            { "label": "rotate", "code": "q.rotate(1)   # shift right\nq.rotate(-1)  # shift left", "complexity": "O(k)" },
+            { "label": "index access", "code": "q[i]  # works but O(n)!", "complexity": "O(n)", "note": "Deque is NOT good for random access" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Don't use list as queue", "code": "# list.pop(0) is O(n)! Shifts all elements.\n# Always use deque for FIFO queues." },
+            { "label": "No slicing", "code": "# q[1:3] → TypeError\n# Convert: list(q)[1:3]" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "BFS", "code": "from collections import deque\nq = deque([start])\nvisited = {start}\nwhile q:\n    node = q.popleft()\n    for nei in graph[node]:\n        if nei not in visited:\n            visited.add(nei)\n            q.append(nei)" },
+            { "label": "BFS with levels", "code": "q = deque([root])\nwhile q:\n    for _ in range(len(q)):  # process level\n        node = q.popleft()\n        if node.left: q.append(node.left)\n        if node.right: q.append(node.right)" },
+            { "label": "Sliding window max", "code": "# Monotonic deque — stores indices\nq = deque()  # decreasing values\nfor i, x in enumerate(nums):\n    while q and nums[q[-1]] <= x:\n        q.pop()\n    q.append(i)\n    if q[0] <= i - k:  # outside window\n        q.popleft()\n    if i >= k - 1:\n        result.append(nums[q[0]])" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heap",
+      "name": "Heap (heapq)",
+      "icon": "⛰️",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Import", "code": "import heapq" },
+            { "label": "From list (heapify)", "code": "nums = [3, 1, 4, 1, 5]\nheapq.heapify(nums)  # in-place, O(n)", "note": "Converts list to min-heap in-place" },
+            { "label": "Empty heap", "code": "heap = []  # just a list" },
+            { "label": "Max heap trick", "code": "# Python only has min-heap\n# Negate values for max-heap:\nheapq.heappush(heap, -val)\nmax_val = -heapq.heappop(heap)" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "push", "code": "heapq.heappush(heap, x)", "complexity": "O(log n)" },
+            { "label": "pop (smallest)", "code": "heapq.heappop(heap)", "complexity": "O(log n)" },
+            { "label": "peek", "code": "heap[0]  # smallest element", "complexity": "O(1)" },
+            { "label": "push + pop", "code": "heapq.heappushpop(heap, x)  # push then pop\nheapq.heapreplace(heap, x)  # pop then push", "complexity": "O(log n)", "note": "More efficient than separate push/pop" },
+            { "label": "n largest/smallest", "code": "heapq.nlargest(k, iterable)\nheapq.nsmallest(k, iterable)", "complexity": "O(n log k)" },
+            { "label": "Tuple ordering", "code": "heapq.heappush(heap, (priority, item))\n# Sorts by first element, then second, etc.", "note": "Use counter as tiebreaker if items aren't comparable" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Min-heap only", "code": "# Python heapq is always a min-heap\n# For max-heap: negate values or use tuple trick" },
+            { "label": "No decrease-key", "code": "# heapq has no decrease-key / remove operation\n# Workaround: lazy deletion — mark entries as invalid\n# and skip them when popping" },
+            { "label": "Tuple comparison", "code": "# If priorities are equal, Python compares next element\n# If items aren't comparable → TypeError\n# Fix: use counter as tiebreaker\ncount = 0\nheapq.heappush(heap, (priority, count, item))\ncount += 1" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Top K frequent", "code": "from collections import Counter\nimport heapq\ncounts = Counter(nums)\nreturn heapq.nlargest(k, counts, key=counts.get)" },
+            { "label": "Merge K sorted lists", "code": "heap = []\nfor i, lst in enumerate(lists):\n    if lst:\n        heapq.heappush(heap, (lst.val, i, lst))\nwhile heap:\n    val, i, node = heapq.heappop(heap)\n    # process val\n    if node.next:\n        heapq.heappush(heap, (node.next.val, i, node.next))" },
+            { "label": "Median finder (two heaps)", "code": "small = []  # max-heap (negated)\nlarge = []  # min-heap\ndef addNum(num):\n    heapq.heappush(small, -num)\n    heapq.heappush(large, -heapq.heappop(small))\n    if len(large) > len(small):\n        heapq.heappush(small, -heapq.heappop(large))" },
+            { "label": "Dijkstra's algorithm", "code": "dist = {node: float('inf') for node in graph}\ndist[src] = 0\nheap = [(0, src)]\nwhile heap:\n    d, u = heapq.heappop(heap)\n    if d > dist[u]: continue  # lazy deletion\n    for v, w in graph[u]:\n        if dist[u] + w < dist[v]:\n            dist[v] = dist[u] + w\n            heapq.heappush(heap, (dist[v], v))" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "string",
+      "name": "String",
+      "icon": "🔤",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Creation & Initialization",
+          "items": [
+            { "label": "Literals", "code": "s = 'hello'  # or \"hello\"" },
+            { "label": "Multiline", "code": "s = '''line1\nline2'''  # or triple double-quotes" },
+            { "label": "f-string", "code": "f'{name} has {count} items'" },
+            { "label": "From list of chars", "code": "''.join(['a', 'b', 'c'])  # 'abc'" },
+            { "label": "Repeat", "code": "'ab' * 3  # 'ababab'" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "length", "code": "len(s)", "complexity": "O(1)" },
+            { "label": "index / slice", "code": "s[0], s[-1], s[1:4], s[::-1]", "complexity": "O(1) / O(k)" },
+            { "label": "find / index", "code": "s.find('x')    # -1 if not found\ns.index('x')   # ValueError if not found", "complexity": "O(n)" },
+            { "label": "in", "code": "'sub' in s", "complexity": "O(n)" },
+            { "label": "split / join", "code": "s.split()       # by whitespace\ns.split(',')    # by delimiter\n','.join(lst)   # join list into string", "complexity": "O(n)" },
+            { "label": "strip", "code": "s.strip()     # both sides\ns.lstrip()    # left\ns.rstrip()    # right", "complexity": "O(n)" },
+            { "label": "replace", "code": "s.replace('old', 'new')", "complexity": "O(n)" },
+            { "label": "startswith / endswith", "code": "s.startswith('pre')\ns.endswith('suf')" },
+            { "label": "isalpha / isdigit / isalnum", "code": "s.isalpha()   # all letters\ns.isdigit()   # all digits\ns.isalnum()   # letters or digits" },
+            { "label": "upper / lower", "code": "s.upper(), s.lower()" },
+            { "label": "ord / chr", "code": "ord('a')   # 97\nchr(97)    # 'a'\nord(c) - ord('a')  # letter index 0-25" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "Strings are immutable", "code": "s = 'hello'\n# s[0] = 'H'  → TypeError!\n# Must create new string:\ns = 'H' + s[1:]" },
+            { "label": "String concat in loop is O(n²)", "code": "# WRONG (O(n²)):\nresult = ''\nfor c in chars: result += c\n\n# RIGHT (O(n)):\nresult = ''.join(chars)", "note": "Each += creates a new string object" },
+            { "label": "Comparison is lexicographic", "code": "'b' > 'a'   # True\n'9' < 'a'   # True (ASCII: digits < letters)\n'10' < '9'  # True! (compares char by char)" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Build string efficiently", "code": "chars = []\nfor c in source:\n    chars.append(transform(c))\nresult = ''.join(chars)" },
+            { "label": "Character frequency", "code": "from collections import Counter\nfreq = Counter(s)\n# Or: freq = [0] * 26\n# freq[ord(c) - ord('a')] += 1" },
+            { "label": "Palindrome check", "code": "s == s[::-1]\n# Or two-pointer:\nl, r = 0, len(s) - 1\nwhile l < r:\n    if s[l] != s[r]: return False\n    l += 1; r -= 1" },
+            { "label": "Anagram check", "code": "Counter(s1) == Counter(s2)\n# Or: sorted(s1) == sorted(s2)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "loops",
+      "name": "Loops",
+      "icon": "🔁",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "For Loop Patterns",
+          "items": [
+            { "label": "Basic range", "code": "for i in range(n):       # 0 to n-1\nfor i in range(1, n+1):  # 1 to n\nfor i in range(n-1, -1, -1):  # n-1 to 0 (reverse)" },
+            { "label": "Iterate values", "code": "for x in lst:  # values only" },
+            { "label": "enumerate", "code": "for i, x in enumerate(lst):    # index + value\nfor i, x in enumerate(lst, 1): # start from 1" },
+            { "label": "zip", "code": "for a, b in zip(lst1, lst2):  # parallel iteration\n# Stops at shortest. Use zip_longest for full." },
+            { "label": "Iterate dict", "code": "for k in d:           # keys only\nfor k, v in d.items(): # key-value pairs" },
+            { "label": "Iterate with index + unpack", "code": "for i, (k, v) in enumerate(d.items()):" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "While Loop Patterns",
+          "items": [
+            { "label": "Basic while", "code": "while condition:\n    ..." },
+            { "label": "Two pointers", "code": "l, r = 0, len(nums) - 1\nwhile l < r:\n    ..." },
+            { "label": "Linked list traversal", "code": "curr = head\nwhile curr:\n    # process curr\n    curr = curr.next" },
+            { "label": "Binary search", "code": "l, r = 0, len(nums) - 1\nwhile l <= r:\n    mid = (l + r) // 2\n    if nums[mid] == target: return mid\n    elif nums[mid] < target: l = mid + 1\n    else: r = mid - 1" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "range is exclusive", "code": "range(5)     # 0,1,2,3,4 (not 5!)\nrange(1, 5)  # 1,2,3,4 (not 5!)" },
+            { "label": "Modifying list in for loop", "code": "# WRONG: indices shift when you remove\nfor x in lst:\n    if cond: lst.remove(x)  # skips elements!\n\n# RIGHT: iterate over copy or use comprehension\nfor x in lst[:]:\n    if cond: lst.remove(x)" },
+            { "label": "break / continue / else", "code": "for x in lst:\n    if found: break\nelse:\n    # runs only if loop completed without break\n    print('not found')" },
+            { "label": "Infinite while", "code": "# Always ensure the loop condition will eventually be False\n# Or use 'break' with a clear exit condition" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Nested loop with early exit", "code": "for i in range(n):\n    for j in range(i + 1, n):\n        if condition:\n            break  # only breaks inner loop" },
+            { "label": "Iterate matrix", "code": "rows, cols = len(grid), len(grid[0])\nfor r in range(rows):\n    for c in range(cols):\n        grid[r][c]  # process cell" },
+            { "label": "4-directional movement", "code": "dirs = [(0,1),(0,-1),(1,0),(-1,0)]\nfor dr, dc in dirs:\n    nr, nc = r + dr, c + dc\n    if 0 <= nr < rows and 0 <= nc < cols:\n        # process neighbor" },
+            { "label": "Converging while loop", "code": "while l < r:\n    # process\n    l += 1  # or r -= 1 or both" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comprehensions",
+      "name": "Comprehensions",
+      "icon": "⚡",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "List Comprehension",
+          "items": [
+            { "label": "Basic", "code": "[x * 2 for x in range(5)]  # [0, 2, 4, 6, 8]" },
+            { "label": "With filter", "code": "[x for x in nums if x > 0]" },
+            { "label": "With transform + filter", "code": "[x**2 for x in nums if x % 2 == 0]" },
+            { "label": "Nested", "code": "[(r, c) for r in range(3) for c in range(3)]", "note": "Equivalent to nested for loops" },
+            { "label": "Flatten 2D", "code": "[x for row in grid for x in row]" },
+            { "label": "With conditional expr", "code": "['even' if x%2==0 else 'odd' for x in nums]", "note": "if/else goes BEFORE for; filter if goes AFTER" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Dict & Set Comprehension",
+          "items": [
+            { "label": "Dict comprehension", "code": "{k: v for k, v in pairs}\n{x: x**2 for x in range(5)}\n{k: v for k, v in d.items() if v > 0}" },
+            { "label": "Swap keys/values", "code": "{v: k for k, v in d.items()}" },
+            { "label": "Set comprehension", "code": "{x % 3 for x in range(10)}  # {0, 1, 2}" },
+            { "label": "Generator expression", "code": "sum(x**2 for x in range(10))  # no list created\nany(x > 5 for x in nums)\nall(x > 0 for x in nums)", "note": "Memory efficient — doesn't create intermediate list" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "if/else position", "code": "# Filter (after for):  [x for x in lst if x > 0]\n# Transform (before for): [x if x > 0 else 0 for x in lst]\n# These are different syntax!" },
+            { "label": "Readability", "code": "# Don't nest more than 2 levels\n# WRONG: [f(x) for x in [g(y) for y in [h(z) for z in lst]]]\n# Use regular loops for complex logic" },
+            { "label": "Side effects", "code": "# Don't use comprehensions for side effects\n# WRONG: [print(x) for x in lst]\n# RIGHT: for x in lst: print(x)" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Matrix creation", "code": "grid = [[0] * cols for _ in range(rows)]" },
+            { "label": "Transpose matrix", "code": "transposed = list(zip(*matrix))\n# Or: [[row[c] for row in matrix] for c in range(cols)]" },
+            { "label": "Frequency map", "code": "freq = {c: s.count(c) for c in set(s)}\n# But Counter(s) is more efficient" },
+            { "label": "Filter + transform", "code": "# Get squares of positive numbers\nresult = [x**2 for x in nums if x > 0]" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sorting",
+      "name": "Sorting",
+      "icon": "📊",
+      "sections": [
+        {
+          "type": "creation",
+          "title": "Basic Sorting",
+          "items": [
+            { "label": "sorted() — new list", "code": "sorted(lst)            # ascending\nsorted(lst, reverse=True)  # descending" },
+            { "label": "list.sort() — in-place", "code": "lst.sort()             # ascending, returns None!\nlst.sort(reverse=True) # descending" },
+            { "label": "Key function", "code": "sorted(lst, key=len)           # by length\nsorted(lst, key=lambda x: x[1]) # by second element\nsorted(lst, key=str.lower)      # case-insensitive" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Advanced Sorting",
+          "items": [
+            { "label": "Multiple criteria", "code": "# Sort by age ascending, then name descending\nsorted(people, key=lambda x: (x.age, x.name))", "note": "Tuple comparison goes left to right" },
+            { "label": "Negate for reverse", "code": "# Sort by score DESC, name ASC\nsorted(lst, key=lambda x: (-x[1], x[0]))", "note": "Negation only works for numbers" },
+            { "label": "Custom comparator", "code": "from functools import cmp_to_key\ndef compare(a, b):\n    # return negative if a < b, 0 if equal, positive if a > b\n    return (a > b) - (a < b)\nsorted(lst, key=cmp_to_key(compare))" },
+            { "label": "Stability", "code": "# Python sort is stable — equal elements keep original order\n# This allows multi-pass sorting:\nlst.sort(key=lambda x: x.name)   # secondary\nlst.sort(key=lambda x: x.age)    # primary" },
+            { "label": "bisect (binary search)", "code": "import bisect\nbisect.bisect_left(sorted_lst, x)   # leftmost insertion point\nbisect.bisect_right(sorted_lst, x)  # rightmost insertion point\nbisect.insort(sorted_lst, x)        # insert maintaining order", "complexity": "O(log n) search, O(n) insert" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Gotchas & Pitfalls",
+          "items": [
+            { "label": "sort() returns None", "code": "# WRONG: lst = lst.sort()\n# RIGHT: lst.sort()  (in-place)\n# Or: new_lst = sorted(lst)" },
+            { "label": "Sorting mixed types", "code": "# sorted([1, 'a']) → TypeError in Python 3\n# All elements must be comparable" },
+            { "label": "Negate strings", "code": "# Can't negate strings for reverse sort\n# Use cmp_to_key or multiple stable sorts instead" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "LeetCode Patterns",
+          "items": [
+            { "label": "Interval merging", "code": "intervals.sort(key=lambda x: x[0])\nmerged = [intervals[0]]\nfor start, end in intervals[1:]:\n    if start <= merged[-1][1]:\n        merged[-1][1] = max(merged[-1][1], end)\n    else:\n        merged.append([start, end])" },
+            { "label": "Custom sort (Largest Number)", "code": "from functools import cmp_to_key\ndef compare(a, b):\n    if a + b > b + a: return -1\n    elif a + b < b + a: return 1\n    return 0\nnums_str = sorted(map(str, nums), key=cmp_to_key(compare))" },
+            { "label": "Bucket sort", "code": "# When range is known and small\nbuckets = [0] * (max_val + 1)\nfor x in nums:\n    buckets[x] += 1" },
+            { "label": "Sort + two pointers", "code": "nums.sort()\nl, r = 0, len(nums) - 1\nwhile l < r:\n    # process sorted pairs" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gotchas",
+      "name": "Common Gotchas",
+      "icon": "⚠️",
+      "sections": [
+        {
+          "type": "gotchas",
+          "title": "Mutability & References",
+          "items": [
+            { "label": "Mutable default args", "code": "# WRONG:\ndef f(lst=[]):\n    lst.append(1)  # shared across calls!\n    return lst\n\n# RIGHT:\ndef f(lst=None):\n    if lst is None: lst = []\n    lst.append(1)\n    return lst" },
+            { "label": "is vs ==", "code": "a = [1, 2]; b = [1, 2]\na == b  # True (same value)\na is b  # False (different objects)\n# Use 'is' only for None, True, False" },
+            { "label": "Integer caching", "code": "a = 256; b = 256; a is b  # True (cached)\na = 257; b = 257; a is b  # False (not cached)\n# Always use == for value comparison" },
+            { "label": "Copy vs reference", "code": "a = [1, 2, 3]\nb = a        # same object!\nb.append(4)  # a is also [1,2,3,4]\n\nb = a[:]     # shallow copy\nb = a.copy() # shallow copy\nimport copy\nb = copy.deepcopy(a)  # deep copy" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Numeric Pitfalls",
+          "items": [
+            { "label": "Integer division", "code": "7 / 2    # 3.5 (float division)\n7 // 2   # 3   (floor division)\n-7 // 2  # -4  (rounds toward -inf, NOT toward 0!)", "note": "For truncation toward zero: int(-7 / 2) = -3" },
+            { "label": "Infinity", "code": "float('inf')   # positive infinity\nfloat('-inf')  # negative infinity\n# Useful for initializing min/max" },
+            { "label": "Modulo with negatives", "code": "-7 % 3   # 2 in Python (always non-negative)\n# In C/Java: -7 % 3 = -1\n# Python: result has same sign as divisor" },
+            { "label": "Large numbers", "code": "# Python ints have arbitrary precision\n# No overflow! But be aware of time complexity\n2 ** 1000  # works fine" }
+          ]
+        },
+        {
+          "type": "gotchas",
+          "title": "Common Interview Mistakes",
+          "items": [
+            { "label": "Off-by-one errors", "code": "range(n)       # 0 to n-1\nrange(1, n+1)  # 1 to n\nlst[l:r]       # includes l, excludes r\n# Binary search: l <= r vs l < r depends on variant" },
+            { "label": "Forgetting return", "code": "# Python functions return None by default\n# In recursion, forgetting return is a common bug:\ndef search(node):\n    if node.val == target: return node\n    # WRONG: search(node.left)\n    # RIGHT: return search(node.left)" },
+            { "label": "Global vs local", "code": "# In nested functions:\ncount = 0\ndef helper():\n    nonlocal count  # required to modify outer variable\n    count += 1\n\n# For mutable objects, no nonlocal needed:\nresult = []\ndef helper():\n    result.append(1)  # modifying, not reassigning" },
+            { "label": "None checks", "code": "# WRONG: if node == None\n# RIGHT: if node is None\n# Also: 0, '', [], {}, set() are all falsy\n# if not lst: handles empty list AND None" }
+          ]
+        },
+        {
+          "type": "patterns",
+          "title": "Useful Built-ins",
+          "items": [
+            { "label": "any / all", "code": "any(x > 5 for x in nums)  # True if any match\nall(x > 0 for x in nums)  # True if all match" },
+            { "label": "min / max with key", "code": "min(words, key=len)\nmax(d, key=d.get)  # key with highest value" },
+            { "label": "zip / enumerate", "code": "list(zip([1,2], [3,4]))  # [(1,3), (2,4)]\nlist(enumerate('abc'))   # [(0,'a'), (1,'b'), (2,'c')]" },
+            { "label": "map / filter", "code": "list(map(int, ['1','2','3']))  # [1, 2, 3]\nlist(filter(None, [0, 1, '', 'a']))  # [1, 'a']" },
+            { "label": "Walrus operator (3.8+)", "code": "# Assign and test in one expression\nif (n := len(lst)) > 10:\n    print(f'List is long: {n}')\n\n# Useful in while loops:\nwhile (line := input()) != 'quit':\n    process(line)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

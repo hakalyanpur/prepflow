@@ -13,9 +13,8 @@ PORT = 5050
 START_MONDAY = "2026-02-23"
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progress.json")
 MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetcode_study_plan.md")
-PATTERNS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patterns.md")
 SD_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sd_progress.json")
-TIPS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tips.json")
+REF_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_ref.json")
 
 # ---------------------------------------------------------------------------
 # Markdown parser — seeds progress.json on first run
@@ -268,32 +267,32 @@ SD_PROBLEMS = [
     {"id": "sd-2",  "title": "Dropbox",               "difficulty": "E", "slug": "dropbox",        "week": 1},
     {"id": "sd-3",  "title": "Local Delivery Service", "difficulty": "E", "slug": "local-delivery", "week": 2},
     {"id": "sd-4",  "title": "News Aggregator",        "difficulty": "E", "slug": "google-news",    "week": 2},
-    # Medium
-    {"id": "sd-5",  "title": "Ticketmaster",           "difficulty": "M", "slug": "ticketmaster",   "week": 3},
-    {"id": "sd-6",  "title": "FB News Feed",           "difficulty": "M", "slug": "fb-news-feed",   "week": 3},
-    {"id": "sd-7",  "title": "Tinder",                 "difficulty": "M", "slug": "tinder",         "week": 4},
+    # Medium — reordered for thematic synergy with coding topics
+    {"id": "sd-12", "title": "Rate Limiter",           "difficulty": "M", "slug": "distributed-rate-limiter", "week": 3},
+    {"id": "sd-14", "title": "FB Live Comments",       "difficulty": "M", "slug": "fb-live-comments", "week": 3},
     {"id": "sd-8",  "title": "LeetCode",               "difficulty": "M", "slug": "leetcode",       "week": 4},
-    {"id": "sd-9",  "title": "WhatsApp",               "difficulty": "M", "slug": "whatsapp",       "week": 5},
-    {"id": "sd-10", "title": "Yelp",                   "difficulty": "M", "slug": "yelp",           "week": 5},
+    {"id": "sd-16", "title": "Price Tracking Service", "difficulty": "M", "slug": "price-tracking", "week": 4},
+    {"id": "sd-6",  "title": "FB News Feed",           "difficulty": "M", "slug": "fb-news-feed",   "week": 5},
+    {"id": "sd-15", "title": "FB Post Search",         "difficulty": "M", "slug": "fb-post-search", "week": 5},
+    {"id": "sd-10", "title": "Yelp",                   "difficulty": "M", "slug": "yelp",           "week": 6},
     {"id": "sd-11", "title": "Strava",                 "difficulty": "M", "slug": "strava",         "week": 6},
-    {"id": "sd-12", "title": "Rate Limiter",           "difficulty": "M", "slug": "distributed-rate-limiter", "week": 6},
+    {"id": "sd-5",  "title": "Ticketmaster",           "difficulty": "M", "slug": "ticketmaster",   "week": 7},
     {"id": "sd-13", "title": "Online Auction",         "difficulty": "M", "slug": "online-auction", "week": 7},
-    {"id": "sd-14", "title": "FB Live Comments",       "difficulty": "M", "slug": "fb-live-comments", "week": 7},
-    {"id": "sd-15", "title": "FB Post Search",         "difficulty": "M", "slug": "fb-post-search", "week": 8},
-    {"id": "sd-16", "title": "Price Tracking Service", "difficulty": "M", "slug": "price-tracking", "week": 8},
-    # Hard
-    {"id": "sd-17", "title": "Instagram",              "difficulty": "H", "slug": "instagram",      "week": 9},
-    {"id": "sd-18", "title": "YouTube Top K",          "difficulty": "H", "slug": "top-k",          "week": 9},
-    {"id": "sd-19", "title": "Uber",                   "difficulty": "H", "slug": "uber",           "week": 10},
-    {"id": "sd-20", "title": "Robinhood",              "difficulty": "H", "slug": "robinhood",      "week": 10},
-    {"id": "sd-21", "title": "Google Docs",            "difficulty": "H", "slug": "google-docs",    "week": 11},
-    {"id": "sd-22", "title": "Distributed Cache",      "difficulty": "H", "slug": "distributed-cache", "week": 11},
-    {"id": "sd-23", "title": "YouTube",                "difficulty": "H", "slug": "youtube",        "week": 12},
+    {"id": "sd-7",  "title": "Tinder",                 "difficulty": "M", "slug": "tinder",         "week": 8},
+    {"id": "sd-9",  "title": "WhatsApp",               "difficulty": "M", "slug": "whatsapp",       "week": 8},
+    # Hard — reordered for thematic synergy with coding topics
+    {"id": "sd-19", "title": "Uber",                   "difficulty": "H", "slug": "uber",           "week": 9},
+    {"id": "sd-25", "title": "Web Crawler",            "difficulty": "H", "slug": "web-crawler",    "week": 9},
+    {"id": "sd-21", "title": "Google Docs",            "difficulty": "H", "slug": "google-docs",    "week": 10},
+    {"id": "sd-22", "title": "Distributed Cache",      "difficulty": "H", "slug": "distributed-cache", "week": 10},
+    {"id": "sd-18", "title": "YouTube Top K",          "difficulty": "H", "slug": "top-k",          "week": 11},
+    {"id": "sd-26", "title": "Ad Click Aggregator",    "difficulty": "H", "slug": "ad-click-aggregator", "week": 11},
     {"id": "sd-24", "title": "Job Scheduler",          "difficulty": "H", "slug": "job-scheduler",  "week": 12},
-    {"id": "sd-25", "title": "Web Crawler",            "difficulty": "H", "slug": "web-crawler",    "week": 13},
-    {"id": "sd-26", "title": "Ad Click Aggregator",    "difficulty": "H", "slug": "ad-click-aggregator", "week": 13},
-    {"id": "sd-27", "title": "Payment System",         "difficulty": "H", "slug": "payment-system", "week": 14},
-    {"id": "sd-28", "title": "Metrics Monitoring",     "difficulty": "H", "slug": "metrics-monitoring", "week": 14},
+    {"id": "sd-20", "title": "Robinhood",              "difficulty": "H", "slug": "robinhood",      "week": 12},
+    {"id": "sd-27", "title": "Payment System",         "difficulty": "H", "slug": "payment-system", "week": 13},
+    {"id": "sd-28", "title": "Metrics Monitoring",     "difficulty": "H", "slug": "metrics-monitoring", "week": 13},
+    {"id": "sd-17", "title": "Instagram",              "difficulty": "H", "slug": "instagram",      "week": 14},
+    {"id": "sd-23", "title": "YouTube",                "difficulty": "H", "slug": "youtube",        "week": 14},
 ]
 
 _sd_cache = None
@@ -334,16 +333,15 @@ def save_sd_data(problems):
     os.replace(tmp, SD_DATA_FILE)
 
 # ---------------------------------------------------------------------------
-# Python Tips data
+# Python Reference data
 # ---------------------------------------------------------------------------
 
-def load_tips():
-    """Read tips.json from disk each time (no caching) so newly generated tips
-    appear on the next browser refresh without restarting the server."""
-    if os.path.exists(TIPS_FILE):
-        with open(TIPS_FILE, "r") as f:
+def load_ref():
+    """Read python_ref.json from disk (no caching) so edits appear on refresh."""
+    if os.path.exists(REF_FILE):
+        with open(REF_FILE, "r") as f:
             return json.load(f)
-    return []
+    return {"topics": []}
 
 # ---------------------------------------------------------------------------
 # HTTP Server
@@ -380,14 +378,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(load_data())
         if self.path == "/api/sd/problems":
             return self._json(load_sd_data())
-        if self.path == "/api/patterns":
-            try:
-                with open(PATTERNS_FILE, "r") as f:
-                    return self._json({"content": f.read()})
-            except FileNotFoundError:
-                return self._json({"content": "_No patterns file found at:_\n\n`" + PATTERNS_FILE + "`"})
-        if self.path == "/api/tips":
-            return self._json(load_tips())
+        if self.path == "/api/pyref":
+            return self._json(load_ref())
         self.send_error(404)
 
     def do_POST(self):
@@ -515,19 +507,19 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interview Prep Hub</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <style>
 :root, [data-theme="dark"] {
-  --bg: #0d1117; --surface: #161b22; --border: #30363d;
-  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
-  --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #bc8cff;
-  --hover-row: rgba(88,166,255,.05); --week-hover: #1c2129;
+  --bg: #1a1b26; --surface: #24283b; --border: #3b4261;
+  --text: #c0caf5; --muted: #565f89; --accent: #7aa2f7;
+  --green: #9ece6a; --yellow: #e0af68; --red: #f7768e; --purple: #bb9af7;
+  --hover-row: rgba(122,162,247,.06); --week-hover: #292e42;
 }
 [data-theme="light"] {
-  --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
-  --text: #1f2328; --muted: #656d76; --accent: #0969da;
-  --green: #1a7f37; --yellow: #9a6700; --red: #cf222e; --purple: #8250df;
-  --hover-row: rgba(9,105,218,.04); --week-hover: #eaeef2;
+  --bg: #d5d6db; --surface: #e9e9ec; --border: #b4b5b9;
+  --text: #343b58; --muted: #6172af; --accent: #34548a;
+  --green: #485e30; --yellow: #8f5e15; --red: #8c4351; --purple: #5a4a78;
+  --hover-row: rgba(52,84,138,.06); --week-hover: #cbccd1;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
@@ -575,47 +567,35 @@ tr:hover { background: var(--hover-row); }
 .notes-toggle:hover { color: var(--accent); }
 .notes-preview { font-size: .75rem; color: var(--muted); font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .notes-preview:hover { color: var(--accent); }
-/* Patterns */
-.patterns-toolbar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-.patterns-toolbar input { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .85rem; }
-.patterns-toolbar button { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: .85rem; white-space: nowrap; }
-.patterns-toolbar button:hover { color: var(--text); border-color: var(--muted); }
-.md-body { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; line-height: 1.7; font-size: .9rem; }
-.md-body h1 { font-size: 1.5rem; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.md-body h1:first-child { margin-top: 0; }
-.md-body h2 { font-size: 1.25rem; margin: 20px 0 10px; color: var(--accent); }
-.md-body h3 { font-size: 1.05rem; margin: 16px 0 8px; }
-.md-body p { margin: 8px 0; }
-.md-body ul, .md-body ol { margin: 8px 0 8px 20px; }
-.md-body li { margin: 4px 0; }
-.md-body code { background: var(--bg); padding: 2px 6px; border-radius: 4px; font-size: .85em; font-family: 'SF Mono', Menlo, monospace; }
-.md-body pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; overflow-x: auto; margin: 10px 0; }
-.md-body pre code { background: none; padding: 0; font-size: .82em; line-height: 1.5; }
-.md-body blockquote { border-left: 3px solid var(--accent); padding-left: 12px; color: var(--muted); margin: 8px 0; }
-.md-body strong { color: var(--text); }
-.md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-.md-body mark { background: rgba(210,153,34,.25); color: var(--text); padding: 1px 3px; border-radius: 2px; }
-.md-body table { border-collapse: collapse; margin: 10px 0; width: 100%; }
-.md-body th, .md-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
-.md-body th { background: var(--bg); }
-/* Python Tips */
-.tips-toolbar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
-.tips-toolbar button { background: var(--accent); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: .85rem; font-weight: 600; }
-.tips-toolbar button:hover { opacity: .85; }
-.tips-toolbar .tip-count { color: var(--muted); font-size: .85rem; }
-.tips-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-.tip-card .tip-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-.tip-card .tip-cat { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .7rem; font-weight: 600; background: rgba(88,166,255,.12); color: var(--accent); }
-.tip-card .tip-title { font-size: .95rem; font-weight: 600; margin-bottom: 8px; }
-.tip-card pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; overflow-x: auto; margin: 0; }
-.tip-card pre code { font-family: 'SF Mono', Menlo, monospace; font-size: .82rem; line-height: 1.5; color: var(--text); }
-.tip-card .tip-note { font-size: .82rem; color: var(--muted); margin-top: 8px; line-height: 1.5; }
-/* Tag bar for tips filtering */
-.tag-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-.tag-btn { display: inline-block; padding: 4px 14px; border-radius: 14px; font-size: .75rem; font-weight: 600; background: rgba(88,166,255,.12); color: var(--accent); border: 1px solid transparent; cursor: pointer; transition: all .15s; }
-.tag-btn:hover { border-color: var(--accent); }
-.tag-btn.active { background: var(--accent); color: #fff; }
+/* Python Reference */
+.pyref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .85rem; margin-bottom: 12px; }
+.pyref-search:focus { outline: none; border-color: var(--accent); }
+.pyref-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+.pyref-sidebar { border-right: 1px solid var(--border); padding-right: 12px; }
+.pyref-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: .85rem; color: var(--muted); border-left: 3px solid transparent; transition: all .15s; }
+.pyref-nav-item:hover { background: var(--hover-row); color: var(--text); }
+.pyref-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,.06); font-weight: 600; }
+.pyref-nav-icon { font-size: 1.1rem; }
+.pyref-content { min-height: 400px; }
+.pyref-topic-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.pyref-section { margin-bottom: 20px; }
+.pyref-section-title { font-size: .95rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.pyref-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+.pyref-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.pyref-item-label { font-weight: 600; font-size: .85rem; }
+.pyref-complexity { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .7rem; font-weight: 600; background: rgba(188,140,255,.15); color: var(--purple); }
+.pyref-item pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 0; }
+.pyref-item pre code { font-family: 'SF Mono', Menlo, monospace; font-size: .8rem; line-height: 1.5; color: var(--text); }
+.pyref-item-note { font-size: .8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
+.pyref-link { display: inline-block; margin-top: 6px; font-size: .8rem; color: var(--accent); cursor: pointer; font-weight: 600; }
+.pyref-link:hover { text-decoration: underline; }
+.pyref-empty { text-align: center; color: var(--muted); padding: 40px; font-size: .9rem; }
+@media (max-width: 768px) {
+  .pyref-layout { grid-template-columns: 1fr; }
+  .pyref-sidebar { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .pyref-nav-item { padding: 6px 10px; border-left: none; border-bottom: 2px solid transparent; }
+  .pyref-nav-item.active { border-left-color: transparent; border-bottom-color: var(--accent); }
+}
 /* Stats */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
@@ -661,22 +641,20 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <h1>Interview Prep Hub</h1>
   <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
 </div>
-<p class="subtitle">NeetCode 150 + System Design + Python Tips — Interactive Study Dashboard</p>
+<p class="subtitle">NeetCode 150 + System Design + Python Reference — Interactive Study Dashboard</p>
 
 <div class="tabs">
   <div class="tab active" data-tab="weekly">Weekly Plan</div>
-  <div class="tab" data-tab="all">All Problems</div>
+  <div class="tab" data-tab="all">Problem Bank</div>
   <div class="tab" data-tab="review">Review Today</div>
   <div class="tab" data-tab="stats">Stats</div>
-  <div class="tab" data-tab="sysdesign">System Design</div>
-  <div class="tab" data-tab="pytips">Python Tips</div>
+  <div class="tab" data-tab="pytips">Python Ref</div>
 </div>
 
 <div id="weekly" class="panel active"></div>
 <div id="all" class="panel"></div>
 <div id="review" class="panel"></div>
 <div id="stats" class="panel"></div>
-<div id="sysdesign" class="panel"></div>
 <div id="pytips" class="panel"></div>
 </div>
 
@@ -806,7 +784,6 @@ function renderWeekReview() {
 async function fetchProblems() {
   const r = await fetch('/api/problems');
   problems = await r.json();
-  render();
 }
 
 async function setStatus(pid, status) {
@@ -931,17 +908,28 @@ async function saveNotes(pid) {
   render();
 }
 
+function probUrl(p) {
+  return p.url || lcUrl(p);
+}
+
 function problemRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
+  const isSD = p.id.startsWith('sd-');
+  const cat = isSD ? 'System Design' : p.category;
+  const statusHtml = isSD
+    ? `<span class="badge badge-${p.status}" onclick="sdCycleStatus('${p.id}')">${p.status}</span>`
+    : badgeHTML(p);
+  const notesCol = isSD ? sdNotesHTML(p) : notesHTML(p);
+  const timerCol = isSD ? sdTimerHTML(p) : timerHTML(p);
   return `<tr>
-    <td>${p.id}</td>
-    <td><a class="prob-link" href="${lcUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
+    <td>${p._rowNum || ''}</td>
+    <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
-    <td>${p.category}</td>
-    <td>${badgeHTML(p)}</td>
-    <td>${notesHTML(p)}</td>
+    <td>${cat}</td>
+    <td>${statusHtml}</td>
+    <td>${notesCol}</td>
     <td>${lastAttempt}</td>
-    <td>${timerHTML(p)}</td>
+    <td>${timerCol}</td>
   </tr>`;
 }
 
@@ -953,13 +941,17 @@ const collapsedWeeks = new Set();
 
 function renderWeekly() {
   const el = document.getElementById('weekly');
+  // Merge coding + SD problems by week
   const weeks = {};
-  problems.forEach(p => { (weeks[p.week] = weeks[p.week]||[]).push(p); });
+  problems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).coding.push(p); });
+  sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).sd.push(p); });
   let html = '';
   Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
+    const wk = weeks[w];
+    const allProbs = [...wk.coding, ...wk.sd];
     const label = w == 13 ? 'Overflow' : `Week ${w} · ${weekDates(Number(w))}`;
-    const done = weeks[w].filter(p=>p.status==='done').length;
-    const total = weeks[w].length;
+    const done = allProbs.filter(p=>p.status==='done').length;
+    const total = allProbs.length;
     const collapsed = collapsedWeeks.has(w);
     const pct = Math.round(done/total*100);
     html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="toggleWeek('${w}')">
@@ -967,9 +959,20 @@ function renderWeekly() {
       <span class="chevron">&#9660;</span>
     </div>`;
     html += `<div class="week-body ${collapsed?'hidden':''}">`;
-    html += tableHeader();
-    weeks[w].forEach(p => html += problemRow(p));
-    html += '</tbody></table></div>';
+    let rowNum = 1;
+    if (wk.coding.length) {
+      if (wk.sd.length) html += `<p style="margin:8px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">Coding</p>`;
+      html += tableHeader();
+      wk.coding.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
+      html += '</tbody></table>';
+    }
+    if (wk.sd.length) {
+      if (wk.coding.length) html += `<p style="margin:12px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">System Design</p>`;
+      html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
+      wk.sd.forEach(p => html += sdRow(p));
+      html += '</tbody></table>';
+    }
+    html += '</div>';
   });
   el.innerHTML = html;
 }
@@ -983,10 +986,16 @@ function toggleWeek(w) {
 let filterState = { cat: '', diff: '', status: '', search: '' };
 let allInitialized = false;
 
+function getAllProblems() {
+  // Merge coding + SD into one list; SD problems get category "System Design"
+  const sdWithCat = sdProblems.map(p => ({...p, category: 'System Design'}));
+  return [...problems, ...sdWithCat];
+}
+
 function renderAll() {
   const el = document.getElementById('all');
   if (!allInitialized) {
-    const cats = [...new Set(problems.map(p=>p.category))].sort();
+    const cats = [...new Set(problems.map(p=>p.category)), 'System Design'].sort();
     const diffs = ['E','M','H'];
     const statuses = ['pending','done','struggled','review'];
 
@@ -1013,15 +1022,24 @@ function filterAll() {
   const diff = filterState.diff;
   const status = filterState.status;
   const q = filterState.search.toLowerCase();
-  let filtered = problems.filter(p =>
+
+  const all = getAllProblems();
+  let filtered = all.filter(p =>
     (!cat || p.category === cat) &&
     (!diff || p.difficulty === diff) &&
     (!status || p.status === status) &&
     (!q || p.title.toLowerCase().includes(q) || p.id.includes(q))
   );
-  let html = tableHeader();
-  filtered.forEach(p => html += problemRow(p));
-  html += '</tbody></table>';
+
+  let html = '';
+  if (filtered.length) {
+    html += tableHeader();
+    filtered.forEach((p, i) => { p._rowNum = i + 1; html += problemRow(p); });
+    html += '</tbody></table>';
+  } else {
+    html = '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
+  }
+
   document.getElementById('all-table').innerHTML = html;
 }
 
@@ -1124,215 +1142,115 @@ function activeTab() {
   return t ? t.dataset.tab : 'weekly';
 }
 
-// --- Minimal markdown to HTML renderer ---
-function md2html(src) {
-  let html = '';
-  const lines = src.split('\n');
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    // Code blocks
-    if (line.startsWith('```')) {
-      const lang = line.slice(3).trim();
-      let code = '';
-      i++;
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        code += lines[i] + '\n';
-        i++;
-      }
-      i++; // skip closing ```
-      html += `<pre><code>${esc(code.replace(/\n$/,''))}</code></pre>`;
-      continue;
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// --- Python Reference ---
+let pyrefData = null;
+let pyrefActive = '';
+let pyrefSearch = '';
+
+async function fetchPyRef() {
+  const r = await fetch('/api/pyref');
+  pyrefData = await r.json();
+}
+
+function pyrefSelect(id) {
+  pyrefActive = id;
+  renderPyRef();
+}
+
+function renderPyRefTopic(topic) {
+  const q = pyrefSearch.toLowerCase();
+  let html = `<div class="pyref-topic-title"><span>${topic.icon}</span> ${topic.name}</div>`;
+  for (const section of topic.sections) {
+    let items = section.items;
+    if (q) {
+      items = items.filter(it =>
+        it.label.toLowerCase().includes(q) ||
+        it.code.toLowerCase().includes(q) ||
+        (it.note && it.note.toLowerCase().includes(q))
+      );
     }
-    // Headers
-    const hm = line.match(/^(#{1,6})\s+(.*)/);
-    if (hm) { const id = hm[2].toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); html += `<h${hm[1].length} id="${id}">${inline(hm[2])}</h${hm[1].length}>`; i++; continue; }
-    // HR
-    if (/^[-*_]{3,}\s*$/.test(line)) { html += '<hr>'; i++; continue; }
-    // Blockquote
-    if (line.startsWith('> ')) { html += `<blockquote>${inline(line.slice(2))}</blockquote>`; i++; continue; }
-    // Table
-    if (line.includes('|') && i + 1 < lines.length && /^\|?[\s-:|]+\|/.test(lines[i+1])) {
-      let t = '<table><thead><tr>';
-      line.split('|').filter(c=>c.trim()).forEach(c => t += `<th>${inline(c.trim())}</th>`);
-      t += '</tr></thead><tbody>';
-      i += 2; // skip header + separator
-      while (i < lines.length && lines[i].includes('|') && lines[i].trim()) {
-        t += '<tr>';
-        lines[i].split('|').filter(c=>c.trim()).forEach(c => t += `<td>${inline(c.trim())}</td>`);
-        t += '</tr>';
-        i++;
-      }
-      html += t + '</tbody></table>';
-      continue;
+    if (!items.length) continue;
+    html += `<div class="pyref-section">`;
+    html += `<div class="pyref-section-title">${section.title}</div>`;
+    for (const item of items) {
+      html += `<div class="pyref-item">`;
+      html += `<div class="pyref-item-header"><span class="pyref-item-label">${esc(item.label)}</span>`;
+      if (item.complexity) html += `<span class="pyref-complexity">${item.complexity}</span>`;
+      html += `</div>`;
+      html += `<pre><code>${esc(item.code)}</code></pre>`;
+      if (item.note) html += `<div class="pyref-item-note">${esc(item.note)}</div>`;
+      if (item.link) html += `<span class="pyref-link" onclick="pyrefSelect('${item.link}')">View Template →</span>`;
+      html += `</div>`;
     }
-    // Unordered list
-    if (/^[\s]*[-*]\s/.test(line)) {
-      html += '<ul>';
-      while (i < lines.length && /^[\s]*[-*]\s/.test(lines[i])) {
-        html += `<li>${inline(lines[i].replace(/^[\s]*[-*]\s+/,''))}</li>`;
-        i++;
-      }
-      html += '</ul>';
-      continue;
-    }
-    // Ordered list
-    if (/^[\s]*\d+\.\s/.test(line)) {
-      html += '<ol>';
-      while (i < lines.length && /^[\s]*\d+\.\s/.test(lines[i])) {
-        html += `<li>${inline(lines[i].replace(/^[\s]*\d+\.\s+/,''))}</li>`;
-        i++;
-      }
-      html += '</ol>';
-      continue;
-    }
-    // Empty line
-    if (!line.trim()) { i++; continue; }
-    // Paragraph
-    html += `<p>${inline(line)}</p>`;
-    i++;
+    html += `</div>`;
   }
   return html;
 }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function inline(s) {
-  return s
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/_(.+?)_/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, href) =>
-      href.startsWith('#') ? `<a href="${href}">${text}</a>` : `<a href="${href}" target="_blank">${text}</a>`
-    );
-}
 
-// --- Patterns tab ---
-let patternsCache = '';
-let patternsSearch = '';
-
-async function loadPatterns() {
-  const r = await fetch('/api/patterns');
-  const d = await r.json();
-  patternsCache = d.content || '';
-  renderPatternsContent();
-}
-
-function renderPatternsContent() {
-  const el = document.getElementById('patterns-body');
-  if (!el) return;
-  let src = patternsCache;
-  if (patternsSearch.trim()) {
-    // Filter to sections that match search
-    const q = patternsSearch.toLowerCase();
-    const sections = src.split(/(?=^#{1,3}\s)/m);
-    const matched = sections.filter(s => s.toLowerCase().includes(q));
-    src = matched.length ? matched.join('\n') : '_No matches found._';
-  }
-  el.innerHTML = md2html(src);
-  // Highlight search term
-  if (patternsSearch.trim()) {
-    const q = patternsSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    el.innerHTML = el.innerHTML.replace(
-      new RegExp(`(${q})`, 'gi'),
-      '<mark>$1</mark>'
-    );
-  }
-}
-
-// --- Python Tips ---
-let pythonTips = [];
-let currentTips = [];
-let activeCategory = '';
-
-async function fetchTips() {
-  const r = await fetch('/api/tips');
-  pythonTips = await r.json();
-}
-
-function shuffleTips() {
-  activeCategory = '';
-  const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
-  currentTips = shuffled.slice(0, 5);
-  renderPyTips();
-}
-
-function filterByCategory(cat) {
-  if (activeCategory === cat) {
-    activeCategory = '';
-    const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
-    currentTips = shuffled.slice(0, 5);
-  } else {
-    activeCategory = cat;
-    if (cat !== 'Interview Patterns') {
-      currentTips = pythonTips.filter(t => t.cat === cat);
-    }
-  }
-  renderPyTips();
-}
-
-async function renderPyTips() {
+async function renderPyRef() {
   const el = document.getElementById('pytips');
-  if (!pythonTips.length) await fetchTips();
-  if (!currentTips.length && !activeCategory) {
-    const shuffled = [...pythonTips].sort(() => Math.random() - 0.5);
-    currentTips = shuffled.slice(0, 5);
+  if (!pyrefData) await fetchPyRef();
+  const topics = pyrefData.topics || [];
+  const q = pyrefSearch.toLowerCase();
+
+  // Filter sidebar topics by search
+  const visibleTopics = q
+    ? topics.filter(t => t.name.toLowerCase().includes(q) ||
+        t.sections.some(s => s.items.some(it =>
+          it.label.toLowerCase().includes(q) ||
+          it.code.toLowerCase().includes(q) ||
+          (it.note && it.note.toLowerCase().includes(q))
+        ))
+      )
+    : topics;
+
+  // Auto-select first visible if current not visible
+  if (!pyrefActive && visibleTopics.length) pyrefActive = visibleTopics[0].id;
+  if (pyrefActive && !visibleTopics.find(t => t.id === pyrefActive) && visibleTopics.length) {
+    pyrefActive = visibleTopics[0].id;
   }
 
-  const cats = [...new Set(pythonTips.map(t => t.cat))].sort();
-  // Ensure Interview Patterns tag exists even if no tips have that cat
-  if (!cats.includes('Interview Patterns')) cats.push('Interview Patterns');
-  cats.sort();
+  let html = `<input class="pyref-search" id="pyref-search" placeholder="Search topics, operations, code..." value="${pyrefSearch.replace(/"/g,'&quot;')}" />`;
+  html += `<div class="pyref-layout">`;
 
-  const isPatterns = activeCategory === 'Interview Patterns';
-  const countLabel = isPatterns
-    ? 'Showing interview patterns'
-    : activeCategory
-      ? `${currentTips.length} / ${pythonTips.length} tips in "${activeCategory}"`
-      : `${pythonTips.length} tips · showing 5`;
+  // Sidebar
+  html += `<div class="pyref-sidebar">`;
+  for (const t of visibleTopics) {
+    const cls = t.id === pyrefActive ? 'pyref-nav-item active' : 'pyref-nav-item';
+    html += `<div class="${cls}" onclick="pyrefSelect('${t.id}')"><span class="pyref-nav-icon">${t.icon}</span> ${t.name}</div>`;
+  }
+  html += `</div>`;
 
-  let html = `<div class="tips-toolbar">
-    <button onclick="shuffleTips()">Shuffle Tips</button>
-    <span class="tip-count">${countLabel}</span>
-  </div>
-  <div class="tag-bar">
-    <span class="tag-btn ${activeCategory===''?'active':''}" onclick="shuffleTips()">All</span>
-    ${cats.map(c => `<span class="tag-btn ${activeCategory===c?'active':''}" onclick="filterByCategory('${c.replace(/'/g,"\\'")}')">${c}</span>`).join('')}
-  </div>`;
-
-  if (isPatterns) {
-    html += `<div class="patterns-toolbar">
-      <input id="p-search" placeholder="Search patterns..." value="${patternsSearch.replace(/"/g,'&quot;')}" />
-    </div>
-    <div class="md-body" id="patterns-body"></div>`;
-    el.innerHTML = html;
-    document.getElementById('p-search').oninput = e => {
-      patternsSearch = e.target.value;
-      renderPatternsContent();
-    };
-    if (!patternsCache) await loadPatterns();
-    else renderPatternsContent();
+  // Content
+  html += `<div class="pyref-content">`;
+  const activeTopic = topics.find(t => t.id === pyrefActive);
+  if (activeTopic) {
+    html += renderPyRefTopic(activeTopic);
   } else {
-    html += `<div class="tips-grid" id="tips-grid"></div>`;
-    el.innerHTML = html;
-    renderTipsContent();
+    html += `<div class="pyref-empty">Select a topic from the sidebar</div>`;
   }
-}
+  html += `</div></div>`;
 
-function renderTipsContent() {
-  const el = document.getElementById('tips-grid');
-  if (!el) return;
-  el.innerHTML = currentTips.map(t => `<div class="tip-card">
-    <div class="tip-meta"><span class="tip-cat">${t.cat}</span></div>
-    <div class="tip-title">${t.title}</div>
-    <pre><code>${t.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>
-    ${t.note ? `<div class="tip-note">${t.note}</div>` : ''}
-  </div>`).join('');
+  el.innerHTML = html;
+
+  // Bind search
+  const searchEl = document.getElementById('pyref-search');
+  if (searchEl) {
+    searchEl.oninput = e => {
+      pyrefSearch = e.target.value;
+      renderPyRef();
+      // Restore cursor position
+      const newEl = document.getElementById('pyref-search');
+      if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
+    };
+  }
 }
 
 // --- System Design tab ---
 let sdProblems = [];
 let sdTimers = {};
-const sdCollapsed = new Set();
 const sdExpandedNotes = new Set();
 
 async function fetchSD() {
@@ -1360,7 +1278,7 @@ async function sdSetStatus(pid, status) {
       p.next_review = null; p.review_interval = 1;
     }
   }
-  renderSD();
+  render();
 }
 
 function sdCycleStatus(pid) {
@@ -1381,7 +1299,7 @@ function sdToggleTimer(pid) {
     });
     const p = sdProblems.find(x => x.id === pid);
     if (p) p.attempts.push({duration_sec: elapsed, date: new Date().toISOString().split('T')[0], result: p.status});
-    renderSD();
+    render();
   } else {
     const start = Date.now();
     const iv = setInterval(() => {
@@ -1392,13 +1310,13 @@ function sdToggleTimer(pid) {
       }
     }, 250);
     sdTimers[pid] = {start, interval: iv};
-    renderSD();
+    render();
   }
 }
 
 function sdOpenNotes(pid) {
   sdExpandedNotes.add(pid);
-  renderSD();
+  render();
   const el = document.getElementById('sd-notes-' + pid);
   if (el) el.focus();
 }
@@ -1414,66 +1332,38 @@ async function sdSaveNotes(pid) {
   const p = sdProblems.find(x => x.id === pid);
   if (p) p.notes = notes;
   sdExpandedNotes.delete(pid);
-  renderSD();
+  render();
+}
+
+function sdNotesHTML(p) {
+  const note = p.notes || '';
+  if (sdExpandedNotes.has(p.id)) {
+    return `<div class="notes-inner"><textarea class="notes-input" id="sd-notes-${p.id}" rows="2">${note.replace(/</g,'&lt;')}</textarea><button class="notes-save" onclick="sdSaveNotes('${p.id}')">Save</button></div>`;
+  }
+  if (note) {
+    return `<span class="notes-preview" onclick="sdOpenNotes('${p.id}')" title="${note.replace(/"/g,'&quot;')}">${note.replace(/</g,'&lt;')}</span>`;
+  }
+  return `<button class="notes-toggle" onclick="sdOpenNotes('${p.id}')">+ add</button>`;
+}
+
+function sdTimerHTML(p) {
+  const running = !!sdTimers[p.id];
+  return `<span class="timer-display" id="sd-td-${p.id}">${running?'':''}</span>
+    <button class="timer-btn ${running?'running':''}" onclick="sdToggleTimer('${p.id}')">${running?'Stop':'Start'}</button>`;
 }
 
 function sdRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
-  const running = !!sdTimers[p.id];
-  const note = p.notes || '';
-  let notesHtml;
-  if (sdExpandedNotes.has(p.id)) {
-    notesHtml = `<div class="notes-inner"><textarea class="notes-input" id="sd-notes-${p.id}" rows="2">${note.replace(/</g,'&lt;')}</textarea><button class="notes-save" onclick="sdSaveNotes('${p.id}')">Save</button></div>`;
-  } else if (note) {
-    notesHtml = `<span class="notes-preview" onclick="sdOpenNotes('${p.id}')" title="${note.replace(/"/g,'&quot;')}">${note.replace(/</g,'&lt;')}</span>`;
-  } else {
-    notesHtml = `<button class="notes-toggle" onclick="sdOpenNotes('${p.id}')">+ add</button>`;
-  }
   return `<tr>
-    <td><a class="prob-link" href="${p.url}" target="_blank" rel="noopener">${p.title}</a></td>
+    <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td><span class="badge badge-${p.status}" onclick="sdCycleStatus('${p.id}')">${p.status}</span></td>
-    <td>${notesHtml}</td>
+    <td>${sdNotesHTML(p)}</td>
     <td>${lastAttempt}</td>
-    <td><span class="timer-display" id="sd-td-${p.id}">${running?'':''}</span>
-      <button class="timer-btn ${running?'running':''}" onclick="sdToggleTimer('${p.id}')">${running?'Stop':'Start'}</button></td>
+    <td>${sdTimerHTML(p)}</td>
   </tr>`;
 }
 
-function renderSD() {
-  const el = document.getElementById('sysdesign');
-  if (!sdProblems.length) { fetchSD().then(renderSD); return; }
-
-  const weeks = {};
-  sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||[]).push(p); });
-  const totalDone = sdProblems.filter(p => p.status === 'done').length;
-  const pct = Math.round(totalDone / sdProblems.length * 100);
-
-  let html = `<p style="margin-bottom:12px;color:var(--muted)">28 problems · 14 weeks · 2/week — ${totalDone}/${sdProblems.length} done (${pct}%)</p>`;
-
-  Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
-    const label = `Week ${w} · ${weekDates(Number(w))}`;
-    const done = weeks[w].filter(p => p.status === 'done').length;
-    const total = weeks[w].length;
-    const collapsed = sdCollapsed.has(w);
-    const wpct = Math.round(done/total*100);
-    html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="sdToggleWeek('${w}')">
-      <span>${label} — ${done}/${total} done (${wpct}%)</span>
-      <span class="chevron">&#9660;</span>
-    </div>`;
-    html += `<div class="week-body ${collapsed?'hidden':''}">`;
-    html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
-    weeks[w].forEach(p => html += sdRow(p));
-    html += '</tbody></table></div>';
-  });
-  el.innerHTML = html;
-}
-
-function sdToggleWeek(w) {
-  if (sdCollapsed.has(w)) sdCollapsed.delete(w);
-  else sdCollapsed.add(w);
-  renderSD();
-}
 
 function render() {
   const tab = activeTab();
@@ -1481,8 +1371,7 @@ function render() {
   else if (tab === 'all') renderAll();
   else if (tab === 'review') renderReview();
   else if (tab === 'stats') renderStats();
-  else if (tab === 'sysdesign') renderSD();
-  else if (tab === 'pytips') renderPyTips();
+  else if (tab === 'pytips') renderPyRef();
 }
 
 // Tabs
@@ -1499,7 +1388,7 @@ document.querySelectorAll('.tab').forEach(t => {
 
 // Restore saved tab
 const savedTab = localStorage.getItem('activeTab');
-if (savedTab) {
+if (savedTab && savedTab !== 'sysdesign') {
   const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
   if (tabEl) {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -1524,7 +1413,11 @@ if (saved) {
   document.getElementById('theme-btn').textContent = saved === 'dark' ? 'Light' : 'Dark';
 }
 
-fetchProblems();
+async function init() {
+  await Promise.all([fetchProblems(), fetchSD()]);
+  render();
+}
+init();
 </script>
 </body>
 </html>"""
