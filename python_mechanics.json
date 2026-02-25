@@ -1,0 +1,639 @@
+{
+  "topics": [
+    {
+      "id": "callables",
+      "name": "Callables & key=",
+      "icon": "🔑",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "key= Parameter in Built-ins",
+          "items": [
+            {
+              "label": "sorted() with key",
+              "code": "words = [\"banana\", \"pie\", \"apple\"]\nsorted(words, key=len)        # ['pie', 'apple', 'banana']\nsorted(words, key=str.lower)  # case-insensitive sort",
+              "note": "key= takes a callable that returns a comparison value — original items are preserved"
+            },
+            {
+              "label": "max() / min() with key",
+              "code": "pairs = [(1, 'z'), (3, 'a'), (2, 'b')]\nmax(pairs, key=lambda x: x[0])  # (3, 'a')\nmin(pairs, key=lambda x: x[1])  # (3, 'a') — 'a' is min",
+              "note": "Returns the original element, not the key value"
+            },
+            {
+              "label": "heapq functions with key (no direct support!)",
+              "code": "import heapq\nnums = [5, 1, 8, 3]\nheapq.nlargest(2, nums)             # [8, 5]\nheapq.nsmallest(2, nums)            # [1, 3]\nheapq.nlargest(2, pairs, key=lambda x: x[1])  # nlargest/nsmallest DO support key\n# But heappush/heappop do NOT — use tuple trick:\nheapq.heappush(heap, (priority, item))",
+              "note": "heappush/heappop have NO key param — wrap items in tuples for custom ordering"
+            },
+            {
+              "label": "heapq is module-level, not a class",
+              "code": "import heapq\nheap = []\nheapq.heappush(heap, 5)   # heap is passed as first arg\nheapq.heappop(heap)        # returns 5\nheapq.heapify(nums)        # in-place, O(n)\n# There is no heap.push() — it's heapq.heappush(heap, val)",
+              "note": "Common mistake: treating heapq like a class. It's a module with functions that take a list."
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Callable Types as key=",
+          "items": [
+            {
+              "label": "lambda vs named function",
+              "code": "# Lambda — inline, single expression\nsorted(words, key=lambda w: w[-1])  # sort by last char\n\n# Named function — reusable, can have logic\ndef by_second(pair):\n    return pair[1]\nsorted(pairs, key=by_second)",
+              "note": "Use lambda for simple transforms, named functions for complex logic"
+            },
+            {
+              "label": "dict.get as callable",
+              "code": "priority = {'high': 0, 'med': 1, 'low': 2}\ntasks = ['low', 'high', 'med']\nsorted(tasks, key=priority.get)  # ['high', 'med', 'low']\n\n# Custom ordering with index:\norder = ['S', 'M', 'L', 'XL']\nsorted(sizes, key=order.index)",
+              "note": "dict.get is already a callable — no need for lambda d: priority[d]"
+            },
+            {
+              "label": "operator.itemgetter / attrgetter",
+              "code": "from operator import itemgetter, attrgetter\ndata = [('alice', 90), ('bob', 85), ('carol', 95)]\nsorted(data, key=itemgetter(1))     # sort by index 1\nsorted(data, key=itemgetter(1, 0))  # sort by score, then name\n\n# attrgetter for objects:\nfrom collections import namedtuple\nPoint = namedtuple('Point', 'x y')\npts = [Point(3, 1), Point(1, 2)]\nsorted(pts, key=attrgetter('x'))    # sort by x attribute",
+              "note": "itemgetter is faster than lambda for simple index access — also supports multiple keys"
+            },
+            {
+              "label": "functools.cmp_to_key",
+              "code": "from functools import cmp_to_key\n\n# Custom comparator: return -1, 0, or 1\ndef compare(a, b):\n    # For largest number problem (LC 179)\n    if a + b > b + a: return -1\n    elif a + b < b + a: return 1\n    return 0\n\nnums_str = ['3', '30', '34']\nsorted(nums_str, key=cmp_to_key(compare))  # ['34', '3', '30']",
+              "note": "Use cmp_to_key when you need pairwise comparison logic (like LC 179 Largest Number)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comparison",
+      "name": "Comparison Rules",
+      "icon": "⚖️",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Tuple & Sequence Comparison",
+          "items": [
+            {
+              "label": "Tuple comparison is element-by-element",
+              "code": "(1, 3) < (1, 5)    # True — first elements equal, compare second\n(1, 3) < (2, 0)    # True — first element decides it\n(1, 2) < (1, 2, 0) # True — shorter tuple is \"less\" if prefix matches",
+              "note": "This is why tuples work as heap priorities — first element is primary sort key"
+            },
+            {
+              "label": "min/max with tuples",
+              "code": "data = [(2, 'b'), (1, 'z'), (1, 'a')]\nmin(data)  # (1, 'a') — compares first element, then second to break ties\nmax(data)  # (2, 'b')\n\n# Heap trick: push (cost, tiebreaker, item)\nimport heapq\nheapq.heappush(h, (cost, counter, node))  # counter breaks ties",
+              "note": "If first elements tie, Python compares next element — ensure all elements are comparable"
+            },
+            {
+              "label": "Chained comparisons",
+              "code": "x = 5\n1 < x < 10       # True (same as 1 < x and x < 10)\n1 < x > 3        # True (1 < 5 and 5 > 3)\na == b == c       # checks all three are equal\n0 <= i < len(arr) # bounds check in one expression",
+              "note": "Python evaluates chained comparisons with implicit 'and' — very clean for range checks"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Identity vs Equality",
+          "items": [
+            {
+              "label": "== vs is",
+              "code": "a = [1, 2, 3]\nb = [1, 2, 3]\na == b   # True — same value\na is b   # False — different objects\n\nc = a\na is c   # True — same reference\n\n# Gotcha with small integers (CPython caches -5 to 256):\nx = 256\ny = 256\nx is y   # True (cached)\nx = 257\ny = 257\nx is y   # False (not cached) — NEVER rely on this",
+              "note": "Always use == for value comparison. Use 'is' only for None, True, False."
+            },
+            {
+              "label": "None comparisons",
+              "code": "x = None\nx is None      # True — correct way\nx == None      # True but discouraged (uses __eq__)\n\n# Python 3: None is not orderable\nNone < 0       # TypeError: '<' not supported\nNone > 0       # TypeError\n# Python 2 allowed this — watch out in old code",
+              "note": "Always use 'is None' / 'is not None' — never == None"
+            },
+            {
+              "label": "bool is subclass of int",
+              "code": "isinstance(True, int)   # True!\nTrue + True             # 2\nTrue * 10               # 10\nFalse + 1               # 1\nsum([True, False, True]) # 2 — count truthy values!\n\n# This means:\n{True: 'a', 1: 'b'}    # {True: 'b'} — True and 1 are same key!",
+              "note": "sum(bool_list) counts True values — very useful for interview one-liners"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Truthiness & Falsy Values",
+          "items": [
+            {
+              "label": "Falsy values in Python",
+              "code": "# All of these are falsy:\nbool(None)    # False\nbool(0)       # False\nbool(0.0)     # False\nbool('')      # False\nbool([])      # False\nbool({})      # False\nbool(set())   # False\n\n# So you can write:\nif not lst:    # checks if list is empty\nif node:       # checks if node is not None",
+              "note": "Empty collections and zero are falsy — use 'if lst' instead of 'if len(lst) > 0'"
+            },
+            {
+              "label": "Short-circuit evaluation",
+              "code": "# 'and' returns first falsy or last value\n0 and 5       # 0\n3 and 5       # 5\n'' and 'hi'   # ''\n\n# 'or' returns first truthy or last value\n0 or 5        # 5\n3 or 5        # 3\n'' or 'default'  # 'default'  — useful for defaults\n\n# Common pattern:\nresult = cache.get(key) or compute(key)",
+              "note": "'or' for default values, 'and' for guarded access — they return values, not just True/False"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mutability",
+      "name": "Mutable vs Immutable",
+      "icon": "🔒",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Hashability Rules",
+          "items": [
+            {
+              "label": "What's hashable (can be dict key / set item)",
+              "code": "# Immutable = hashable (usually)\nhash(42)           # works\nhash('hello')      # works\nhash((1, 2, 3))    # works — tuple of immutables\n\n# Mutable = NOT hashable\nhash([1, 2, 3])    # TypeError: unhashable type: 'list'\nhash({1: 2})       # TypeError: unhashable type: 'dict'\nhash({1, 2})       # TypeError: unhashable type: 'set'\n\n# Gotcha: tuple containing mutable is unhashable\nhash((1, [2, 3]))  # TypeError!",
+              "note": "Rule: if it can change, it can't be hashed. Tuples of immutables are fine."
+            },
+            {
+              "label": "frozenset — hashable set",
+              "code": "# Regular set: mutable, unhashable\ns = {1, 2, 3}\n# hash(s)  # TypeError\n\n# Frozenset: immutable, hashable\nfs = frozenset([1, 2, 3])\nhash(fs)  # works!\n\n# Use case: set of sets (e.g., grouping)\nseen = set()\nseen.add(frozenset([1, 2]))  # track sets you've visited\n\n# Also works as dict key:\ncache = {frozenset([1, 2]): 'result'}",
+              "note": "Need a set as dict key or inside another set? Use frozenset."
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Mutable Default Argument Trap",
+          "items": [
+            {
+              "label": "The classic bug",
+              "code": "def append_to(val, lst=[]):\n    lst.append(val)\n    return lst\n\nappend_to(1)  # [1]\nappend_to(2)  # [1, 2]  — BUG! Same list reused!\nappend_to(3)  # [1, 2, 3]",
+              "note": "Default arguments are evaluated ONCE at function definition, not each call"
+            },
+            {
+              "label": "The fix: use None sentinel",
+              "code": "def append_to(val, lst=None):\n    if lst is None:\n        lst = []\n    lst.append(val)\n    return lst\n\nappend_to(1)  # [1]\nappend_to(2)  # [2]  — correct! Fresh list each time",
+              "note": "Always use None as default for mutable args (list, dict, set)"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Shallow vs Deep Copy",
+          "items": [
+            {
+              "label": "Shallow copy methods",
+              "code": "original = [[1, 2], [3, 4]]\n\n# All of these create SHALLOW copies:\na = original[:]           # slice\nb = list(original)        # constructor\nc = original.copy()       # method\nimport copy\nd = copy.copy(original)   # copy module\n\na[0].append(99)\nprint(original)  # [[1, 2, 99], [3, 4]] — inner list shared!",
+              "note": "Shallow copy creates new outer container but inner objects are still shared references"
+            },
+            {
+              "label": "Deep copy",
+              "code": "import copy\noriginal = [[1, 2], [3, 4]]\ndeep = copy.deepcopy(original)\n\ndeep[0].append(99)\nprint(original)  # [[1, 2], [3, 4]] — safe! Fully independent\nprint(deep)      # [[1, 2, 99], [3, 4]]",
+              "note": "Use deepcopy when you have nested mutable objects and need full independence"
+            },
+            {
+              "label": "When shallow copy IS enough",
+              "code": "# Flat list of immutables — shallow copy is fine:\nnums = [1, 2, 3, 4]\ncopy_nums = nums[:]\ncopy_nums[0] = 99\nprint(nums)  # [1, 2, 3, 4] — safe because ints are immutable\n\n# Dict of simple values:\nd = {'a': 1, 'b': 2}\nd2 = d.copy()  # fine for flat dicts",
+              "note": "If all elements are immutable (int, str, tuple), shallow copy is sufficient"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "references",
+      "name": "References & Copies",
+      "icon": "🔗",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Assignment is Aliasing",
+          "items": [
+            {
+              "label": "Assignment shares reference",
+              "code": "a = [1, 2, 3]\nb = a          # b points to SAME list\nb.append(4)\nprint(a)       # [1, 2, 3, 4] — a is modified too!\n\n# Same with dicts:\nd1 = {'x': 1}\nd2 = d1\nd2['y'] = 2\nprint(d1)      # {'x': 1, 'y': 2}",
+              "note": "In Python, variables are labels pointing to objects — assignment creates another label"
+            },
+            {
+              "label": "id() to check identity",
+              "code": "a = [1, 2, 3]\nb = a\nid(a) == id(b)  # True — same object in memory\n\nc = a[:]\nid(a) == id(c)  # False — different objects\n\n# Immutables can share identity (interning):\nx = 'hello'\ny = 'hello'\nid(x) == id(y)  # True (string interning)",
+              "note": "id() returns the memory address — useful for debugging reference issues"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "The [[0]*n]*m Trap",
+          "items": [
+            {
+              "label": "WRONG: multiplied list of lists",
+              "code": "# This creates m references to the SAME inner list!\ngrid = [[0] * 3] * 3\ngrid[0][0] = 1\nprint(grid)\n# [[1, 0, 0],\n#  [1, 0, 0],   <-- all rows changed!\n#  [1, 0, 0]]",
+              "note": "* on a list copies references, not objects"
+            },
+            {
+              "label": "CORRECT: list comprehension",
+              "code": "# Each iteration creates a NEW inner list\ngrid = [[0] * 3 for _ in range(3)]\ngrid[0][0] = 1\nprint(grid)\n# [[1, 0, 0],\n#  [0, 0, 0],   <-- only row 0 changed\n#  [0, 0, 0]]\n\n# Note: [0] * 3 is fine because ints are immutable\n# The trap is only with mutable inner elements",
+              "note": "Always use list comprehension for 2D arrays: [[val]*cols for _ in range(rows)]"
+            },
+            {
+              "label": "Same trap with dicts and sets",
+              "code": "# WRONG:\nrows = [{}] * 3\nrows[0]['a'] = 1\nprint(rows)  # [{'a': 1}, {'a': 1}, {'a': 1}]\n\n# CORRECT:\nrows = [{} for _ in range(3)]\nrows[0]['a'] = 1\nprint(rows)  # [{'a': 1}, {}, {}]",
+              "note": "Any mutable object multiplied with * shares references"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Rebinding vs Mutating",
+          "items": [
+            {
+              "label": "Rebinding creates new reference",
+              "code": "a = [1, 2, 3]\nb = a\n\n# Mutating (affects both a and b):\na.append(4)   # a and b are still the same object\n\n# Rebinding (only affects a):\na = [5, 6, 7]  # a now points to new list\nprint(b)       # [1, 2, 3, 4] — b still points to old list",
+              "note": "a.method() mutates in place; a = new_value creates a new binding"
+            },
+            {
+              "label": "+= behaves differently for mutables vs immutables",
+              "code": "# Lists: += mutates in place (calls __iadd__)\na = [1, 2]\nb = a\na += [3]       # same as a.extend([3])\nprint(b)       # [1, 2, 3] — b sees the change\n\n# Tuples: += rebinds (creates new tuple)\na = (1, 2)\nb = a\na += (3,)      # creates new tuple, rebinds a\nprint(b)       # (1, 2) — b unchanged",
+              "note": "For lists, += is in-place mutation. For tuples/strings, += creates a new object."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unpacking",
+      "name": "Unpacking & Destructuring",
+      "icon": "📦",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Basic Unpacking",
+          "items": [
+            {
+              "label": "Tuple / list unpacking",
+              "code": "a, b = 1, 2          # a=1, b=2\na, b = [1, 2]         # same with list\nx, y, z = 'abc'       # x='a', y='b', z='c'\n\n# Swap — no temp variable needed:\na, b = b, a           # evaluates RHS first, then assigns\n\n# Rotate three variables:\na, b, c = b, c, a",
+              "note": "RHS is fully evaluated before assignment — that's why swap works"
+            },
+            {
+              "label": "Star unpacking (*)",
+              "code": "first, *rest = [1, 2, 3, 4, 5]\n# first=1, rest=[2, 3, 4, 5]\n\n*init, last = [1, 2, 3, 4, 5]\n# init=[1, 2, 3, 4], last=5\n\nfirst, *mid, last = [1, 2, 3, 4, 5]\n# first=1, mid=[2, 3, 4], last=5\n\n# Single element:\na, *rest = [1]\n# a=1, rest=[]  — rest is always a list",
+              "note": "Star variable always becomes a list (possibly empty). Only one * allowed per assignment."
+            },
+            {
+              "label": "Nested unpacking",
+              "code": "(a, b), c = [1, 2], 3\n# a=1, b=2, c=3\n\n(a, b), (c, d) = (1, 2), (3, 4)\n# a=1, b=2, c=3, d=4\n\n# Useful with enumerate:\nfor i, (key, val) in enumerate(d.items()):\n    print(i, key, val)",
+              "note": "Nested unpacking matches structure — great for iterating over structured data"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Function Arguments",
+          "items": [
+            {
+              "label": "*args and **kwargs",
+              "code": "def f(*args, **kwargs):\n    print(args)    # tuple of positional args\n    print(kwargs)  # dict of keyword args\n\nf(1, 2, x=3, y=4)\n# args = (1, 2)\n# kwargs = {'x': 3, 'y': 4}",
+              "note": "*args collects positional into tuple, **kwargs collects keyword into dict"
+            },
+            {
+              "label": "Unpacking into function calls",
+              "code": "def add(a, b, c):\n    return a + b + c\n\nargs = [1, 2, 3]\nadd(*args)           # add(1, 2, 3)\n\nkwargs = {'a': 1, 'b': 2, 'c': 3}\nadd(**kwargs)        # add(a=1, b=2, c=3)\n\n# Combine:\nadd(*[1, 2], **{'c': 3})  # add(1, 2, c=3)",
+              "note": "* unpacks iterable into positional args, ** unpacks dict into keyword args"
+            },
+            {
+              "label": "Enumerate and zip unpacking",
+              "code": "# Enumerate unpacking:\nfor i, val in enumerate(['a', 'b', 'c'], start=1):\n    print(i, val)  # 1 a, 2 b, 3 c\n\n# Zip unpacking:\nnames = ['Alice', 'Bob']\nscores = [90, 85]\nfor name, score in zip(names, scores):\n    print(name, score)\n\n# Unzip with zip(*...)\npairs = [('a', 1), ('b', 2), ('c', 3)]\nletters, numbers = zip(*pairs)\n# letters = ('a', 'b', 'c'), numbers = (1, 2, 3)",
+              "note": "zip(*pairs) is the idiomatic 'unzip' — transposes rows and columns"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Dict Unpacking",
+          "items": [
+            {
+              "label": "Merge dicts with **",
+              "code": "d1 = {'a': 1, 'b': 2}\nd2 = {'b': 3, 'c': 4}\n\n# Python 3.5+: unpack into new dict\nmerged = {**d1, **d2}  # {'a': 1, 'b': 3, 'c': 4}\n# Later dict wins on conflicts\n\n# Python 3.9+: merge operator\nmerged = d1 | d2       # {'a': 1, 'b': 3, 'c': 4}\nd1 |= d2               # in-place merge",
+              "note": "** unpacking: later values override. | operator is Python 3.9+ only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iteration",
+      "name": "Iteration Protocols",
+      "icon": "🔄",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Iterators Are Single-Pass",
+          "items": [
+            {
+              "label": "Consumed iterators are empty",
+              "code": "z = zip([1, 2], [3, 4])\nlist(z)  # [(1, 3), (2, 4)]\nlist(z)  # [] — consumed! Nothing left\n\nm = map(str, [1, 2, 3])\nlist(m)  # ['1', '2', '3']\nlist(m)  # [] — also consumed\n\n# Fix: convert to list first if you need multiple passes\nzipped = list(zip([1, 2], [3, 4]))  # now reusable",
+              "note": "zip, map, filter, generators — all single-use. Convert to list if you need to iterate twice."
+            },
+            {
+              "label": "Generators are lazy iterators",
+              "code": "# Generator expression (like list comp but with parens):\ngen = (x**2 for x in range(5))\nnext(gen)  # 0\nnext(gen)  # 1\n# Values computed on demand, not stored in memory\n\n# Generator function:\ndef fib():\n    a, b = 0, 1\n    while True:\n        yield a\n        a, b = b, a + b\n\nf = fib()\n[next(f) for _ in range(7)]  # [0, 1, 1, 2, 3, 5, 8]",
+              "note": "Generators use O(1) memory — perfect for large sequences you only need once"
+            },
+            {
+              "label": "range is NOT an iterator",
+              "code": "r = range(5)\nlist(r)  # [0, 1, 2, 3, 4]\nlist(r)  # [0, 1, 2, 3, 4] — still works! range is reusable\n\n# range supports O(1) membership test:\n999999 in range(1000000)  # True — instant, not linear scan\n\n# range supports indexing:\nrange(10)[7]     # 7\nrange(0, 20, 3)  # 0, 3, 6, 9, 12, 15, 18",
+              "note": "range is a lazy sequence (not iterator) — supports len, indexing, 'in', and reuse"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "zip Behaviors",
+          "items": [
+            {
+              "label": "zip truncates to shortest",
+              "code": "list(zip([1, 2, 3], [4, 5]))  # [(1, 4), (2, 5)] — 3 is dropped!\n\n# Use itertools.zip_longest to pad:\nfrom itertools import zip_longest\nlist(zip_longest([1, 2, 3], [4, 5], fillvalue=0))\n# [(1, 4), (2, 5), (3, 0)]",
+              "note": "zip silently drops extras — use zip_longest if you need all elements"
+            },
+            {
+              "label": "zip with enumerate and dict",
+              "code": "# Create dict from two lists:\nkeys = ['a', 'b', 'c']\nvals = [1, 2, 3]\nd = dict(zip(keys, vals))  # {'a': 1, 'b': 2, 'c': 3}\n\n# Parallel iteration with index:\nfor i, (a, b) in enumerate(zip(list1, list2)):\n    print(i, a, b)",
+              "note": "dict(zip(keys, vals)) is the idiomatic way to build a dict from parallel lists"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Iteration Patterns",
+          "items": [
+            {
+              "label": "reversed() needs sequence or __reversed__",
+              "code": "reversed([1, 2, 3])      # works — list has __reversed__\nreversed(range(5))        # works — range has __reversed__\n# reversed({1, 2, 3})     # TypeError — sets have no order\n# reversed(gen)            # TypeError — generators can't reverse\n\n# For dicts (Python 3.8+):\nreversed(d)               # iterates keys in reverse insertion order",
+              "note": "reversed returns an iterator — wrap in list() if you need a list"
+            },
+            {
+              "label": "Dictionary iteration order",
+              "code": "d = {'b': 2, 'a': 1, 'c': 3}\nlist(d)         # ['b', 'a', 'c'] — insertion order (3.7+)\nlist(d.keys())  # ['b', 'a', 'c']\nlist(d.values())# [2, 1, 3]\nlist(d.items()) # [('b', 2), ('a', 1), ('c', 3)]\n\n# Iterate and modify — must copy keys first:\nfor k in list(d):  # list() snapshot of keys\n    if d[k] < 2:\n        del d[k]",
+              "note": "Dict preserves insertion order since Python 3.7. Don't modify dict while iterating."
+            },
+            {
+              "label": "enumerate start parameter",
+              "code": "for i, v in enumerate(['a', 'b', 'c']):\n    print(i, v)  # 0 a, 1 b, 2 c\n\nfor i, v in enumerate(['a', 'b', 'c'], start=1):\n    print(i, v)  # 1 a, 2 b, 3 c\n\n# Common pattern — build index map:\nidx = {v: i for i, v in enumerate(arr)}",
+              "note": "start=1 for 1-indexed output. enumerate returns (index, value) pairs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scope",
+      "name": "Scope & Closures",
+      "icon": "🔭",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "LEGB Rule",
+          "items": [
+            {
+              "label": "Scope lookup order",
+              "code": "x = 'global'             # Global\n\ndef outer():\n    x = 'enclosing'      # Enclosing\n    def inner():\n        x = 'local'      # Local\n        print(x)          # 'local'\n    inner()\n\n# Lookup order: Local → Enclosing → Global → Built-in\n# Built-in examples: len, range, print, int, list",
+              "note": "LEGB = Local, Enclosing, Global, Built-in. Python searches in this order."
+            },
+            {
+              "label": "global keyword",
+              "code": "count = 0\n\ndef increment():\n    global count      # without this, count += 1 would fail\n    count += 1\n\nincrement()\nprint(count)  # 1",
+              "note": "global lets you modify module-level variables inside a function — rarely needed in interviews"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "nonlocal and Closures",
+          "items": [
+            {
+              "label": "Why count += 1 fails without nonlocal",
+              "code": "def make_counter():\n    count = 0\n    def increment():\n        count += 1     # UnboundLocalError!\n        return count\n    return increment\n\n# Python sees 'count =' and treats it as local,\n# but it's referenced before assignment → error\n\n# Fix with nonlocal:\ndef make_counter():\n    count = 0\n    def increment():\n        nonlocal count  # now refers to enclosing scope\n        count += 1\n        return count\n    return increment\n\nc = make_counter()\nc()  # 1\nc()  # 2",
+              "note": "Any assignment (including +=) makes Python treat the variable as local in that scope"
+            },
+            {
+              "label": "Mutable object trick (avoid nonlocal)",
+              "code": "def make_counter():\n    state = [0]         # list is mutable\n    def increment():\n        state[0] += 1   # mutating, not rebinding — no nonlocal needed\n        return state[0]\n    return increment\n\n# Same trick with dict:\ndef make_counter():\n    state = {'count': 0}\n    def increment():\n        state['count'] += 1  # mutating dict, not rebinding\n        return state['count']\n    return increment",
+              "note": "Mutating a mutable object doesn't require nonlocal — only rebinding does"
+            },
+            {
+              "label": "DFS with nonlocal (common interview pattern)",
+              "code": "def max_depth(root):\n    result = 0\n    def dfs(node, depth):\n        nonlocal result\n        if not node:\n            return\n        result = max(result, depth)\n        dfs(node.left, depth + 1)\n        dfs(node.right, depth + 1)\n    dfs(root, 1)\n    return result\n\n# Alternative: use return values instead of nonlocal\ndef max_depth(root):\n    if not root:\n        return 0\n    return 1 + max(max_depth(root.left), max_depth(root.right))",
+              "note": "In interviews, prefer return values over nonlocal when possible — cleaner and less error-prone"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Closure Traps",
+          "items": [
+            {
+              "label": "Late binding in loops",
+              "code": "# BUG: all functions return 4 (last value of i)\nfuncs = []\nfor i in range(5):\n    funcs.append(lambda: i)  # captures variable i, not its value\n\n[f() for f in funcs]  # [4, 4, 4, 4, 4]\n\n# FIX 1: default argument captures current value\nfuncs = []\nfor i in range(5):\n    funcs.append(lambda i=i: i)  # i=i captures current value\n\n[f() for f in funcs]  # [0, 1, 2, 3, 4]\n\n# FIX 2: use functools.partial\nfrom functools import partial\nfuncs = [partial(lambda x: x, i) for i in range(5)]",
+              "note": "Closures capture variables by reference, not by value. Use default arg trick to capture current value."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "numbers",
+      "name": "Number Gotchas",
+      "icon": "🔢",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Python Integer Properties",
+          "items": [
+            {
+              "label": "Unbounded integers — no overflow",
+              "code": "2 ** 100   # 1267650600228229401496703205376  — no problem!\n10 ** 1000 # works fine, arbitrary precision\n\n# No need for long type (Python 2 had int vs long)\n# No need for BigInteger like Java\n# This matters for: factorial, power, large DP values\n\nimport sys\nsys.maxsize  # 9223372036854775807 — max for C-level, but Python ints go beyond",
+              "note": "Python ints never overflow — no need for modular arithmetic unless the problem asks for it"
+            },
+            {
+              "label": "float('inf') and math.inf",
+              "code": "INF = float('inf')\n-INF = float('-inf')\n\nINF > 10**1000       # True\nINF + 1 == INF       # True\nINF - INF            # nan\nINF == float('inf')  # True\n\nimport math\nmath.inf == float('inf')  # True — same thing\nmath.isinf(INF)           # True\n\n# Common usage:\nmin_val = float('inf')\nfor x in arr:\n    min_val = min(min_val, x)",
+              "note": "float('inf') is the standard sentinel for min/max tracking in interviews"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Division Behaviors",
+          "items": [
+            {
+              "label": "// floor division with negatives",
+              "code": " 7 // 2    #  3   (floors toward negative infinity)\n-7 // 2    # -4   (not -3! floors DOWN)\n 7 // -2   # -4   (same — floors toward -inf)\n\n# C/Java would give -3 (truncation toward zero)\n# To get truncation toward zero in Python:\nint(-7 / 2)  # -3  (int() truncates toward zero)",
+              "note": "Python // floors toward -inf, not toward zero. Use int(a/b) for C-style truncation."
+            },
+            {
+              "label": "divmod(a, b)",
+              "code": "divmod(17, 5)   # (3, 2)  — quotient=3, remainder=2\ndivmod(-17, 5)  # (-4, 3) — floors! -4*5 + 3 = -17\n\n# Useful for coordinate conversion:\nrow, col = divmod(index, num_cols)\n\n# Time conversion:\nhours, minutes = divmod(total_minutes, 60)",
+              "note": "divmod returns (quotient, remainder) in one call — great for grid index conversion"
+            },
+            {
+              "label": "Modulo with negatives",
+              "code": " 7 % 3     #  1  (standard)\n-7 % 3     #  2  (Python: result has sign of divisor)\n 7 % -3    # -2  (result has sign of divisor)\n\n# C/Java: -7 % 3 = -1 (result has sign of dividend)\n# Python guarantees: a == (a // b) * b + (a % b)",
+              "note": "Python's modulo always returns result with the sign of the divisor — different from C/Java"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Rounding & Conversion",
+          "items": [
+            {
+              "label": "math.ceil, math.floor, int(), round()",
+              "code": "import math\nmath.ceil(2.3)    #  3\nmath.ceil(-2.3)   # -2  (toward +inf)\nmath.floor(2.7)   #  2\nmath.floor(-2.7)  # -3  (toward -inf)\n\nint(2.7)          #  2  (truncate toward zero)\nint(-2.7)         # -2  (truncate toward zero)\n\nround(2.5)        #  2  (banker's rounding! rounds to even)\nround(3.5)        #  4  (rounds to even)\nround(2.55, 1)    #  2.5  (float precision issue)",
+              "note": "int() truncates toward zero, // floors toward -inf, round() uses banker's rounding"
+            },
+            {
+              "label": "Ceiling division trick",
+              "code": "# How many groups of size k for n items?\n# Standard: math.ceil(n / k)\nimport math\nmath.ceil(7 / 3)        # 3\n\n# Integer-only trick (no float):\n(n + k - 1) // k        # ceiling division\n(7 + 3 - 1) // 3        # 3\n\n# Or using negative floor division:\n-(-n // k)              # also ceiling division\n-(-7 // 3)              # 3",
+              "note": "(n + k - 1) // k is the classic ceiling division trick — avoids float imprecision"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strings-mechanics",
+      "name": "String Mechanics",
+      "icon": "🧵",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "String Fundamentals",
+          "items": [
+            {
+              "label": "Strings are immutable sequences",
+              "code": "s = 'hello'\ns[0] = 'H'    # TypeError! Can't modify\n\n# Must create new string:\ns = 'H' + s[1:]  # 'Hello'\n\n# For heavy modification, use list:\nchars = list(s)    # ['H', 'e', 'l', 'l', 'o']\nchars[0] = 'h'\nresult = ''.join(chars)  # 'hello'",
+              "note": "String concatenation in a loop is O(n^2) — use list + join for building strings"
+            },
+            {
+              "label": "join is called on the separator",
+              "code": "# separator.join(iterable)\n', '.join(['a', 'b', 'c'])    # 'a, b, c'\n''.join(['h', 'e', 'l', 'l', 'o'])  # 'hello'\n'->'.join(['1', '2', '3'])   # '1->2->3'\n\n# Must be strings:\n' '.join([1, 2, 3])           # TypeError!\n' '.join(map(str, [1, 2, 3])) # '1 2 3' — convert first",
+              "note": "join only works on iterables of strings — use map(str, ...) for non-strings"
+            },
+            {
+              "label": "'in' checks substrings",
+              "code": "'ab' in 'abc'     # True — substring check\n'ac' in 'abc'     # False — must be contiguous\n'a' in 'abc'      # True — single char\n'' in 'abc'       # True — empty string is in everything\n\n# Different from list 'in':\n[1, 2] in [[1, 2], [3, 4]]  # True — element check, not subsequence",
+              "note": "For strings, 'in' checks substring. For lists, 'in' checks element membership."
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Character Operations",
+          "items": [
+            {
+              "label": "ord() and chr() for character arithmetic",
+              "code": "ord('a')           # 97\nord('A')           # 65\nord('0')           # 48\nchr(97)            # 'a'\nchr(65)            # 'A'\n\n# Character to 0-25 index:\nidx = ord('c') - ord('a')  # 2\n\n# Build frequency array:\nfreq = [0] * 26\nfor c in s:\n    freq[ord(c) - ord('a')] += 1\n\n# Check if letter: 'a' <= c <= 'z' or c.isalpha()",
+              "note": "ord(c) - ord('a') maps lowercase letters to 0-25. Essential for frequency arrays."
+            },
+            {
+              "label": "String methods for checking types",
+              "code": "'abc'.isalpha()     # True (letters only)\n'123'.isdigit()     # True (digits only)\n'abc123'.isalnum()  # True (letters or digits)\n'  '.isspace()      # True (whitespace only)\n'Hello'.isupper()   # False\n'HELLO'.isupper()   # True\n'hello'.islower()   # True\n\n# Common interview filter:\nclean = ''.join(c.lower() for c in s if c.isalnum())",
+              "note": "isalnum() for valid palindrome check (LC 125). These methods return False for empty strings."
+            },
+            {
+              "label": "f-strings and formatting",
+              "code": "name, score = 'Alice', 95.678\nf'{name}: {score}'          # 'Alice: 95.678'\nf'{score:.2f}'              # '95.68' — 2 decimal places\nf'{42:08b}'                 # '00101010' — 8-bit binary\nf'{42:05d}'                 # '00042' — zero-padded\nf'{42:>10}'                 # '        42' — right-aligned\n\n# Expressions inside f-strings:\nf'{2**10}'                  # '1024'\nf'{[1,2,3][-1]}'            # '3'",
+              "note": "f-strings support any expression including method calls — very flexible"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common String Patterns",
+          "items": [
+            {
+              "label": "String multiplication and slicing",
+              "code": "'ab' * 3           # 'ababab'\n'-' * 20           # '--------------------'\n\n# Reverse:\ns[::-1]            # 'olleh' from 'hello'\n\n# Every other char:\ns[::2]             # 'hlo' from 'hello'\n\n# Check palindrome:\ns == s[::-1]       # True if palindrome",
+              "note": "s[::-1] is the Pythonic way to reverse a string"
+            },
+            {
+              "label": "split and strip",
+              "code": "'a,b,c'.split(',')        # ['a', 'b', 'c']\n'hello world'.split()      # ['hello', 'world'] — splits on whitespace\n'  hello  '.strip()        # 'hello'\n'  hello  '.lstrip()       # 'hello  '\n'  hello  '.rstrip()       # '  hello'\n'xxhelloxx'.strip('x')    # 'hello' — strips chars, not substring\n\n# Split with limit:\n'a.b.c.d'.split('.', 1)   # ['a', 'b.c.d'] — split once",
+              "note": "split() with no args splits on any whitespace and removes empty strings"
+            },
+            {
+              "label": "String building patterns",
+              "code": "# BAD: O(n^2) concatenation in loop\nresult = ''\nfor c in chars:\n    result += c    # creates new string each time\n\n# GOOD: O(n) with list + join\nparts = []\nfor c in chars:\n    parts.append(c)\nresult = ''.join(parts)\n\n# BEST: list comprehension + join\nresult = ''.join(c for c in s if c.isalpha())",
+              "note": "Always build strings with list + join in interviews — shows you understand immutability"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stdlib-weapons",
+      "name": "Standard Library Weapons",
+      "icon": "🧰",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "collections Module",
+          "items": [
+            {
+              "label": "Counter",
+              "code": "from collections import Counter\nc = Counter('aabbc')       # Counter({'a': 2, 'b': 2, 'c': 1})\nc.most_common(2)           # [('a', 2), ('b', 2)]\nc['a']                     # 2\nc['z']                     # 0 (no KeyError!)\n\n# Arithmetic:\nc1 = Counter('aab')\nc2 = Counter('abc')\nc1 + c2    # Counter({'a': 3, 'b': 2, 'c': 1})\nc1 - c2    # Counter({'a': 1}) — drops zero/negative\nc1 & c2    # Counter({'a': 1, 'b': 1}) — min of each\nc1 | c2    # Counter({'a': 2, 'b': 1, 'c': 1}) — max of each",
+              "note": "Counter is a dict subclass. Accessing missing keys returns 0 (not KeyError)."
+            },
+            {
+              "label": "defaultdict",
+              "code": "from collections import defaultdict\n\n# Group items:\nd = defaultdict(list)\nfor key, val in pairs:\n    d[key].append(val)    # no need to check if key exists\n\n# Count items:\nd = defaultdict(int)\nfor item in items:\n    d[item] += 1          # int() returns 0 as default\n\n# Set of neighbors:\ngraph = defaultdict(set)\nfor u, v in edges:\n    graph[u].add(v)\n    graph[v].add(u)\n\n# Nested defaultdict:\nd = defaultdict(lambda: defaultdict(int))",
+              "note": "defaultdict(list) for grouping, defaultdict(int) for counting, defaultdict(set) for graphs"
+            },
+            {
+              "label": "deque",
+              "code": "from collections import deque\n\ndq = deque([1, 2, 3])\ndq.append(4)         # right: [1, 2, 3, 4]\ndq.appendleft(0)     # left:  [0, 1, 2, 3, 4]\ndq.pop()             # 4  O(1)\ndq.popleft()         # 0  O(1)\n\n# BFS pattern:\nqueue = deque([start])\nwhile queue:\n    node = queue.popleft()  # O(1) vs list.pop(0) which is O(n)\n    for neighbor in graph[node]:\n        queue.append(neighbor)\n\n# Fixed-size window:\ndq = deque(maxlen=3)\nfor x in [1, 2, 3, 4, 5]:\n    dq.append(x)\n# dq = deque([3, 4, 5]) — oldest auto-removed",
+              "note": "deque for BFS (popleft is O(1)). list.pop(0) is O(n) — never use it for queues."
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "itertools Module",
+          "items": [
+            {
+              "label": "combinations, permutations, product",
+              "code": "from itertools import combinations, permutations, product\n\nlist(combinations([1,2,3], 2))   # [(1,2), (1,3), (2,3)]\nlist(permutations([1,2,3], 2))   # [(1,2), (1,3), (2,1), (2,3), (3,1), (3,2)]\nlist(product([0,1], repeat=3))   # all 3-bit combos: (0,0,0)..(1,1,1)\nlist(product('ab', '12'))        # [('a','1'), ('a','2'), ('b','1'), ('b','2')]\n\n# combinations_with_replacement:\nfrom itertools import combinations_with_replacement\nlist(combinations_with_replacement([1,2,3], 2))\n# [(1,1), (1,2), (1,3), (2,2), (2,3), (3,3)]",
+              "note": "combinations: C(n,k), permutations: P(n,k), product: cartesian product. All return iterators."
+            },
+            {
+              "label": "accumulate and chain",
+              "code": "from itertools import accumulate, chain\n\n# Prefix sums:\nlist(accumulate([1, 2, 3, 4]))      # [1, 3, 6, 10]\nlist(accumulate([1, 2, 3], initial=0))  # [0, 1, 3, 6]  Python 3.8+\n\n# Running max:\nlist(accumulate([3, 1, 4, 1, 5], max))  # [3, 3, 4, 4, 5]\n\n# Flatten list of lists:\nnested = [[1, 2], [3, 4], [5]]\nlist(chain.from_iterable(nested))  # [1, 2, 3, 4, 5]\n\n# Concatenate iterables:\nlist(chain([1, 2], [3, 4], [5]))   # [1, 2, 3, 4, 5]",
+              "note": "accumulate for prefix sums, chain.from_iterable to flatten one level of nesting"
+            },
+            {
+              "label": "groupby (requires sorted input!)",
+              "code": "from itertools import groupby\n\n# MUST sort by key first!\ndata = [('A', 1), ('A', 2), ('B', 3), ('B', 4)]\nfor key, group in groupby(data, key=lambda x: x[0]):\n    print(key, list(group))\n# A [('A', 1), ('A', 2)]\n# B [('B', 3), ('B', 4)]\n\n# Count consecutive:\ns = 'aaabbbcc'\nfor char, group in groupby(s):\n    print(char, sum(1 for _ in group))  # a 3, b 3, c 2",
+              "note": "groupby groups consecutive equal elements — sort first if you want all-same-key groups together"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "bisect Module",
+          "items": [
+            {
+              "label": "bisect_left, bisect_right, insort",
+              "code": "from bisect import bisect_left, bisect_right, insort\n\narr = [1, 3, 3, 5, 7]\nbisect_left(arr, 3)    # 1 — leftmost position to insert 3\nbisect_right(arr, 3)   # 3 — rightmost position to insert 3\nbisect_left(arr, 4)    # 3 — where 4 would go\nbisect_left(arr, 0)    # 0 — before everything\n\n# Insert while maintaining sort:\ninsort(arr, 4)         # arr = [1, 3, 3, 4, 5, 7]\n\n# Binary search — find exact element:\ndef binary_search(arr, target):\n    i = bisect_left(arr, target)\n    if i < len(arr) and arr[i] == target:\n        return i\n    return -1",
+              "note": "bisect_left: first valid position. bisect_right: position after existing equal elements."
+            },
+            {
+              "label": "bisect for range queries",
+              "code": "from bisect import bisect_left, bisect_right\n\narr = [1, 2, 3, 3, 3, 5, 7]\n\n# Count of 3s:\ncount = bisect_right(arr, 3) - bisect_left(arr, 3)  # 3\n\n# Count elements < x:\ncount_less = bisect_left(arr, x)\n\n# Count elements <= x:\ncount_le = bisect_right(arr, x)\n\n# Count elements in range [lo, hi]:\ncount_range = bisect_right(arr, hi) - bisect_left(arr, lo)",
+              "note": "Combine bisect_left and bisect_right for O(log n) range counting on sorted arrays"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "functools & heapq",
+          "items": [
+            {
+              "label": "lru_cache / cache for memoization",
+              "code": "from functools import lru_cache, cache\n\n@lru_cache(maxsize=None)  # unlimited cache\ndef fib(n):\n    if n < 2:\n        return n\n    return fib(n-1) + fib(n-2)\n\nfib(100)  # instant — O(n) with memoization\n\n# Python 3.9+: @cache is shorthand for @lru_cache(maxsize=None)\n@cache\ndef solve(i, j):\n    if i == 0 or j == 0:\n        return 0\n    return solve(i-1, j) + solve(i, j-1)\n\n# IMPORTANT: arguments must be hashable (no lists!)\n# Convert list to tuple: solve(tuple(nums), target)",
+              "note": "Use @cache for top-down DP. Arguments must be hashable — convert lists to tuples."
+            },
+            {
+              "label": "heapq.merge for sorted iterables",
+              "code": "import heapq\n\n# Merge pre-sorted iterables (lazy — O(1) memory per element):\nlist(heapq.merge([1, 3, 5], [2, 4, 6]))  # [1, 2, 3, 4, 5, 6]\n\n# With key:\nlist(heapq.merge(\n    [('a', 1), ('c', 3)],\n    [('b', 2), ('d', 4)],\n    key=lambda x: x[1]\n))  # [('a', 1), ('b', 2), ('c', 3), ('d', 4)]\n\n# heapq cheat sheet:\nheapq.heapify(lst)            # O(n) — in-place\nheapq.heappush(heap, val)     # O(log n)\nheapq.heappop(heap)           # O(log n) — smallest\nheapq.heappushpop(heap, val)  # push then pop — more efficient\nheapq.heapreplace(heap, val)  # pop then push — more efficient",
+              "note": "heapq is min-heap only. For max-heap, negate values: heappush(h, -val)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

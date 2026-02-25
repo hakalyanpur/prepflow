@@ -15,6 +15,7 @@ DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progress.j
 MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetcode_study_plan.md")
 SD_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sd_progress.json")
 REF_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_ref.json")
+MECH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_mechanics.json")
 
 # ---------------------------------------------------------------------------
 # Markdown parser — seeds progress.json on first run
@@ -343,6 +344,13 @@ def load_ref():
             return json.load(f)
     return {"topics": []}
 
+def load_mech():
+    """Read python_mechanics.json from disk (no caching) so edits appear on refresh."""
+    if os.path.exists(MECH_FILE):
+        with open(MECH_FILE, "r") as f:
+            return json.load(f)
+    return {"topics": []}
+
 # ---------------------------------------------------------------------------
 # HTTP Server
 # ---------------------------------------------------------------------------
@@ -380,6 +388,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(load_sd_data())
         if self.path == "/api/pyref":
             return self._json(load_ref())
+        if self.path == "/api/mechanics":
+            return self._json(load_mech())
         self.send_error(404)
 
     def do_POST(self):
@@ -510,16 +520,16 @@ HTML = r"""<!DOCTYPE html>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <style>
 :root, [data-theme="dark"] {
-  --bg: #1a1b26; --surface: #24283b; --border: #3b4261;
-  --text: #c0caf5; --muted: #565f89; --accent: #7aa2f7;
-  --green: #9ece6a; --yellow: #e0af68; --red: #f7768e; --purple: #bb9af7;
-  --hover-row: rgba(122,162,247,.06); --week-hover: #292e42;
+  --bg: #282c34; --surface: #21252b; --border: #3e4451;
+  --text: #abb2bf; --muted: #5c6370; --accent: #61afef;
+  --green: #98c379; --yellow: #e5c07b; --red: #e06c75; --purple: #c678dd;
+  --hover-row: rgba(97,175,239,.06); --week-hover: #2c313a;
 }
 [data-theme="light"] {
-  --bg: #d5d6db; --surface: #e9e9ec; --border: #b4b5b9;
-  --text: #343b58; --muted: #6172af; --accent: #34548a;
-  --green: #485e30; --yellow: #8f5e15; --red: #8c4351; --purple: #5a4a78;
-  --hover-row: rgba(52,84,138,.06); --week-hover: #cbccd1;
+  --bg: #fafafa; --surface: #f0f0f0; --border: #d3d3d3;
+  --text: #383a42; --muted: #a0a1a7; --accent: #4078f2;
+  --green: #50a14f; --yellow: #c18401; --red: #e45649; --purple: #a626a4;
+  --hover-row: rgba(64,120,242,.06); --week-hover: #e8e8e8;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
@@ -574,7 +584,7 @@ tr:hover { background: var(--hover-row); }
 .pyref-sidebar { border-right: 1px solid var(--border); padding-right: 12px; }
 .pyref-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: .85rem; color: var(--muted); border-left: 3px solid transparent; transition: all .15s; }
 .pyref-nav-item:hover { background: var(--hover-row); color: var(--text); }
-.pyref-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,.06); font-weight: 600; }
+.pyref-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--hover-row); font-weight: 600; }
 .pyref-nav-icon { font-size: 1.1rem; }
 .pyref-content { min-height: 400px; }
 .pyref-topic-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
@@ -649,6 +659,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <div class="tab" data-tab="review">Review Today</div>
   <div class="tab" data-tab="stats">Stats</div>
   <div class="tab" data-tab="pytips">Python Ref</div>
+  <div class="tab" data-tab="mechanics">Mechanics</div>
 </div>
 
 <div id="weekly" class="panel active"></div>
@@ -656,6 +667,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div id="review" class="panel"></div>
 <div id="stats" class="panel"></div>
 <div id="pytips" class="panel"></div>
+<div id="mechanics" class="panel"></div>
 </div>
 
 <script>
@@ -1248,6 +1260,103 @@ async function renderPyRef() {
   }
 }
 
+// --- Python Mechanics ---
+let mechData = null;
+let mechActive = '';
+let mechSearch = '';
+
+async function fetchMech() {
+  const r = await fetch('/api/mechanics');
+  mechData = await r.json();
+}
+
+function mechSelect(id) {
+  mechActive = id;
+  renderMech();
+}
+
+function renderMechTopic(topic) {
+  const q = mechSearch.toLowerCase();
+  let html = `<div class="pyref-topic-title"><span>${topic.icon}</span> ${topic.name}</div>`;
+  for (const section of topic.sections) {
+    let items = section.items;
+    if (q) {
+      items = items.filter(it =>
+        it.label.toLowerCase().includes(q) ||
+        it.code.toLowerCase().includes(q) ||
+        (it.note && it.note.toLowerCase().includes(q))
+      );
+    }
+    if (!items.length) continue;
+    html += `<div class="pyref-section">`;
+    html += `<div class="pyref-section-title">${section.title}</div>`;
+    for (const item of items) {
+      html += `<div class="pyref-item">`;
+      html += `<div class="pyref-item-header"><span class="pyref-item-label">${esc(item.label)}</span>`;
+      if (item.complexity) html += `<span class="pyref-complexity">${item.complexity}</span>`;
+      html += `</div>`;
+      html += `<pre><code>${esc(item.code)}</code></pre>`;
+      if (item.note) html += `<div class="pyref-item-note">${esc(item.note)}</div>`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+
+async function renderMech() {
+  const el = document.getElementById('mechanics');
+  if (!mechData) await fetchMech();
+  const topics = mechData.topics || [];
+  const q = mechSearch.toLowerCase();
+
+  const visibleTopics = q
+    ? topics.filter(t => t.name.toLowerCase().includes(q) ||
+        t.sections.some(s => s.items.some(it =>
+          it.label.toLowerCase().includes(q) ||
+          it.code.toLowerCase().includes(q) ||
+          (it.note && it.note.toLowerCase().includes(q))
+        ))
+      )
+    : topics;
+
+  if (!mechActive && visibleTopics.length) mechActive = visibleTopics[0].id;
+  if (mechActive && !visibleTopics.find(t => t.id === mechActive) && visibleTopics.length) {
+    mechActive = visibleTopics[0].id;
+  }
+
+  let html = `<input class="pyref-search" id="mech-search" placeholder="Search mechanics, rules, gotchas..." value="${mechSearch.replace(/"/g,'&quot;')}" />`;
+  html += `<div class="pyref-layout">`;
+
+  html += `<div class="pyref-sidebar">`;
+  for (const t of visibleTopics) {
+    const cls = t.id === mechActive ? 'pyref-nav-item active' : 'pyref-nav-item';
+    html += `<div class="${cls}" onclick="mechSelect('${t.id}')"><span class="pyref-nav-icon">${t.icon}</span> ${t.name}</div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="pyref-content">`;
+  const activeTopic = topics.find(t => t.id === mechActive);
+  if (activeTopic) {
+    html += renderMechTopic(activeTopic);
+  } else {
+    html += `<div class="pyref-empty">Select a topic from the sidebar</div>`;
+  }
+  html += `</div></div>`;
+
+  el.innerHTML = html;
+
+  const searchEl = document.getElementById('mech-search');
+  if (searchEl) {
+    searchEl.oninput = e => {
+      mechSearch = e.target.value;
+      renderMech();
+      const newEl = document.getElementById('mech-search');
+      if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
+    };
+  }
+}
+
 // --- System Design tab ---
 let sdProblems = [];
 let sdTimers = {};
@@ -1372,6 +1481,7 @@ function render() {
   else if (tab === 'review') renderReview();
   else if (tab === 'stats') renderStats();
   else if (tab === 'pytips') renderPyRef();
+  else if (tab === 'mechanics') renderMech();
 }
 
 // Tabs
