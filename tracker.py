@@ -5,7 +5,7 @@ Run:  python tracker.py
 Open: http://localhost:5050
 """
 
-import json, os, re, datetime, webbrowser, sys
+import json, os, re, datetime, webbrowser, sys, urllib.request, urllib.error
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 PORT = 5050
@@ -352,6 +352,311 @@ def load_mech():
     return {"topics": []}
 
 # ---------------------------------------------------------------------------
+# LeetCode Sync — slug mapping, config, fetch, sync
+# ---------------------------------------------------------------------------
+
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+
+# Hardcoded mapping: LeetCode title slug -> problem ID in progress.json
+# The NeetCode 150 list is static, so this is the most reliable matching strategy.
+SLUG_TO_ID = {
+    "contains-duplicate": "217",
+    "valid-anagram": "242",
+    "two-sum": "1",
+    "group-anagrams": "49",
+    "top-k-frequent-elements": "347",
+    "product-of-array-except-self": "238",
+    "valid-sudoku": "36",
+    "encode-and-decode-strings": "271",
+    "longest-consecutive-sequence": "128",
+    "valid-palindrome": "125",
+    "two-sum-ii-input-array-is-sorted": "167",
+    "3sum": "15",
+    "container-with-most-water": "11",
+    "trapping-rain-water": "42",
+    "best-time-to-buy-and-sell-stock": "121",
+    "longest-substring-without-repeating-characters": "3",
+    "longest-repeating-character-replacement": "424",
+    "permutation-in-string": "567",
+    "minimum-window-substring": "76",
+    "sliding-window-maximum": "239",
+    "valid-parentheses": "20",
+    "min-stack": "155",
+    "evaluate-reverse-polish-notation": "150",
+    "generate-parentheses": "22",
+    "daily-temperatures": "739",
+    "car-fleet": "853",
+    "largest-rectangle-in-histogram": "84",
+    "binary-search": "704",
+    "search-a-2d-matrix": "74",
+    "koko-eating-bananas": "875",
+    "find-minimum-in-rotated-sorted-array": "153",
+    "search-in-rotated-sorted-array": "33",
+    "time-based-key-value-store": "981",
+    "median-of-two-sorted-arrays": "4",
+    "reverse-linked-list": "206",
+    "merge-two-sorted-lists": "21",
+    "reorder-list": "143",
+    "remove-nth-node-from-end-of-list": "19",
+    "copy-list-with-random-pointer": "138",
+    "add-two-numbers": "2",
+    "linked-list-cycle": "141",
+    "find-the-duplicate-number": "287",
+    "lru-cache": "146",
+    "merge-k-sorted-lists": "23",
+    "reverse-nodes-in-k-group": "25",
+    "invert-binary-tree": "226",
+    "maximum-depth-of-binary-tree": "104",
+    "diameter-of-binary-tree": "543",
+    "balanced-binary-tree": "110",
+    "same-tree": "100",
+    "subtree-of-another-tree": "572",
+    "lowest-common-ancestor-of-a-binary-search-tree": "235",
+    "binary-tree-level-order-traversal": "102",
+    "binary-tree-right-side-view": "199",
+    "count-good-nodes-in-binary-tree": "1448",
+    "validate-binary-search-tree": "98",
+    "kth-smallest-element-in-a-bst": "230",
+    "construct-binary-tree-from-preorder-and-inorder-traversal": "105",
+    "binary-tree-maximum-path-sum": "124",
+    "serialize-and-deserialize-binary-tree": "297",
+    "implement-trie-prefix-tree": "208",
+    "design-add-and-search-words-data-structure": "211",
+    "word-search-ii": "212",
+    "kth-largest-element-in-a-stream": "703",
+    "last-stone-weight": "1046",
+    "k-closest-points-to-origin": "973",
+    "kth-largest-element-in-an-array": "215",
+    "task-scheduler": "621",
+    "design-twitter": "355",
+    "find-median-from-data-stream": "295",
+    "subsets": "78",
+    "combination-sum": "39",
+    "permutations": "46",
+    "subsets-ii": "90",
+    "combination-sum-ii": "40",
+    "word-search": "79",
+    "palindrome-partitioning": "131",
+    "letter-combinations-of-a-phone-number": "17",
+    "n-queens": "51",
+    "number-of-islands": "200",
+    "clone-graph": "133",
+    "max-area-of-island": "695",
+    "pacific-atlantic-water-flow": "417",
+    "surrounded-regions": "130",
+    "rotting-oranges": "994",
+    "walls-and-gates": "286",
+    "course-schedule": "207",
+    "course-schedule-ii": "210",
+    "redundant-connection": "684",
+    "number-of-connected-components-in-an-undirected-graph": "323",
+    "graph-valid-tree": "261",
+    "word-ladder": "127",
+    "reconstruct-itinerary": "332",
+    "min-cost-to-connect-all-points": "1584",
+    "network-delay-time": "743",
+    "swim-in-rising-water": "778",
+    "cheapest-flights-within-k-stops": "787",
+    "alien-dictionary": "269",
+    "climbing-stairs": "70",
+    "min-cost-climbing-stairs": "746",
+    "house-robber": "198",
+    "house-robber-ii": "213",
+    "longest-palindromic-substring": "5",
+    "palindromic-substrings": "647",
+    "decode-ways": "91",
+    "coin-change": "322",
+    "maximum-product-subarray": "152",
+    "word-break": "139",
+    "longest-increasing-subsequence": "300",
+    "partition-equal-subset-sum": "416",
+    "unique-paths": "62",
+    "longest-common-subsequence": "1143",
+    "best-time-to-buy-and-sell-stock-with-cooldown": "309",
+    "coin-change-ii": "518",
+    "target-sum": "494",
+    "interleaving-string": "97",
+    "longest-increasing-path-in-a-matrix": "329",
+    "distinct-subsequences": "115",
+    "edit-distance": "72",
+    "burst-balloons": "312",
+    "regular-expression-matching": "10",
+    "maximum-subarray": "53",
+    "jump-game": "55",
+    "jump-game-ii": "45",
+    "gas-station": "134",
+    "hand-of-straights": "846",
+    "merge-triplets-to-form-target-triplet": "1899",
+    "partition-labels": "763",
+    "valid-parenthesis-string": "678",
+    "insert-interval": "57",
+    "merge-intervals": "56",
+    "non-overlapping-intervals": "435",
+    "meeting-rooms": "252",
+    "meeting-rooms-ii": "253",
+    "minimum-interval-to-include-each-query": "1851",
+    "rotate-image": "48",
+    "spiral-matrix": "54",
+    "set-matrix-zeroes": "73",
+    "happy-number": "202",
+    "plus-one": "66",
+    "powx-n": "50",
+    "multiply-strings": "43",
+    "detect-squares": "2013",
+    "single-number": "136",
+    "number-of-1-bits": "191",
+    "counting-bits": "338",
+    "reverse-bits": "190",
+    "missing-number": "268",
+    "sum-of-two-integers": "371",
+    "reverse-integer": "7",
+}
+
+ID_TO_SLUG = {v: k for k, v in SLUG_TO_ID.items()}
+
+
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_config(cfg):
+    tmp = CONFIG_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(cfg, f, indent=2)
+    os.replace(tmp, CONFIG_FILE)
+
+
+def fetch_leetcode_accepted(username):
+    """Fetch recent accepted submissions from LeetCode's public GraphQL API."""
+    query = {
+        "query": """
+            query recentAcSubmissions($username: String!, $limit: Int!) {
+                recentAcSubmissionList(username: $username, limit: $limit) {
+                    titleSlug
+                    title
+                    timestamp
+                }
+            }
+        """,
+        "variables": {"username": username, "limit": 300},
+    }
+    data = json.dumps(query).encode()
+    req = urllib.request.Request(
+        "https://leetcode.com/graphql/",
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "Referer": "https://leetcode.com",
+            "Origin": "https://leetcode.com",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode())
+    except urllib.error.HTTPError as e:
+        if e.code == 400:
+            return {"error": f"User '{username}' not found or profile is private"}
+        return {"error": f"LeetCode API error: HTTP {e.code}"}
+    except urllib.error.URLError as e:
+        return {"error": f"Network error: {e.reason}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+    subs = result.get("data", {}).get("recentAcSubmissionList")
+    if subs is None:
+        errors = result.get("errors", [])
+        msg = errors[0].get("message", "Unknown error") if errors else "User not found or profile is private"
+        return {"error": msg}
+    return {"submissions": subs}
+
+
+def sync_from_leetcode(username):
+    """Match LeetCode accepted submissions to progress.json and mark as done.
+
+    Only considers submissions made on or after START_MONDAY so that problems
+    solved before the study plan aren't auto-marked done.
+
+    Uses a persistent cache of previously-seen accepted slugs in config.json
+    so that problems which drop off LeetCode's limited recent-submissions
+    window are still recognized on subsequent syncs.
+    """
+    result = fetch_leetcode_accepted(username)
+    if "error" in result:
+        return result
+
+    # Filter to submissions on or after study plan start
+    cutoff = int(datetime.datetime.combine(
+        datetime.date.fromisoformat(START_MONDAY),
+        datetime.time.min,
+    ).timestamp())
+    recent_subs = [s for s in result["submissions"] if int(s["timestamp"]) >= cutoff]
+    skipped = len(result["submissions"]) - len(recent_subs)
+
+    # Merge fresh API slugs with previously cached slugs
+    cfg = load_config()
+    cached_slugs = set(cfg.get("synced_slugs", []))
+    api_slugs = {s["titleSlug"] for s in recent_subs}
+    accepted_slugs = api_slugs | cached_slugs
+
+    # Also build normalized title set for fallback matching
+    accepted_titles_norm = {}
+    for s in recent_subs:
+        norm = re.sub(r"[^a-z0-9]", "", s["title"].lower())
+        accepted_titles_norm[norm] = s["titleSlug"]
+
+    problems = load_data()
+    synced = []
+    already_done = 0
+    all_matched_slugs = set(cached_slugs)  # start with existing cache
+
+    for p in problems:
+        pid = p["id"]
+        slug = ID_TO_SLUG.get(pid)
+        matched = False
+
+        if slug and slug in accepted_slugs:
+            matched = True
+        else:
+            # Fallback: normalized title matching
+            norm_title = re.sub(r"[^a-z0-9]", "", p["title"].lower())
+            if norm_title in accepted_titles_norm:
+                matched = True
+                slug = accepted_titles_norm[norm_title]
+
+        if matched:
+            if slug:
+                all_matched_slugs.add(slug)
+            if p["status"] == "done":
+                already_done += 1
+            else:
+                p["status"] = "done"
+                p["review_interval"] = min(p.get("review_interval", 1) * 2, 30)
+                if p["review_interval"] < 1:
+                    p["review_interval"] = 1
+                p["next_review"] = (datetime.date.today() + datetime.timedelta(days=p["review_interval"])).isoformat()
+                synced.append(p["title"])
+
+    if synced:
+        save_data(problems)
+
+    # Persist the merged slug cache
+    cfg["synced_slugs"] = sorted(all_matched_slugs)
+    save_config(cfg)
+
+    return {
+        "synced": len(synced),
+        "already_done": already_done,
+        "total_accepted": len(api_slugs),
+        "skipped_before_plan": skipped,
+        "matched_titles": synced,
+    }
+
+
+# ---------------------------------------------------------------------------
 # HTTP Server
 # ---------------------------------------------------------------------------
 
@@ -390,6 +695,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(load_ref())
         if self.path == "/api/mechanics":
             return self._json(load_mech())
+        if self.path == "/api/config":
+            return self._json(load_config())
         self.send_error(404)
 
     def do_POST(self):
@@ -505,6 +812,22 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(p)
             return self._json({"error": "not found"}, 404)
 
+        # /api/sync/leetcode
+        if self.path == "/api/sync/leetcode":
+            body = self._read_body()
+            username = body.get("username", "").strip()
+            if not username:
+                return self._json({"error": "Username is required"}, 400)
+            # Save username to config
+            cfg = load_config()
+            cfg["leetcode_username"] = username
+            save_config(cfg)
+            # Invalidate problems cache so sync reads fresh data
+            global _cache
+            _cache = None
+            result = sync_from_leetcode(username)
+            return self._json(result)
+
         self.send_error(404)
 
 # ---------------------------------------------------------------------------
@@ -520,10 +843,10 @@ HTML = r"""<!DOCTYPE html>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <style>
 :root, [data-theme="dark"] {
-  --bg: #282c34; --surface: #21252b; --border: #3e4451;
-  --text: #abb2bf; --muted: #5c6370; --accent: #61afef;
-  --green: #98c379; --yellow: #e5c07b; --red: #e06c75; --purple: #c678dd;
-  --hover-row: rgba(97,175,239,.06); --week-hover: #2c313a;
+  --bg: #282a36; --surface: #1e1f29; --border: #44475a;
+  --text: #f8f8f2; --muted: #6272a4; --accent: #bd93f9;
+  --green: #50fa7b; --yellow: #f1fa8c; --red: #ff5555; --purple: #ff79c6;
+  --hover-row: rgba(189,147,249,.06); --week-hover: #343746;
 }
 [data-theme="light"] {
   --bg: #fafafa; --surface: #f0f0f0; --border: #d3d3d3;
@@ -535,7 +858,8 @@ HTML = r"""<!DOCTYPE html>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
 .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 12px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
 .subtitle { color: var(--muted); font-size: .85rem; margin-bottom: 16px; }
 .theme-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: .85rem; }
 .theme-btn:hover { color: var(--text); border-color: var(--muted); }
@@ -619,6 +943,17 @@ tr:hover { background: var(--hover-row); }
 /* Side-by-side stats */
 .stats-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 @media (max-width: 800px) { .stats-columns { grid-template-columns: 1fr; } }
+/* Sync pill in header */
+.sync-pill { display: flex; align-items: center; gap: 6px; }
+.sync-pill input { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .8rem; width: 140px; }
+.sync-pill input:focus { outline: none; border-color: var(--accent); }
+.sync-pill button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: .8rem; font-weight: 600; }
+.sync-pill button:hover { color: var(--text); border-color: var(--muted); }
+.sync-pill button:disabled { opacity: .5; cursor: not-allowed; }
+.sync-result { font-size: .75rem; color: var(--muted); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sync-result .error { color: var(--red); }
+.sync-result .synced-titles { color: var(--green); }
+@media (max-width: 700px) { .sync-pill input { width: 100px; } .sync-result { display: none; } }
 /* Week group header */
 .week-header { background: var(--surface); padding: 8px 12px; font-weight: 600; font-size: .9rem; border-radius: 6px; margin: 12px 0 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .week-header:hover { background: var(--week-hover); }
@@ -649,7 +984,14 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div class="container">
 <div class="header-row">
   <h1>Interview Prep Hub</h1>
-  <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
+  <div class="header-actions">
+    <div class="sync-pill" id="sync-pill">
+      <input id="lc-username" placeholder="LeetCode username" spellcheck="false" onkeydown="if(event.key==='Enter')syncLeetCode()">
+      <button id="lc-sync-btn" onclick="syncLeetCode()" title="Sync from LeetCode">Sync</button>
+      <span id="lc-sync-result" class="sync-result"></span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
+  </div>
 </div>
 <p class="subtitle">NeetCode 150 + System Design + Python Reference — Interactive Study Dashboard</p>
 
@@ -1079,6 +1421,51 @@ function renderReview() {
     html += '</tbody></table>';
   }
   el.innerHTML = html;
+}
+
+async function loadConfig() {
+  try {
+    const r = await fetch('/api/config');
+    const cfg = await r.json();
+    const input = document.getElementById('lc-username');
+    if (cfg.leetcode_username && input) input.value = cfg.leetcode_username;
+  } catch(e) {}
+}
+
+async function syncLeetCode() {
+  const input = document.getElementById('lc-username');
+  const btn = document.getElementById('lc-sync-btn');
+  const resultEl = document.getElementById('lc-sync-result');
+  const username = input.value.trim();
+  if (!username) { resultEl.innerHTML = '<span class="error">Enter a username</span>'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Syncing\u2026';
+  resultEl.innerHTML = '';
+  try {
+    const r = await fetch('/api/sync/leetcode', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username})
+    });
+    const data = await r.json();
+    if (data.error) {
+      resultEl.innerHTML = `<span class="error">${esc(data.error)}</span>`;
+    } else {
+      let msg = data.synced > 0
+        ? `<span class="synced-titles">+${data.synced} synced</span>`
+        : `Up to date`;
+      msg += ` (${data.already_done + data.synced} matched)`;
+      resultEl.innerHTML = msg;
+      // Refresh data and re-render current tab
+      await fetchProblems();
+      render();
+    }
+  } catch(e) {
+    resultEl.innerHTML = `<span class="error">Network error</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sync';
+  }
 }
 
 async function renderStats() {
@@ -1524,7 +1911,7 @@ if (saved) {
 }
 
 async function init() {
-  await Promise.all([fetchProblems(), fetchSD()]);
+  await Promise.all([fetchProblems(), fetchSD(), loadConfig()]);
   render();
 }
 init();

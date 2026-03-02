@@ -1,0 +1,1329 @@
+{
+  "topics": [
+    {
+      "id": "patterns",
+      "name": "Pattern Recognition",
+      "icon": "🧩",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Array/String Patterns",
+          "items": [
+            { "label": "\"subarray\", \"contiguous\", \"window\"", "code": "→ Sliding Window / Prefix Sum", "link": "tpl-sliding-window", "note": "Shrinkable or fixed-size window over array" },
+            { "label": "\"substring\" with condition", "code": "→ Sliding Window + HashMap", "link": "tpl-sliding-window", "note": "Use HashMap<Character, Integer> for char counts" },
+            { "label": "\"sorted array\" + search", "code": "→ Binary Search", "link": "tpl-binary-search", "note": "lo + (hi - lo) / 2 to avoid overflow" },
+            { "label": "\"in-place\", \"O(1) space\"", "code": "→ Two Pointers / Swap", "link": "tpl-two-pointer", "note": "Read/write pointers or opposite-end squeeze" },
+            { "label": "\"palindrome\"", "code": "→ Two Pointers (center-expand or edges) / DP", "link": "tpl-two-pointer", "note": "Expand from center for all palindromic substrings" },
+            { "label": "\"anagram\", \"permutation of\"", "code": "→ int[26] freq array or HashMap", "note": "Compare frequency arrays for O(1) check" },
+            { "label": "\"duplicate\", \"contains\", \"seen before\"", "code": "→ HashSet / HashMap", "link": "hashset", "note": "O(1) lookup is the key insight" },
+            { "label": "\"merge intervals\", \"overlapping\"", "code": "→ Sort by start + linear scan", "link": "tpl-intervals", "note": "Arrays.sort(intervals, (a,b) -> a[0] - b[0])" },
+            { "label": "\"two sum\", \"pair with sum\"", "code": "→ HashMap (unsorted) / Two Pointers (sorted)", "link": "hashmap", "note": "Store complement in map for O(1) lookup" },
+            { "label": "\"rotate array\", \"reverse\"", "code": "→ Reverse sub-sections / Cyclic replacement", "note": "Reverse all, reverse first k, reverse rest" },
+            { "label": "\"majority element\", \"more than n/2\"", "code": "→ Boyer-Moore Voting / HashMap counting", "note": "Voting: cancel pairs of different elements" },
+            { "label": "\"product except self\"", "code": "→ Prefix product + Suffix product", "link": "tpl-prefix-sum", "note": "Build left[] and right[] product arrays" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Graph/Tree Patterns",
+          "items": [
+            { "label": "\"shortest path\", \"minimum steps\"", "code": "→ BFS (unweighted) / Dijkstra (weighted)", "link": "tpl-bfs", "note": "BFS guarantees shortest in unweighted graphs" },
+            { "label": "\"number of islands\", \"connected components\"", "code": "→ DFS / BFS / Union-Find", "link": "tpl-dfs", "note": "Flood fill with visited set or in-place marking" },
+            { "label": "\"level order\", \"layer by layer\"", "code": "→ BFS with level size tracking", "link": "tpl-bfs", "note": "int size = queue.size(); loop size times per level" },
+            { "label": "\"lowest common ancestor\", \"path in tree\"", "code": "→ Recursive DFS with return values", "link": "tpl-dfs", "note": "Most tree problems = DFS returning info upward" },
+            { "label": "\"topological order\", \"course schedule\"", "code": "→ Kahn's BFS (indegree) or DFS post-order", "link": "tpl-bfs", "note": "Build indegree map, start from indegree 0" },
+            { "label": "\"cycle detection\" in graph", "code": "→ DFS with 3-color (white/gray/black) or Union-Find", "link": "tpl-dfs", "note": "Gray node revisited = back edge = cycle" },
+            { "label": "\"binary tree\", \"BST\" + validate", "code": "→ Inorder traversal (BST) / DFS with min-max range", "link": "tpl-dfs", "note": "Valid BST: pass (min, max) bounds down recursively" },
+            { "label": "\"serialize / deserialize tree\"", "code": "→ BFS or preorder DFS with null markers", "link": "tpl-bfs", "note": "Use \"null\" string sentinel for missing children" },
+            { "label": "\"clone graph\", \"deep copy\"", "code": "→ BFS/DFS + HashMap<original, clone>", "link": "tpl-bfs", "note": "Map old nodes to new nodes to handle cycles" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "DP Patterns",
+          "items": [
+            { "label": "\"minimum cost\", \"maximum profit\", \"number of ways\"", "code": "→ DP (or Greedy if locally optimal = globally optimal)", "link": "tpl-dp", "note": "Check for optimal substructure + overlapping subproblems" },
+            { "label": "\"longest increasing subsequence\"", "code": "→ DP O(n²) or patience sort O(n log n)", "link": "tpl-dp", "note": "Binary search on tails array for O(n log n)" },
+            { "label": "\"partition into subsets\", \"knapsack\"", "code": "→ DP with boolean or value table", "link": "tpl-dp", "note": "dp[i][w] = can we achieve weight w using items 0..i?" },
+            { "label": "\"edit distance\", \"string matching\"", "code": "→ 2-D DP on two strings", "link": "tpl-dp", "note": "dp[i][j] = answer for s[0..i-1] and t[0..j-1]" },
+            { "label": "\"word break\", \"can segment\"", "code": "→ 1-D DP with HashSet of words", "link": "tpl-dp", "note": "dp[i] = can s[0..i-1] be segmented?" },
+            { "label": "\"best time to buy/sell stock\"", "code": "→ State machine DP / Greedy", "link": "tpl-dp", "note": "Track states: holding, not holding, cooldown" },
+            { "label": "\"decode ways\", \"count paths\"", "code": "→ 1-D DP with conditional transitions", "link": "tpl-dp", "note": "dp[i] depends on dp[i-1] and dp[i-2] with conditions" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Other Patterns",
+          "items": [
+            { "label": "\"top k\", \"k most frequent\", \"kth largest\"", "code": "→ Heap (PriorityQueue) / Bucket Sort", "link": "priority-queue", "note": "Min-heap of size k for top-k; bucket sort if bounded" },
+            { "label": "\"all combinations\", \"all permutations\"", "code": "→ Backtracking", "link": "tpl-backtracking", "note": "Enumerate with choose/unchoose pattern" },
+            { "label": "\"parentheses\", \"brackets\", \"valid nesting\"", "code": "→ Stack (ArrayDeque)", "link": "stack-deque", "note": "Push opening, pop and match on closing" },
+            { "label": "\"next greater\", \"next smaller\", \"stock span\"", "code": "→ Monotonic Stack", "link": "tpl-monotonic-stack", "note": "Maintain decreasing/increasing stack of indices" },
+            { "label": "n ≤ 20 → O(2^n)", "code": "→ Backtracking / Bitmask DP", "link": "tpl-backtracking", "note": "Small n = brute force is fine" },
+            { "label": "n ≤ 10⁵ → O(n log n) or O(n)", "code": "→ Sort, Heap, Binary Search, HashMap, Sliding Window", "note": "Most common constraint range in interviews" },
+            { "label": "n ≤ 500 → O(n²) or O(n³)", "code": "→ DP (2D), nested loops, matrix operations", "link": "tpl-dp", "note": "Quadratic is acceptable for n ≤ 500" },
+            { "label": "n ≤ 10⁹+ → O(log n) or O(1)", "code": "→ Binary Search, Math, Bit Manipulation", "link": "tpl-binary-search", "note": "Can't even iterate n; need logarithmic or constant" },
+            { "label": "\"design\" problems", "code": "→ HashMap + doubly-linked list (LRU)\n→ HashMap + TreeMap (time-based)\n→ Multiple data structures composed", "link": "hashmap", "note": "LRU Cache, LFU Cache, Time Map, RandomizedSet" },
+            { "label": "\"linked list\" manipulation", "code": "→ Two Pointers (slow/fast) + Dummy Head", "link": "tpl-two-pointer", "note": "Always consider dummy node to simplify head edge cases" },
+            { "label": "\"matrix rotation\", \"spiral order\"", "code": "→ Layer-by-layer traversal / Transpose + Reverse", "note": "Rotate 90°: transpose then reverse each row" },
+            { "label": "\"trie\", \"prefix matching\"", "code": "→ Trie (prefix tree) with TrieNode[26] children", "note": "Insert/search O(word length); autocomplete, word search" },
+            { "label": "\"LRU Cache\"", "code": "→ HashMap + Doubly Linked List (or LinkedHashMap)", "link": "hashmap", "note": "O(1) get and put; move accessed items to front" },
+            { "label": "\"random\" + O(1) insert/delete/getRandom", "code": "→ ArrayList + HashMap<value, index>", "link": "arraylist", "note": "Swap with last element for O(1) removal" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-two-pointer",
+      "name": "Template: Two Pointers",
+      "icon": "👆",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Opposite Ends",
+          "items": [
+            {
+              "label": "Two Sum (sorted)",
+              "code": "int left = 0, right = arr.length - 1;\nwhile (left < right) {\n  int sum = arr[left] + arr[right];\n  if (sum == target) return new int[]{left, right};\n  else if (sum < target) left++;\n  else right--;\n}",
+              "complexity": "O(n)",
+              "note": "Works on sorted arrays; adjust pointers based on comparison"
+            },
+            {
+              "label": "Container With Most Water",
+              "code": "int left = 0, right = height.length - 1, max = 0;\nwhile (left < right) {\n  max = Math.max(max, Math.min(height[left], height[right]) * (right - left));\n  if (height[left] < height[right]) left++;\n  else right--;\n}",
+              "complexity": "O(n)",
+              "note": "Move the shorter side inward to potentially find taller bar"
+            },
+            {
+              "label": "Valid Palindrome",
+              "code": "int l = 0, r = s.length() - 1;\nwhile (l < r) {\n  if (s.charAt(l) != s.charAt(r)) return false;\n  l++; r--;\n}\nreturn true;",
+              "complexity": "O(n)",
+              "note": "Skip non-alphanumeric with Character.isLetterOrDigit()"
+            },
+            {
+              "label": "3Sum",
+              "code": "Arrays.sort(nums);\nList<List<Integer>> res = new ArrayList<>();\nfor (int i = 0; i < nums.length - 2; i++) {\n  if (i > 0 && nums[i] == nums[i-1]) continue;\n  int lo = i + 1, hi = nums.length - 1;\n  while (lo < hi) {\n    int sum = nums[i] + nums[lo] + nums[hi];\n    if (sum == 0) {\n      res.add(List.of(nums[i], nums[lo], nums[hi]));\n      while (lo < hi && nums[lo] == nums[lo+1]) lo++;\n      lo++; hi--;\n    } else if (sum < 0) lo++; else hi--;\n  }\n}",
+              "complexity": "O(n²)",
+              "note": "Sort + fix one element + two-pointer on remainder; skip duplicates"
+            },
+            {
+              "label": "Trapping Rain Water",
+              "code": "int left = 0, right = height.length - 1;\nint leftMax = 0, rightMax = 0, water = 0;\nwhile (left < right) {\n  if (height[left] < height[right]) {\n    leftMax = Math.max(leftMax, height[left]);\n    water += leftMax - height[left++];\n  } else {\n    rightMax = Math.max(rightMax, height[right]);\n    water += rightMax - height[right--];\n  }\n}",
+              "complexity": "O(n)",
+              "note": "Process from the shorter side; water level bounded by shorter max"
+            },
+            {
+              "label": "Reverse Linked List (two-pointer)",
+              "code": "ListNode prev = null, curr = head;\nwhile (curr != null) {\n  ListNode next = curr.next;\n  curr.next = prev;\n  prev = curr;\n  curr = next;\n}\nreturn prev;",
+              "complexity": "O(n)",
+              "note": "Three pointers: prev, curr, next; prev becomes new head"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Same Direction (Fast/Slow)",
+          "items": [
+            {
+              "label": "Remove Duplicates (sorted)",
+              "code": "int slow = 0;\nfor (int fast = 1; fast < nums.length; fast++) {\n  if (nums[fast] != nums[slow]) {\n    nums[++slow] = nums[fast];\n  }\n}\nreturn slow + 1;",
+              "complexity": "O(n)",
+              "note": "slow = write pointer, fast = read pointer"
+            },
+            {
+              "label": "Linked List Cycle",
+              "code": "ListNode slow = head, fast = head;\nwhile (fast != null && fast.next != null) {\n  slow = slow.next;\n  fast = fast.next.next;\n  if (slow == fast) return true;\n}\nreturn false;",
+              "complexity": "O(n)",
+              "note": "Floyd's cycle detection; to find start, reset one to head"
+            },
+            {
+              "label": "Move Zeroes",
+              "code": "int insertPos = 0;\nfor (int i = 0; i < nums.length; i++) {\n  if (nums[i] != 0) {\n    int tmp = nums[insertPos];\n    nums[insertPos++] = nums[i];\n    nums[i] = tmp;\n  }\n}",
+              "complexity": "O(n)",
+              "note": "Swap non-zero to insertPos; maintains relative order"
+            },
+            {
+              "label": "Middle of Linked List",
+              "code": "ListNode slow = head, fast = head;\nwhile (fast != null && fast.next != null) {\n  slow = slow.next;\n  fast = fast.next.next;\n}\nreturn slow;",
+              "complexity": "O(n)",
+              "note": "When fast reaches end, slow is at middle"
+            },
+            {
+              "label": "Partition (Dutch National Flag)",
+              "code": "int lo = 0, mid = 0, hi = nums.length - 1;\nwhile (mid <= hi) {\n  if (nums[mid] == 0) swap(nums, lo++, mid++);\n  else if (nums[mid] == 1) mid++;\n  else swap(nums, mid, hi--);\n}",
+              "complexity": "O(n)",
+              "note": "3-way partition; used in Sort Colors (LC 75)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-sliding-window",
+      "name": "Template: Sliding Window",
+      "icon": "🪟",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Variable Window",
+          "items": [
+            {
+              "label": "Longest Substring Without Repeating",
+              "code": "Map<Character, Integer> map = new HashMap<>();\nint left = 0, max = 0;\nfor (int right = 0; right < s.length(); right++) {\n  char c = s.charAt(right);\n  if (map.containsKey(c)) left = Math.max(left, map.get(c) + 1);\n  map.put(c, right);\n  max = Math.max(max, right - left + 1);\n}\nreturn max;",
+              "complexity": "O(n)",
+              "note": "HashMap stores last index of each char; jump left past duplicate"
+            },
+            {
+              "label": "Minimum Window Substring",
+              "code": "Map<Character, Integer> need = new HashMap<>(), have = new HashMap<>();\nfor (char c : t.toCharArray()) need.merge(c, 1, Integer::sum);\nint left = 0, formed = 0, minLen = Integer.MAX_VALUE, start = 0;\nfor (int right = 0; right < s.length(); right++) {\n  char c = s.charAt(right);\n  have.merge(c, 1, Integer::sum);\n  if (need.containsKey(c) && have.get(c).intValue() == need.get(c).intValue()) formed++;\n  while (formed == need.size()) {\n    if (right - left + 1 < minLen) { minLen = right - left + 1; start = left; }\n    char lc = s.charAt(left++);\n    have.merge(lc, -1, Integer::sum);\n    if (need.containsKey(lc) && have.get(lc) < need.get(lc)) formed--;\n  }\n}\nreturn minLen == Integer.MAX_VALUE ? \"\" : s.substring(start, start + minLen);",
+              "complexity": "O(n)",
+              "note": "Expand right to satisfy, shrink left to minimize; track 'formed' count"
+            },
+            {
+              "label": "Variable Window Template",
+              "code": "int left = 0, result = 0;\nfor (int right = 0; right < n; right++) {\n  // expand: add nums[right] to window state\n  while (/* window invalid */) {\n    // shrink: remove nums[left] from window state\n    left++;\n  }\n  result = Math.max(result, right - left + 1);\n}",
+              "complexity": "O(n)",
+              "note": "Generic template; left only moves right so total work is O(n)"
+            },
+            {
+              "label": "Longest Repeating Character Replacement",
+              "code": "int[] count = new int[26];\nint left = 0, maxFreq = 0, res = 0;\nfor (int right = 0; right < s.length(); right++) {\n  maxFreq = Math.max(maxFreq, ++count[s.charAt(right) - 'A']);\n  while (right - left + 1 - maxFreq > k) {\n    count[s.charAt(left++) - 'A']--;\n  }\n  res = Math.max(res, right - left + 1);\n}",
+              "complexity": "O(n)",
+              "note": "Window valid if (window size - max freq char) <= k replacements"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Fixed Window",
+          "items": [
+            {
+              "label": "Max Sum of K Consecutive",
+              "code": "int sum = 0;\nfor (int i = 0; i < k; i++) sum += nums[i];\nint max = sum;\nfor (int i = k; i < nums.length; i++) {\n  sum += nums[i] - nums[i - k];\n  max = Math.max(max, sum);\n}\nreturn max;",
+              "complexity": "O(n)",
+              "note": "Add right element, remove leftmost; O(1) per slide"
+            },
+            {
+              "label": "Find All Anagrams",
+              "code": "int[] need = new int[26], have = new int[26];\nfor (char c : p.toCharArray()) need[c - 'a']++;\nList<Integer> res = new ArrayList<>();\nfor (int i = 0; i < s.length(); i++) {\n  have[s.charAt(i) - 'a']++;\n  if (i >= p.length()) have[s.charAt(i - p.length()) - 'a']--;\n  if (Arrays.equals(have, need)) res.add(i - p.length() + 1);\n}\nreturn res;",
+              "complexity": "O(n)",
+              "note": "Compare int[26] frequency arrays; window size = p.length()"
+            },
+            {
+              "label": "Permutation in String",
+              "code": "int[] need = new int[26];\nfor (char c : s1.toCharArray()) need[c - 'a']++;\nint[] have = new int[26];\nfor (int i = 0; i < s2.length(); i++) {\n  have[s2.charAt(i) - 'a']++;\n  if (i >= s1.length()) have[s2.charAt(i - s1.length()) - 'a']--;\n  if (Arrays.equals(have, need)) return true;\n}\nreturn false;",
+              "complexity": "O(n)",
+              "note": "Same as Find All Anagrams but return boolean on first match"
+            },
+            {
+              "label": "Minimum Size Subarray Sum",
+              "code": "int left = 0, sum = 0, minLen = Integer.MAX_VALUE;\nfor (int right = 0; right < nums.length; right++) {\n  sum += nums[right];\n  while (sum >= target) {\n    minLen = Math.min(minLen, right - left + 1);\n    sum -= nums[left++];\n  }\n}\nreturn minLen == Integer.MAX_VALUE ? 0 : minLen;",
+              "complexity": "O(n)",
+              "note": "Shrink window while sum meets target; track minimum length"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-binary-search",
+      "name": "Template: Binary Search",
+      "icon": "🔍",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Standard",
+          "items": [
+            {
+              "label": "Classic Binary Search",
+              "code": "int lo = 0, hi = nums.length - 1;\nwhile (lo <= hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] == target) return mid;\n  else if (nums[mid] < target) lo = mid + 1;\n  else hi = mid - 1;\n}\nreturn -1;",
+              "complexity": "O(log n)",
+              "note": "lo + (hi - lo) / 2 prevents int overflow vs (lo + hi) / 2"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Left Bound",
+          "items": [
+            {
+              "label": "First Position of Target",
+              "code": "int lo = 0, hi = nums.length;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] < target) lo = mid + 1;\n  else hi = mid;\n}\nreturn lo;",
+              "complexity": "O(log n)",
+              "note": "Returns insertion point (leftmost target or where it would be)"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Right Bound",
+          "items": [
+            {
+              "label": "Last Position of Target",
+              "code": "int lo = 0, hi = nums.length;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] <= target) lo = mid + 1;\n  else hi = mid;\n}\nreturn lo - 1;",
+              "complexity": "O(log n)",
+              "note": "lo - 1 gives the rightmost index of target"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "On Answer",
+          "items": [
+            {
+              "label": "Binary Search on Answer",
+              "code": "int lo = minPossible, hi = maxPossible;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (feasible(mid)) hi = mid;\n  else lo = mid + 1;\n}\nreturn lo;",
+              "complexity": "O(n log(range))",
+              "note": "Search the answer space; feasible() checks if mid works"
+            },
+            {
+              "label": "Koko Eating Bananas (example)",
+              "code": "int lo = 1, hi = maxPile;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  int hours = 0;\n  for (int p : piles) hours += (p + mid - 1) / mid;\n  if (hours <= h) hi = mid;\n  else lo = mid + 1;\n}\nreturn lo;",
+              "complexity": "O(n log max)",
+              "note": "(p + mid - 1) / mid is ceiling division without floating point"
+            },
+            {
+              "label": "Search in Rotated Array",
+              "code": "int lo = 0, hi = nums.length - 1;\nwhile (lo <= hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] == target) return mid;\n  if (nums[lo] <= nums[mid]) {\n    if (target >= nums[lo] && target < nums[mid]) hi = mid - 1;\n    else lo = mid + 1;\n  } else {\n    if (target > nums[mid] && target <= nums[hi]) lo = mid + 1;\n    else hi = mid - 1;\n  }\n}",
+              "complexity": "O(log n)",
+              "note": "One half is always sorted; check if target falls in the sorted half"
+            },
+            {
+              "label": "Find Peak Element",
+              "code": "int lo = 0, hi = nums.length - 1;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] > nums[mid + 1]) hi = mid;\n  else lo = mid + 1;\n}\nreturn lo;",
+              "complexity": "O(log n)",
+              "note": "Move toward the higher neighbor; guaranteed to find a peak"
+            },
+            {
+              "label": "Find Min in Rotated Sorted",
+              "code": "int lo = 0, hi = nums.length - 1;\nwhile (lo < hi) {\n  int mid = lo + (hi - lo) / 2;\n  if (nums[mid] > nums[hi]) lo = mid + 1;\n  else hi = mid;\n}\nreturn nums[lo];",
+              "complexity": "O(log n)",
+              "note": "Compare mid with hi; minimum is at the rotation point"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-bfs",
+      "name": "Template: BFS",
+      "icon": "🌊",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Graph BFS",
+          "items": [
+            {
+              "label": "Shortest Path (unweighted)",
+              "code": "Queue<Integer> queue = new LinkedList<>();\nSet<Integer> visited = new HashSet<>();\nqueue.offer(start);\nvisited.add(start);\nint dist = 0;\nwhile (!queue.isEmpty()) {\n  int size = queue.size();\n  for (int i = 0; i < size; i++) {\n    int node = queue.poll();\n    if (node == target) return dist;\n    for (int nei : graph.get(node)) {\n      if (visited.add(nei)) queue.offer(nei);\n    }\n  }\n  dist++;\n}\nreturn -1;",
+              "complexity": "O(V + E)",
+              "note": "visited.add() returns false if already present — clean idiom"
+            },
+            {
+              "label": "Grid BFS",
+              "code": "int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};\nQueue<int[]> queue = new LinkedList<>();\nqueue.offer(new int[]{sr, sc});\nboolean[][] visited = new boolean[rows][cols];\nvisited[sr][sc] = true;\nwhile (!queue.isEmpty()) {\n  int[] cell = queue.poll();\n  for (int[] d : dirs) {\n    int nr = cell[0] + d[0], nc = cell[1] + d[1];\n    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc]) {\n      visited[nr][nc] = true;\n      queue.offer(new int[]{nr, nc});\n    }\n  }\n}",
+              "complexity": "O(R * C)",
+              "note": "Mark visited BEFORE enqueueing to avoid duplicates"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Tree Level-Order",
+          "items": [
+            {
+              "label": "Level-Order Traversal",
+              "code": "List<List<Integer>> res = new ArrayList<>();\nQueue<TreeNode> queue = new LinkedList<>();\nif (root != null) queue.offer(root);\nwhile (!queue.isEmpty()) {\n  int size = queue.size();\n  List<Integer> level = new ArrayList<>();\n  for (int i = 0; i < size; i++) {\n    TreeNode node = queue.poll();\n    level.add(node.val);\n    if (node.left != null) queue.offer(node.left);\n    if (node.right != null) queue.offer(node.right);\n  }\n  res.add(level);\n}\nreturn res;",
+              "complexity": "O(n)",
+              "note": "Capture queue.size() before inner loop to process one level at a time"
+            },
+            {
+              "label": "Zigzag Level-Order",
+              "code": "// Same as level-order but:\nif (res.size() % 2 == 1) Collections.reverse(level);\nres.add(level);",
+              "complexity": "O(n)",
+              "note": "Reverse odd-indexed levels; or use LinkedList.addFirst()"
+            },
+            {
+              "label": "Topological Sort (Kahn's)",
+              "code": "int[] indegree = new int[numCourses];\nMap<Integer, List<Integer>> graph = new HashMap<>();\nfor (int[] e : edges) {\n  graph.computeIfAbsent(e[1], k -> new ArrayList<>()).add(e[0]);\n  indegree[e[0]]++;\n}\nQueue<Integer> queue = new LinkedList<>();\nfor (int i = 0; i < numCourses; i++) if (indegree[i] == 0) queue.offer(i);\nList<Integer> order = new ArrayList<>();\nwhile (!queue.isEmpty()) {\n  int node = queue.poll();\n  order.add(node);\n  for (int nei : graph.getOrDefault(node, List.of())) {\n    if (--indegree[nei] == 0) queue.offer(nei);\n  }\n}\nreturn order.size() == numCourses ? order : List.of();",
+              "complexity": "O(V + E)",
+              "note": "If order.size() < V, there's a cycle (no valid ordering)"
+            },
+            {
+              "label": "Multi-source BFS (Rotten Oranges)",
+              "code": "Queue<int[]> queue = new LinkedList<>();\nfor (int r = 0; r < m; r++)\n  for (int c = 0; c < n; c++)\n    if (grid[r][c] == 2) queue.offer(new int[]{r, c});\nint minutes = 0;\nwhile (!queue.isEmpty()) {\n  int size = queue.size();\n  boolean rotted = false;\n  for (int i = 0; i < size; i++) {\n    int[] cell = queue.poll();\n    for (int[] d : dirs) {\n      int nr = cell[0]+d[0], nc = cell[1]+d[1];\n      if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {\n        grid[nr][nc] = 2; queue.offer(new int[]{nr, nc}); rotted = true;\n      }\n    }\n  }\n  if (rotted) minutes++;\n}",
+              "complexity": "O(R * C)",
+              "note": "Start BFS from ALL sources simultaneously; track levels for distance"
+            },
+            {
+              "label": "Word Ladder (BFS state)",
+              "code": "Queue<String> queue = new LinkedList<>();\nSet<String> visited = new HashSet<>();\nqueue.offer(beginWord); visited.add(beginWord);\nint steps = 1;\nwhile (!queue.isEmpty()) {\n  int size = queue.size();\n  for (int i = 0; i < size; i++) {\n    String word = queue.poll();\n    if (word.equals(endWord)) return steps;\n    char[] chars = word.toCharArray();\n    for (int j = 0; j < chars.length; j++) {\n      char orig = chars[j];\n      for (char c = 'a'; c <= 'z'; c++) {\n        chars[j] = c;\n        String next = new String(chars);\n        if (wordSet.contains(next) && visited.add(next)) queue.offer(next);\n      }\n      chars[j] = orig;\n    }\n  }\n  steps++;\n}",
+              "complexity": "O(M² * N)",
+              "note": "M = word length, N = dict size; try all 26 chars at each position"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-dfs",
+      "name": "Template: DFS",
+      "icon": "🌲",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Recursive",
+          "items": [
+            {
+              "label": "Tree DFS (return value)",
+              "code": "int dfs(TreeNode node) {\n  if (node == null) return 0;\n  int left = dfs(node.left);\n  int right = dfs(node.right);\n  // process: e.g., max depth\n  return 1 + Math.max(left, right);\n}",
+              "complexity": "O(n)",
+              "note": "Bottom-up: children return info, parent combines"
+            },
+            {
+              "label": "Graph DFS (visited set)",
+              "code": "Set<Integer> visited = new HashSet<>();\nvoid dfs(int node, Map<Integer, List<Integer>> graph) {\n  visited.add(node);\n  for (int nei : graph.getOrDefault(node, List.of())) {\n    if (!visited.contains(nei)) dfs(nei, graph);\n  }\n}",
+              "complexity": "O(V + E)",
+              "note": "Use getOrDefault to handle nodes with no outgoing edges"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Iterative (Stack)",
+          "items": [
+            {
+              "label": "Iterative DFS with ArrayDeque",
+              "code": "Deque<Integer> stack = new ArrayDeque<>();\nSet<Integer> visited = new HashSet<>();\nstack.push(start);\nwhile (!stack.isEmpty()) {\n  int node = stack.pop();\n  if (!visited.add(node)) continue;\n  for (int nei : graph.getOrDefault(node, List.of())) {\n    if (!visited.contains(nei)) stack.push(nei);\n  }\n}",
+              "complexity": "O(V + E)",
+              "note": "ArrayDeque is faster than Stack (not synchronized)"
+            },
+            {
+              "label": "Grid DFS (Number of Islands)",
+              "code": "void dfs(char[][] grid, int r, int c) {\n  if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] != '1') return;\n  grid[r][c] = '0'; // mark visited\n  dfs(grid, r + 1, c); dfs(grid, r - 1, c);\n  dfs(grid, r, c + 1); dfs(grid, r, c - 1);\n}",
+              "complexity": "O(R * C)",
+              "note": "Modify grid in-place to mark visited; avoids extra boolean[][] array"
+            },
+            {
+              "label": "Iterative Inorder (BST)",
+              "code": "Deque<TreeNode> stack = new ArrayDeque<>();\nTreeNode cur = root;\nwhile (cur != null || !stack.isEmpty()) {\n  while (cur != null) { stack.push(cur); cur = cur.left; }\n  cur = stack.pop();\n  // process cur.val (in sorted order for BST)\n  cur = cur.right;\n}",
+              "complexity": "O(n)",
+              "note": "Produces sorted order for BST; go left as far as possible, then right"
+            },
+            {
+              "label": "Union-Find (Disjoint Set)",
+              "code": "int[] parent, rank;\nvoid init(int n) {\n  parent = new int[n]; rank = new int[n];\n  for (int i = 0; i < n; i++) parent[i] = i;\n}\nint find(int x) {\n  if (parent[x] != x) parent[x] = find(parent[x]);\n  return parent[x];\n}\nvoid union(int a, int b) {\n  int ra = find(a), rb = find(b);\n  if (ra == rb) return;\n  if (rank[ra] < rank[rb]) parent[ra] = rb;\n  else if (rank[ra] > rank[rb]) parent[rb] = ra;\n  else { parent[rb] = ra; rank[ra]++; }\n}",
+              "complexity": "O(α(n)) per op",
+              "note": "Path compression + union by rank; nearly O(1) amortized"
+            },
+            {
+              "label": "DFS with 3-color cycle detection",
+              "code": "int[] color = new int[n]; // 0=white, 1=gray, 2=black\nboolean hasCycle(int node) {\n  color[node] = 1;\n  for (int nei : graph.getOrDefault(node, List.of())) {\n    if (color[nei] == 1) return true;\n    if (color[nei] == 0 && hasCycle(nei)) return true;\n  }\n  color[node] = 2;\n  return false;\n}",
+              "complexity": "O(V + E)",
+              "note": "White=unvisited, Gray=in-progress, Black=done; gray→gray = cycle"
+            },
+            {
+              "label": "Tree Diameter",
+              "code": "int diameter = 0;\nint dfs(TreeNode node) {\n  if (node == null) return 0;\n  int left = dfs(node.left), right = dfs(node.right);\n  diameter = Math.max(diameter, left + right);\n  return 1 + Math.max(left, right);\n}",
+              "complexity": "O(n)",
+              "note": "Diameter passes through some node; track global max of left+right"
+            },
+            {
+              "label": "Lowest Common Ancestor",
+              "code": "TreeNode lca(TreeNode root, TreeNode p, TreeNode q) {\n  if (root == null || root == p || root == q) return root;\n  TreeNode left = lca(root.left, p, q);\n  TreeNode right = lca(root.right, p, q);\n  if (left != null && right != null) return root;\n  return left != null ? left : right;\n}",
+              "complexity": "O(n)",
+              "note": "If both children return non-null, current node is LCA"
+            },
+            {
+              "label": "Validate BST",
+              "code": "boolean isValid(TreeNode node, long min, long max) {\n  if (node == null) return true;\n  if (node.val <= min || node.val >= max) return false;\n  return isValid(node.left, min, node.val) && isValid(node.right, node.val, max);\n}\n// Call: isValid(root, Long.MIN_VALUE, Long.MAX_VALUE)",
+              "complexity": "O(n)",
+              "note": "Use long for bounds to handle Integer.MIN_VALUE/MAX_VALUE edge cases"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-backtracking",
+      "name": "Template: Backtracking",
+      "icon": "🔙",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Subsets/Combinations",
+          "items": [
+            {
+              "label": "Subsets",
+              "code": "List<List<Integer>> res = new ArrayList<>();\nvoid backtrack(int[] nums, int start, List<Integer> cur) {\n  res.add(new ArrayList<>(cur)); // snapshot copy\n  for (int i = start; i < nums.length; i++) {\n    cur.add(nums[i]);\n    backtrack(nums, i + 1, cur);\n    cur.remove(cur.size() - 1);\n  }\n}",
+              "complexity": "O(n * 2^n)",
+              "note": "new ArrayList<>(cur) takes a snapshot; remove last = undo choice"
+            },
+            {
+              "label": "Combination Sum (reuse allowed)",
+              "code": "void backtrack(int[] cands, int start, int remain, List<Integer> cur) {\n  if (remain == 0) { res.add(new ArrayList<>(cur)); return; }\n  if (remain < 0) return;\n  for (int i = start; i < cands.length; i++) {\n    cur.add(cands[i]);\n    backtrack(cands, i, remain - cands[i], cur); // i, not i+1\n    cur.remove(cur.size() - 1);\n  }\n}",
+              "complexity": "O(n^(T/M))",
+              "note": "Pass i (not i+1) to allow reuse; pass i+1 if no reuse"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Permutations",
+          "items": [
+            {
+              "label": "Permutations (no duplicates)",
+              "code": "void backtrack(int[] nums, List<Integer> cur, boolean[] used) {\n  if (cur.size() == nums.length) { res.add(new ArrayList<>(cur)); return; }\n  for (int i = 0; i < nums.length; i++) {\n    if (used[i]) continue;\n    used[i] = true;\n    cur.add(nums[i]);\n    backtrack(nums, cur, used);\n    cur.remove(cur.size() - 1);\n    used[i] = false;\n  }\n}",
+              "complexity": "O(n * n!)",
+              "note": "boolean[] used tracks which elements are in current permutation"
+            },
+            {
+              "label": "Permutations (with duplicates)",
+              "code": "Arrays.sort(nums); // sort first!\nvoid backtrack(int[] nums, List<Integer> cur, boolean[] used) {\n  if (cur.size() == nums.length) { res.add(new ArrayList<>(cur)); return; }\n  for (int i = 0; i < nums.length; i++) {\n    if (used[i]) continue;\n    if (i > 0 && nums[i] == nums[i-1] && !used[i-1]) continue; // skip dups\n    used[i] = true;\n    cur.add(nums[i]);\n    backtrack(nums, cur, used);\n    cur.remove(cur.size() - 1);\n    used[i] = false;\n  }\n}",
+              "complexity": "O(n * n!)",
+              "note": "Sort + skip same value when previous sibling unused"
+            },
+            {
+              "label": "N-Queens (constraint placement)",
+              "code": "void backtrack(int row, int n, Set<Integer> cols, Set<Integer> diag1, Set<Integer> diag2) {\n  if (row == n) { res.add(buildBoard()); return; }\n  for (int col = 0; col < n; col++) {\n    if (cols.contains(col) || diag1.contains(row - col) || diag2.contains(row + col)) continue;\n    cols.add(col); diag1.add(row - col); diag2.add(row + col);\n    board[row][col] = 'Q';\n    backtrack(row + 1, n, cols, diag1, diag2);\n    board[row][col] = '.'; cols.remove(col); diag1.remove(row - col); diag2.remove(row + col);\n  }\n}",
+              "complexity": "O(n!)",
+              "note": "Track columns and both diagonals with sets; row-col and row+col identify diagonals"
+            },
+            {
+              "label": "Letter Combinations of Phone",
+              "code": "String[] map = {\"\",\"\",\"abc\",\"def\",\"ghi\",\"jkl\",\"mno\",\"pqrs\",\"tuv\",\"wxyz\"};\nvoid backtrack(String digits, int idx, StringBuilder cur) {\n  if (idx == digits.length()) { res.add(cur.toString()); return; }\n  for (char c : map[digits.charAt(idx) - '0'].toCharArray()) {\n    cur.append(c);\n    backtrack(digits, idx + 1, cur);\n    cur.deleteCharAt(cur.length() - 1);\n  }\n}",
+              "complexity": "O(4^n)",
+              "note": "StringBuilder is more efficient than String for backtracking"
+            },
+            {
+              "label": "Word Search (grid backtracking)",
+              "code": "boolean dfs(char[][] board, String word, int r, int c, int idx) {\n  if (idx == word.length()) return true;\n  if (r < 0 || r >= board.length || c < 0 || c >= board[0].length\n      || board[r][c] != word.charAt(idx)) return false;\n  char tmp = board[r][c];\n  board[r][c] = '#'; // mark visited\n  boolean found = dfs(board, word, r+1, c, idx+1) || dfs(board, word, r-1, c, idx+1)\n      || dfs(board, word, r, c+1, idx+1) || dfs(board, word, r, c-1, idx+1);\n  board[r][c] = tmp; // unmark\n  return found;\n}",
+              "complexity": "O(m*n*4^L)",
+              "note": "Mark cell as visited by replacing char; restore on backtrack"
+            },
+            {
+              "label": "Generate Parentheses",
+              "code": "void backtrack(int open, int close, int n, StringBuilder cur) {\n  if (cur.length() == 2 * n) { res.add(cur.toString()); return; }\n  if (open < n) { cur.append('('); backtrack(open+1, close, n, cur); cur.deleteCharAt(cur.length()-1); }\n  if (close < open) { cur.append(')'); backtrack(open, close+1, n, cur); cur.deleteCharAt(cur.length()-1); }\n}",
+              "complexity": "O(4^n / sqrt(n))",
+              "note": "Constraints: open < n to add '('; close < open to add ')'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-dp",
+      "name": "Template: DP",
+      "icon": "📊",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "1-D DP",
+          "items": [
+            {
+              "label": "Climbing Stairs / Fibonacci",
+              "code": "int[] dp = new int[n + 1];\ndp[0] = 1; dp[1] = 1;\nfor (int i = 2; i <= n; i++) dp[i] = dp[i-1] + dp[i-2];\nreturn dp[n];",
+              "complexity": "O(n)",
+              "note": "Can optimize to O(1) space with two variables"
+            },
+            {
+              "label": "House Robber",
+              "code": "int prev2 = 0, prev1 = 0;\nfor (int num : nums) {\n  int cur = Math.max(prev1, prev2 + num);\n  prev2 = prev1;\n  prev1 = cur;\n}\nreturn prev1;",
+              "complexity": "O(n)",
+              "note": "dp[i] = max(skip, rob) = max(dp[i-1], dp[i-2] + nums[i])"
+            },
+            {
+              "label": "Maximum Subarray (Kadane's)",
+              "code": "int maxSum = nums[0], curSum = nums[0];\nfor (int i = 1; i < nums.length; i++) {\n  curSum = Math.max(nums[i], curSum + nums[i]);\n  maxSum = Math.max(maxSum, curSum);\n}",
+              "complexity": "O(n)",
+              "note": "At each position: start new subarray or extend existing one"
+            },
+            {
+              "label": "Decode Ways",
+              "code": "int[] dp = new int[n + 1];\ndp[0] = 1; dp[1] = s.charAt(0) == '0' ? 0 : 1;\nfor (int i = 2; i <= n; i++) {\n  int one = Integer.parseInt(s.substring(i-1, i));\n  int two = Integer.parseInt(s.substring(i-2, i));\n  if (one >= 1) dp[i] += dp[i-1];\n  if (two >= 10 && two <= 26) dp[i] += dp[i-2];\n}",
+              "complexity": "O(n)",
+              "note": "Single digit (1-9) and two-digit (10-26) transitions"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "2-D DP",
+          "items": [
+            {
+              "label": "Longest Common Subsequence",
+              "code": "int[][] dp = new int[m + 1][n + 1];\nfor (int i = 1; i <= m; i++) {\n  for (int j = 1; j <= n; j++) {\n    if (s.charAt(i-1) == t.charAt(j-1)) dp[i][j] = dp[i-1][j-1] + 1;\n    else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);\n  }\n}\nreturn dp[m][n];",
+              "complexity": "O(m * n)",
+              "note": "Match → diagonal + 1; no match → max(up, left)"
+            },
+            {
+              "label": "0/1 Knapsack",
+              "code": "int[] dp = new int[W + 1];\nfor (int i = 0; i < n; i++) {\n  for (int w = W; w >= weight[i]; w--) {\n    dp[w] = Math.max(dp[w], dp[w - weight[i]] + value[i]);\n  }\n}\nreturn dp[W];",
+              "complexity": "O(n * W)",
+              "note": "Iterate w backwards to avoid using same item twice; forwards = unbounded"
+            },
+            {
+              "label": "Unique Paths (grid)",
+              "code": "int[][] dp = new int[m][n];\nfor (int i = 0; i < m; i++) dp[i][0] = 1;\nfor (int j = 0; j < n; j++) dp[0][j] = 1;\nfor (int i = 1; i < m; i++)\n  for (int j = 1; j < n; j++)\n    dp[i][j] = dp[i-1][j] + dp[i][j-1];\nreturn dp[m-1][n-1];",
+              "complexity": "O(m * n)",
+              "note": "Only move right or down; each cell = sum of top + left"
+            },
+            {
+              "label": "Min Path Sum (grid)",
+              "code": "for (int i = 0; i < m; i++)\n  for (int j = 0; j < n; j++) {\n    if (i == 0 && j == 0) continue;\n    else if (i == 0) grid[i][j] += grid[i][j-1];\n    else if (j == 0) grid[i][j] += grid[i-1][j];\n    else grid[i][j] += Math.min(grid[i-1][j], grid[i][j-1]);\n  }",
+              "complexity": "O(m * n)",
+              "note": "Modify grid in-place to save space; or use separate dp array"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Transitions",
+          "items": [
+            {
+              "label": "Coin Change (min coins)",
+              "code": "int[] dp = new int[amount + 1];\nArrays.fill(dp, amount + 1);\ndp[0] = 0;\nfor (int coin : coins)\n  for (int a = coin; a <= amount; a++)\n    dp[a] = Math.min(dp[a], dp[a - coin] + 1);\nreturn dp[amount] > amount ? -1 : dp[amount];",
+              "complexity": "O(n * amount)",
+              "note": "Fill with amount+1 as infinity; forward loop = unlimited coins"
+            },
+            {
+              "label": "Longest Increasing Subsequence",
+              "code": "List<Integer> tails = new ArrayList<>();\nfor (int num : nums) {\n  int pos = Collections.binarySearch(tails, num);\n  if (pos < 0) pos = -(pos + 1);\n  if (pos == tails.size()) tails.add(num);\n  else tails.set(pos, num);\n}\nreturn tails.size();",
+              "complexity": "O(n log n)",
+              "note": "Patience sorting; tails[i] = smallest tail of all increasing subsequences of length i+1"
+            },
+            {
+              "label": "Word Break",
+              "code": "Set<String> wordSet = new HashSet<>(wordDict);\nboolean[] dp = new boolean[s.length() + 1];\ndp[0] = true;\nfor (int i = 1; i <= s.length(); i++)\n  for (int j = 0; j < i; j++)\n    if (dp[j] && wordSet.contains(s.substring(j, i))) { dp[i] = true; break; }\nreturn dp[s.length()];",
+              "complexity": "O(n² * k)",
+              "note": "dp[i] = true if s[0..i-1] can be segmented; k = avg word length"
+            },
+            {
+              "label": "Edit Distance",
+              "code": "int[][] dp = new int[m + 1][n + 1];\nfor (int i = 0; i <= m; i++) dp[i][0] = i;\nfor (int j = 0; j <= n; j++) dp[0][j] = j;\nfor (int i = 1; i <= m; i++)\n  for (int j = 1; j <= n; j++)\n    if (s.charAt(i-1) == t.charAt(j-1)) dp[i][j] = dp[i-1][j-1];\n    else dp[i][j] = 1 + Math.min(dp[i-1][j-1], Math.min(dp[i-1][j], dp[i][j-1]));",
+              "complexity": "O(m * n)",
+              "note": "Three operations: replace (diagonal), delete (up), insert (left)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-monotonic-stack",
+      "name": "Template: Monotonic Stack",
+      "icon": "📚",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Next Greater Element",
+          "items": [
+            {
+              "label": "Next Greater Element",
+              "code": "int[] res = new int[nums.length];\nArrays.fill(res, -1);\nDeque<Integer> stack = new ArrayDeque<>(); // stores indices\nfor (int i = 0; i < nums.length; i++) {\n  while (!stack.isEmpty() && nums[stack.peek()] < nums[i]) {\n    res[stack.pop()] = nums[i];\n  }\n  stack.push(i);\n}\nreturn res;",
+              "complexity": "O(n)",
+              "note": "Decreasing stack; when a bigger element comes, it answers all smaller tops"
+            },
+            {
+              "label": "Daily Temperatures",
+              "code": "int[] res = new int[temps.length];\nDeque<Integer> stack = new ArrayDeque<>();\nfor (int i = 0; i < temps.length; i++) {\n  while (!stack.isEmpty() && temps[stack.peek()] < temps[i]) {\n    int j = stack.pop();\n    res[j] = i - j;\n  }\n  stack.push(i);\n}",
+              "complexity": "O(n)",
+              "note": "Store indices; distance = i - j"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Next Smaller Element",
+          "items": [
+            {
+              "label": "Largest Rectangle in Histogram",
+              "code": "Deque<Integer> stack = new ArrayDeque<>();\nint max = 0;\nfor (int i = 0; i <= heights.length; i++) {\n  int h = (i == heights.length) ? 0 : heights[i];\n  while (!stack.isEmpty() && heights[stack.peek()] > h) {\n    int height = heights[stack.pop()];\n    int width = stack.isEmpty() ? i : i - stack.peek() - 1;\n    max = Math.max(max, height * width);\n  }\n  stack.push(i);\n}\nreturn max;",
+              "complexity": "O(n)",
+              "note": "Increasing stack; append 0 sentinel to flush remaining bars"
+            },
+            {
+              "label": "Monotonic Stack Template",
+              "code": "Deque<Integer> stack = new ArrayDeque<>();\nfor (int i = 0; i < n; i++) {\n  while (!stack.isEmpty() && compare(stack.peek(), i)) {\n    int idx = stack.pop();\n    // process idx: next smaller/greater is i\n  }\n  stack.push(i);\n}",
+              "complexity": "O(n)",
+              "note": "Change compare() for next greater vs next smaller; store indices not values"
+            },
+            {
+              "label": "Circular Next Greater",
+              "code": "int n = nums.length;\nint[] res = new int[n];\nArrays.fill(res, -1);\nDeque<Integer> stack = new ArrayDeque<>();\nfor (int i = 0; i < 2 * n; i++) {\n  while (!stack.isEmpty() && nums[stack.peek()] < nums[i % n]) {\n    res[stack.pop()] = nums[i % n];\n  }\n  if (i < n) stack.push(i);\n}",
+              "complexity": "O(n)",
+              "note": "Iterate twice to handle circular array; push indices only in first pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-prefix-sum",
+      "name": "Template: Prefix Sum",
+      "icon": "➕",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "1-D Prefix Sum",
+          "items": [
+            {
+              "label": "Build Prefix Sum",
+              "code": "int[] prefix = new int[nums.length + 1];\nfor (int i = 0; i < nums.length; i++) {\n  prefix[i + 1] = prefix[i] + nums[i];\n}\n// sum(i..j) = prefix[j+1] - prefix[i]",
+              "complexity": "O(n) build, O(1) query",
+              "note": "prefix[0] = 0 avoids edge cases; sum of [i,j] = prefix[j+1] - prefix[i]"
+            },
+            {
+              "label": "Range Sum Query",
+              "code": "int rangeSum(int i, int j) {\n  return prefix[j + 1] - prefix[i];\n}",
+              "complexity": "O(1)",
+              "note": "Precompute once, query any range in constant time"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Subarray Sum Equals K",
+          "items": [
+            {
+              "label": "Subarray Sum = K",
+              "code": "Map<Integer, Integer> map = new HashMap<>();\nmap.put(0, 1);\nint sum = 0, count = 0;\nfor (int num : nums) {\n  sum += num;\n  count += map.getOrDefault(sum - k, 0);\n  map.merge(sum, 1, Integer::sum);\n}\nreturn count;",
+              "complexity": "O(n)",
+              "note": "If prefix[j] - prefix[i] = k, then prefix[i] = prefix[j] - k"
+            },
+            {
+              "label": "Continuous Subarray Sum (mod k)",
+              "code": "Map<Integer, Integer> map = new HashMap<>();\nmap.put(0, -1);\nint sum = 0;\nfor (int i = 0; i < nums.length; i++) {\n  sum += nums[i];\n  int mod = ((sum % k) + k) % k;\n  if (map.containsKey(mod) && i - map.get(mod) >= 2) return true;\n  map.putIfAbsent(mod, i);\n}",
+              "complexity": "O(n)",
+              "note": "If prefix[j] % k == prefix[i] % k, then sum(i+1..j) is divisible by k"
+            },
+            {
+              "label": "2-D Prefix Sum",
+              "code": "int[][] prefix = new int[m + 1][n + 1];\nfor (int i = 1; i <= m; i++)\n  for (int j = 1; j <= n; j++)\n    prefix[i][j] = matrix[i-1][j-1] + prefix[i-1][j] + prefix[i][j-1] - prefix[i-1][j-1];\n// sum of rect (r1,c1)-(r2,c2):\n// prefix[r2+1][c2+1] - prefix[r1][c2+1] - prefix[r2+1][c1] + prefix[r1][c1]",
+              "complexity": "O(m*n) build, O(1) query",
+              "note": "Inclusion-exclusion; extra row/col of zeros avoids edge cases"
+            },
+            {
+              "label": "Product Except Self",
+              "code": "int[] res = new int[n];\nres[0] = 1;\nfor (int i = 1; i < n; i++) res[i] = res[i-1] * nums[i-1];\nint right = 1;\nfor (int i = n - 2; i >= 0; i--) {\n  right *= nums[i+1];\n  res[i] *= right;\n}",
+              "complexity": "O(n)",
+              "note": "Left prefix product in first pass, multiply by right product in second pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tpl-intervals",
+      "name": "Template: Intervals",
+      "icon": "📏",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Merge Intervals",
+          "items": [
+            {
+              "label": "Merge Overlapping",
+              "code": "Arrays.sort(intervals, (a, b) -> a[0] - b[0]);\nList<int[]> res = new ArrayList<>();\nfor (int[] iv : intervals) {\n  if (!res.isEmpty() && res.get(res.size() - 1)[1] >= iv[0]) {\n    res.get(res.size() - 1)[1] = Math.max(res.get(res.size() - 1)[1], iv[1]);\n  } else {\n    res.add(iv);\n  }\n}\nreturn res.toArray(new int[0][]);",
+              "complexity": "O(n log n)",
+              "note": "Sort by start; extend last interval if overlapping"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Insert Interval",
+          "items": [
+            {
+              "label": "Insert & Merge",
+              "code": "List<int[]> res = new ArrayList<>();\nint i = 0, n = intervals.length;\nwhile (i < n && intervals[i][1] < newInterval[0]) res.add(intervals[i++]);\nwhile (i < n && intervals[i][0] <= newInterval[1]) {\n  newInterval[0] = Math.min(newInterval[0], intervals[i][0]);\n  newInterval[1] = Math.max(newInterval[1], intervals[i][1]);\n  i++;\n}\nres.add(newInterval);\nwhile (i < n) res.add(intervals[i++]);\nreturn res.toArray(new int[0][]);",
+              "complexity": "O(n)",
+              "note": "Three phases: before overlap, merge overlap, after overlap"
+            }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Meeting Rooms",
+          "items": [
+            {
+              "label": "Min Meeting Rooms (sweep line)",
+              "code": "int[] starts = new int[intervals.length], ends = new int[intervals.length];\nfor (int i = 0; i < intervals.length; i++) {\n  starts[i] = intervals[i][0];\n  ends[i] = intervals[i][1];\n}\nArrays.sort(starts); Arrays.sort(ends);\nint rooms = 0, endPtr = 0;\nfor (int s : starts) {\n  if (s < ends[endPtr]) rooms++;\n  else endPtr++;\n}\nreturn rooms;",
+              "complexity": "O(n log n)",
+              "note": "Sort starts and ends separately; compare like merge step"
+            },
+            {
+              "label": "Non-overlapping Intervals (greedy)",
+              "code": "Arrays.sort(intervals, (a, b) -> a[1] - b[1]); // sort by END\nint count = 0, end = Integer.MIN_VALUE;\nfor (int[] iv : intervals) {\n  if (iv[0] >= end) end = iv[1]; // keep\n  else count++; // remove\n}\nreturn count;",
+              "complexity": "O(n log n)",
+              "note": "Greedy: sort by end time, keep intervals that don't overlap; count removals"
+            },
+            {
+              "label": "Interval overlap check",
+              "code": "boolean overlaps(int[] a, int[] b) {\n  return a[0] < b[1] && b[0] < a[1]; // half-open [start, end)\n}\n// For closed intervals [start, end]: a[0] <= b[1] && b[0] <= a[1]",
+              "note": "Two intervals overlap if neither ends before the other starts"
+            },
+            {
+              "label": "Interval List Intersection",
+              "code": "List<int[]> res = new ArrayList<>();\nint i = 0, j = 0;\nwhile (i < A.length && j < B.length) {\n  int lo = Math.max(A[i][0], B[j][0]);\n  int hi = Math.min(A[i][1], B[j][1]);\n  if (lo <= hi) res.add(new int[]{lo, hi});\n  if (A[i][1] < B[j][1]) i++; else j++;\n}",
+              "complexity": "O(m + n)",
+              "note": "Two pointers; advance the interval that ends earlier"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arraylist",
+      "name": "ArrayList",
+      "icon": "📋",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Classic Operations",
+          "items": [
+            { "label": "Create", "code": "List<Integer> list = new ArrayList<>();\nList<Integer> from = new ArrayList<>(Arrays.asList(1, 2, 3));\nList<Integer> of = List.of(1, 2, 3); // immutable", "note": "List.of() returns unmodifiable list (Java 9+)" },
+            { "label": "add(e) / add(i, e)", "code": "list.add(42);        // append to end\nlist.add(0, 99);     // insert at index 0", "complexity": "O(1) amortized / O(n)", "note": "End add is O(1); index add shifts elements right" },
+            { "label": "get(i) / set(i, e)", "code": "int val = list.get(0);\nlist.set(0, 100);", "complexity": "O(1)", "note": "Random access by index" },
+            { "label": "remove(i) / remove(Object)", "code": "list.remove(0);                // by index\nlist.remove(Integer.valueOf(42)); // by value", "complexity": "O(n)", "note": "remove(int) removes by index; remove(Object) by value — beware ambiguity" },
+            { "label": "contains / indexOf", "code": "boolean has = list.contains(42);\nint idx = list.indexOf(42); // -1 if not found", "complexity": "O(n)", "note": "Linear scan; use HashSet for O(1) contains" },
+            { "label": "size / isEmpty", "code": "int n = list.size();\nboolean empty = list.isEmpty();", "complexity": "O(1)" },
+            { "label": "iterate", "code": "for (int x : list) { /* ... */ }\nfor (int i = 0; i < list.size(); i++) { int x = list.get(i); }", "note": "Enhanced for-each or indexed loop" },
+            { "label": "subList", "code": "List<Integer> sub = list.subList(1, 4); // [1, 4) view", "complexity": "O(1)", "note": "Returns a view, not a copy; changes reflect in original" },
+            { "label": "sort", "code": "list.sort(Comparator.naturalOrder());\nlist.sort(Comparator.reverseOrder());\nlist.sort((a, b) -> a - b);", "complexity": "O(n log n)", "note": "In-place sort; uses TimSort" },
+            { "label": "toArray", "code": "Integer[] arr = list.toArray(new Integer[0]);\nint[] prim = list.stream().mapToInt(Integer::intValue).toArray();", "note": "No direct toArray for primitives; use stream" },
+            { "label": "Collections.swap", "code": "Collections.swap(list, i, j);", "complexity": "O(1)", "note": "Swap two elements by index" },
+            { "label": "Collections.reverse", "code": "Collections.reverse(list);", "complexity": "O(n)", "note": "In-place reversal" },
+            { "label": "Collections.frequency", "code": "int count = Collections.frequency(list, target);", "complexity": "O(n)", "note": "Count occurrences of an element" },
+            { "label": "removeIf", "code": "list.removeIf(x -> x < 0);", "complexity": "O(n)", "note": "Remove elements matching predicate; avoids ConcurrentModificationException" },
+            { "label": "addAll / containsAll", "code": "list.addAll(otherList);          // append all elements\nlist.addAll(0, otherList);       // insert all at index\nboolean has = list.containsAll(otherList);", "complexity": "O(m) / O(n*m)", "note": "containsAll is O(n*m) for ArrayList; use HashSet for O(n+m)" },
+            { "label": "Collections.min / max", "code": "int min = Collections.min(list);\nint max = Collections.max(list);\nString longest = Collections.max(list, Comparator.comparing(String::length));", "complexity": "O(n)", "note": "Works on any Collection; second form takes Comparator" },
+            { "label": "Collections.nCopies", "code": "List<Integer> zeros = new ArrayList<>(Collections.nCopies(10, 0));", "note": "Create list of n identical elements; useful for initialization" },
+            { "label": "List.copyOf (immutable)", "code": "List<Integer> immutable = List.copyOf(mutableList); // Java 10+", "note": "Defensive copy; returns unmodifiable list; throws on null elements" },
+            { "label": "Binary search on list", "code": "Collections.sort(list);\nint idx = Collections.binarySearch(list, target);\n// negative result: -(insertion point) - 1", "complexity": "O(log n)", "note": "List must be sorted; same return convention as Arrays.binarySearch" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Modern: Streams",
+          "items": [
+            { "label": "filter", "code": "List<Integer> evens = list.stream()\n  .filter(x -> x % 2 == 0)\n  .collect(Collectors.toList());", "note": "Returns new list; original unchanged", "link": "streams" },
+            { "label": "map", "code": "List<String> strs = list.stream()\n  .map(String::valueOf)\n  .collect(Collectors.toList());", "note": "Transform each element", "link": "streams" },
+            { "label": "collect / toList", "code": "List<Integer> result = list.stream()\n  .filter(x -> x > 0)\n  .toList(); // Java 16+ immutable", "note": ".toList() is shorter but returns unmodifiable list" },
+            { "label": "forEach", "code": "list.forEach(x -> System.out.println(x));\nlist.forEach(System.out::println); // method ref", "note": "Side-effect operation; prefer for-each loop in interviews" },
+            { "label": "reduce to find max", "code": "int max = list.stream().reduce(Integer.MIN_VALUE, Integer::max);", "note": "reduce with identity; or use .max(Comparator.naturalOrder())" },
+            { "label": "groupBy with streams", "code": "Map<Integer, List<String>> byLength = list.stream()\n  .collect(Collectors.groupingBy(String::length));", "note": "Group elements by a classifier function", "link": "streams" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hashmap",
+      "name": "HashMap / LinkedHashMap",
+      "icon": "🗺️",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Classic Operations",
+          "items": [
+            { "label": "Create", "code": "Map<String, Integer> map = new HashMap<>();\nMap<String, Integer> ordered = new LinkedHashMap<>(); // insertion order", "note": "LinkedHashMap maintains insertion order; TreeMap sorts by key" },
+            { "label": "put / get", "code": "map.put(\"a\", 1);\nint val = map.get(\"a\"); // null if missing (NPE if unboxed!)", "complexity": "O(1) avg", "note": "get returns null for missing key — beware auto-unboxing NPE" },
+            { "label": "containsKey / containsValue", "code": "boolean hasKey = map.containsKey(\"a\");\nboolean hasVal = map.containsValue(1);", "complexity": "O(1) / O(n)", "note": "containsValue is linear scan" },
+            { "label": "remove", "code": "map.remove(\"a\");\nmap.remove(\"a\", 1); // remove only if value matches", "complexity": "O(1) avg" },
+            { "label": "keySet / values / entrySet", "code": "Set<String> keys = map.keySet();\nCollection<Integer> vals = map.values();\nSet<Map.Entry<String, Integer>> entries = map.entrySet();", "note": "These are views backed by the map" },
+            { "label": "iterate entries", "code": "for (var entry : map.entrySet()) {\n  String key = entry.getKey();\n  int val = entry.getValue();\n}", "note": "var (Java 10+) for concise local type inference" },
+            { "label": "size / isEmpty", "code": "int n = map.size();\nboolean empty = map.isEmpty();", "complexity": "O(1)" },
+            { "label": "Build frequency map", "code": "Map<Character, Integer> freq = new HashMap<>();\nfor (char c : s.toCharArray()) {\n  freq.merge(c, 1, Integer::sum);\n}", "complexity": "O(n)", "note": "merge is the cleanest way to count frequencies" },
+            { "label": "Two Sum pattern", "code": "Map<Integer, Integer> map = new HashMap<>();\nfor (int i = 0; i < nums.length; i++) {\n  int complement = target - nums[i];\n  if (map.containsKey(complement)) return new int[]{map.get(complement), i};\n  map.put(nums[i], i);\n}", "complexity": "O(n)", "note": "Store value → index; check complement before inserting" },
+            { "label": "Default capacity hint", "code": "Map<String, Integer> map = new HashMap<>(n * 4 / 3 + 1);\n// Avoids rehashing when you know approximate size", "note": "Load factor = 0.75; pre-size to avoid resize overhead" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Modern: Functional",
+          "items": [
+            { "label": "getOrDefault", "code": "int val = map.getOrDefault(\"key\", 0);", "complexity": "O(1)", "note": "Avoids null checks; great for counting" },
+            { "label": "putIfAbsent", "code": "map.putIfAbsent(\"key\", 0);", "complexity": "O(1)", "note": "Only inserts if key not present" },
+            { "label": "merge", "code": "map.merge(\"key\", 1, Integer::sum); // increment\nmap.merge(\"key\", val, Math::max);  // keep max", "complexity": "O(1)", "note": "If key exists, apply function to old and new value" },
+            { "label": "compute", "code": "map.compute(\"key\", (k, v) -> v == null ? 1 : v + 1);", "complexity": "O(1)", "note": "Full control; return null to remove entry" },
+            { "label": "computeIfAbsent", "code": "map.computeIfAbsent(\"key\", k -> new ArrayList<>()).add(val);", "complexity": "O(1)", "note": "Create value lazily; perfect for adjacency lists" },
+            { "label": "replaceAll", "code": "map.replaceAll((k, v) -> v * 2);", "note": "Apply function to every value in the map" },
+            { "label": "forEach", "code": "map.forEach((k, v) -> System.out.println(k + \"=\" + v));", "note": "BiConsumer version of iteration" },
+            { "label": "Adjacency list (graph)", "code": "Map<Integer, List<Integer>> graph = new HashMap<>();\nfor (int[] edge : edges) {\n  graph.computeIfAbsent(edge[0], k -> new ArrayList<>()).add(edge[1]);\n  graph.computeIfAbsent(edge[1], k -> new ArrayList<>()).add(edge[0]);\n}", "note": "computeIfAbsent + add is the idiomatic pattern" },
+            { "label": "Map.of (immutable)", "code": "Map<String, Integer> map = Map.of(\"a\", 1, \"b\", 2); // Java 9+\nMap<String, Integer> map = Map.ofEntries(\n  Map.entry(\"a\", 1), Map.entry(\"b\", 2)\n); // 10+ entries", "note": "Unmodifiable; throws on put/remove; max 10 pairs for Map.of()" },
+            { "label": "TreeMap basics", "code": "TreeMap<Integer, String> tm = new TreeMap<>();\ntm.put(3, \"c\"); tm.put(1, \"a\"); tm.put(2, \"b\");\ntm.firstKey(); // 1\ntm.lastKey();  // 3\ntm.floorKey(2);   // 2\ntm.ceilingKey(2); // 2", "complexity": "O(log n) per op", "note": "Sorted map backed by red-black tree; supports range queries" },
+            { "label": "Group anagrams pattern", "code": "Map<String, List<String>> groups = new HashMap<>();\nfor (String s : strs) {\n  char[] chars = s.toCharArray();\n  Arrays.sort(chars);\n  String key = new String(chars);\n  groups.computeIfAbsent(key, k -> new ArrayList<>()).add(s);\n}", "complexity": "O(n * k log k)", "note": "Sorted string as key groups all anagrams together" },
+            { "label": "Convert map to sorted entries", "code": "List<Map.Entry<String, Integer>> sorted = new ArrayList<>(map.entrySet());\nsorted.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));", "note": "Sort entries by value descending; useful for top-k frequency problems" },
+            { "label": "LRU Cache with LinkedHashMap", "code": "class LRUCache extends LinkedHashMap<Integer, Integer> {\n  int capacity;\n  LRUCache(int cap) { super(cap, 0.75f, true); this.capacity = cap; }\n  protected boolean removeEldestEntry(Map.Entry<Integer, Integer> e) {\n    return size() > capacity;\n  }\n}", "note": "accessOrder=true + removeEldestEntry gives LRU behavior for free" },
+            { "label": "Bi-directional mapping", "code": "Map<Character, Character> s2t = new HashMap<>();\nMap<Character, Character> t2s = new HashMap<>();\n// Check both directions for isomorphic strings", "note": "Use two maps for 1-to-1 mapping (e.g., Isomorphic Strings)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hashset",
+      "name": "HashSet / TreeSet",
+      "icon": "🎯",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "HashSet Operations",
+          "items": [
+            { "label": "Create", "code": "Set<Integer> set = new HashSet<>();\nSet<Integer> from = new HashSet<>(Arrays.asList(1, 2, 3));\nSet<Integer> of = Set.of(1, 2, 3); // immutable", "note": "Set.of() throws on duplicates and is unmodifiable" },
+            { "label": "add / remove / contains", "code": "set.add(42);           // returns true if new\nset.remove(42);        // returns true if was present\nboolean has = set.contains(42);", "complexity": "O(1) avg", "note": "add returns boolean — useful as visited.add(x) check" },
+            { "label": "size / isEmpty / clear", "code": "int n = set.size();\nboolean empty = set.isEmpty();\nset.clear();", "complexity": "O(1) / O(1) / O(n)" },
+            { "label": "Set operations", "code": "setA.addAll(setB);     // union (modifies setA)\nsetA.retainAll(setB);  // intersection\nsetA.removeAll(setB);  // difference", "note": "These modify setA in-place; copy first if needed" },
+            { "label": "iterate", "code": "for (int x : set) { /* no guaranteed order */ }", "note": "HashSet: no order; LinkedHashSet: insertion order" },
+            { "label": "Convert list ↔ set", "code": "Set<Integer> set = new HashSet<>(list);\nList<Integer> list = new ArrayList<>(set);", "note": "Remove duplicates: new ArrayList<>(new HashSet<>(list))" },
+            { "label": "LinkedHashSet", "code": "Set<Integer> lhs = new LinkedHashSet<>();\nlhs.add(3); lhs.add(1); lhs.add(2);\n// iteration order: 3, 1, 2 (insertion order)", "note": "Maintains insertion order; useful when order matters + O(1) lookup" },
+            { "label": "Visited pattern", "code": "Set<String> visited = new HashSet<>();\nif (visited.add(state)) { // returns false if already present\n  // process state — only reached on first visit\n}", "note": "add() returns boolean — cleaner than contains() + add() separately" },
+            { "label": "Longest Consecutive Sequence", "code": "Set<Integer> set = new HashSet<>();\nfor (int n : nums) set.add(n);\nint maxLen = 0;\nfor (int n : set) {\n  if (!set.contains(n - 1)) { // start of sequence\n    int len = 1;\n    while (set.contains(n + len)) len++;\n    maxLen = Math.max(maxLen, len);\n  }\n}", "complexity": "O(n)", "note": "Only start counting from sequence beginnings (no predecessor)" },
+            { "label": "Set.copyOf (immutable)", "code": "Set<Integer> immutable = Set.copyOf(mutableSet); // Java 10+", "note": "Defensive copy; returns unmodifiable set; throws on null" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "TreeSet Operations",
+          "items": [
+            { "label": "Create", "code": "TreeSet<Integer> ts = new TreeSet<>();\nTreeSet<Integer> desc = new TreeSet<>(Comparator.reverseOrder());", "note": "Sorted set backed by red-black tree" },
+            { "label": "floor / ceiling", "code": "Integer f = ts.floor(5);   // greatest ≤ 5 (or null)\nInteger c = ts.ceiling(5); // smallest ≥ 5 (or null)", "complexity": "O(log n)", "note": "floor/ceiling return null if no match — check for null" },
+            { "label": "lower / higher", "code": "Integer lo = ts.lower(5);  // greatest < 5 (strict)\nInteger hi = ts.higher(5); // smallest > 5 (strict)", "complexity": "O(log n)", "note": "Strict versions of floor/ceiling" },
+            { "label": "first / last", "code": "int min = ts.first(); // smallest\nint max = ts.last();  // largest", "complexity": "O(log n)", "note": "Throws NoSuchElementException if empty" },
+            { "label": "headSet / tailSet / subSet", "code": "SortedSet<Integer> below = ts.headSet(5);       // < 5\nSortedSet<Integer> above = ts.tailSet(5);       // >= 5\nSortedSet<Integer> range = ts.subSet(2, 8);     // [2, 8)", "complexity": "O(log n)", "note": "Returns views; headSet exclusive, tailSet inclusive by default" },
+            { "label": "pollFirst / pollLast", "code": "Integer min = ts.pollFirst(); // remove & return smallest\nInteger max = ts.pollLast();  // remove & return largest", "complexity": "O(log n)", "note": "Returns null if empty; useful as sorted priority structure" },
+            { "label": "TreeSet for sorted sliding window", "code": "TreeSet<int[]> ts = new TreeSet<>((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);\n// Use to maintain sorted window with fast min/max/floor/ceiling\nts.add(new int[]{val, idx});  // O(log n)\nts.remove(new int[]{val, idx}); // O(log n)", "complexity": "O(log n)", "note": "Custom comparator to handle duplicate values using index as tiebreaker" },
+            { "label": "add / remove / contains", "code": "ts.add(5);            // O(log n)\nts.remove(5);         // O(log n)\nboolean has = ts.contains(5); // O(log n)", "complexity": "O(log n)", "note": "All ops are O(log n) unlike HashSet's O(1) — use when you need sorting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stack-deque",
+      "name": "Stack / ArrayDeque",
+      "icon": "📦",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "ArrayDeque as Stack",
+          "items": [
+            { "label": "Create", "code": "Deque<Integer> stack = new ArrayDeque<>();", "note": "Always use ArrayDeque for stack; never use java.util.Stack" },
+            { "label": "push / pop / peek", "code": "stack.push(42);          // push to top\nint top = stack.pop();   // remove & return top\nint look = stack.peek(); // return top without removing", "complexity": "O(1)", "note": "pop/peek throw NoSuchElementException if empty" },
+            { "label": "isEmpty / size", "code": "boolean empty = stack.isEmpty();\nint n = stack.size();", "complexity": "O(1)" },
+            { "label": "Iterate (top to bottom)", "code": "for (int x : stack) { /* top to bottom */ }", "note": "Iterator goes from top (first pushed last) to bottom" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Why ArrayDeque over Stack",
+          "items": [
+            { "label": "Stack is legacy", "code": "// java.util.Stack extends Vector — synchronized, slow\n// ArrayDeque is faster (no synchronization overhead)", "note": "Stack is legacy; ArrayDeque is the modern replacement" },
+            { "label": "Consistent interface", "code": "Deque<Integer> stack = new ArrayDeque<>();\n// push/pop/peek work on the same end (head)\n// Can also use as queue: offer/poll", "note": "ArrayDeque works as both stack (LIFO) and queue (FIFO)" },
+            { "label": "Min Stack pattern", "code": "Deque<int[]> stack = new ArrayDeque<>(); // [val, currentMin]\nvoid push(int val) {\n  int min = stack.isEmpty() ? val : Math.min(val, stack.peek()[1]);\n  stack.push(new int[]{val, min});\n}\nint getMin() { return stack.peek()[1]; }",
+              "complexity": "O(1) for all ops",
+              "note": "Store running minimum alongside each element" },
+            { "label": "Valid Parentheses", "code": "Deque<Character> stack = new ArrayDeque<>();\nMap<Character, Character> pairs = Map.of(')', '(', ']', '[', '}', '{');\nfor (char c : s.toCharArray()) {\n  if (pairs.containsValue(c)) stack.push(c);\n  else if (stack.isEmpty() || stack.pop() != pairs.get(c)) return false;\n}\nreturn stack.isEmpty();", "complexity": "O(n)", "note": "Classic stack problem; check empty stack at end" },
+            { "label": "Evaluate RPN", "code": "Deque<Integer> stack = new ArrayDeque<>();\nfor (String tok : tokens) {\n  if (\"+-*/\".contains(tok)) {\n    int b = stack.pop(), a = stack.pop();\n    switch (tok) {\n      case \"+\": stack.push(a + b); break;\n      case \"-\": stack.push(a - b); break;\n      case \"*\": stack.push(a * b); break;\n      case \"/\": stack.push(a / b); break;\n    }\n  } else stack.push(Integer.parseInt(tok));\n}", "complexity": "O(n)", "note": "Pop two operands for each operator; push result back" },
+            { "label": "Decode String", "code": "Deque<StringBuilder> strStack = new ArrayDeque<>();\nDeque<Integer> numStack = new ArrayDeque<>();\nStringBuilder cur = new StringBuilder();\nint num = 0;\nfor (char c : s.toCharArray()) {\n  if (Character.isDigit(c)) num = num * 10 + (c - '0');\n  else if (c == '[') { strStack.push(cur); numStack.push(num); cur = new StringBuilder(); num = 0; }\n  else if (c == ']') { StringBuilder prev = strStack.pop(); int k = numStack.pop(); prev.append(cur.toString().repeat(k)); cur = prev; }\n  else cur.append(c);\n}", "complexity": "O(n * maxK)", "note": "Two stacks: one for strings, one for repeat counts; push on '[', pop on ']'" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "priority-queue",
+      "name": "PriorityQueue",
+      "icon": "⏫",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Min Heap (default)",
+          "items": [
+            { "label": "Create min-heap", "code": "PriorityQueue<Integer> minHeap = new PriorityQueue<>();", "note": "Natural ordering = min-heap (smallest first)" },
+            { "label": "offer / poll / peek", "code": "minHeap.offer(42);        // insert\nint min = minHeap.poll(); // remove & return smallest\nint look = minHeap.peek(); // smallest without removing", "complexity": "O(log n) / O(log n) / O(1)", "note": "poll/peek return null if empty (don't unbox blindly)" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Max Heap",
+          "items": [
+            { "label": "Create max-heap", "code": "PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());", "note": "reverseOrder() flips to max-heap" },
+            { "label": "Lambda max-heap", "code": "PriorityQueue<Integer> maxHeap = new PriorityQueue<>((a, b) -> b - a);", "note": "b - a for descending; beware int overflow for extreme values" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Custom Comparator",
+          "items": [
+            { "label": "Sort by second element", "code": "PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);", "note": "Min by index 1; useful for (value, index) or (cost, node)" },
+            { "label": "Multi-field comparator", "code": "PriorityQueue<int[]> pq = new PriorityQueue<>(\n  Comparator.comparingInt((int[] a) -> a[0]).thenComparingInt(a -> a[1])\n);", "note": "Comparator.comparingInt avoids overflow from subtraction" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Common Operations",
+          "items": [
+            { "label": "size / isEmpty / contains", "code": "int n = pq.size();\nboolean empty = pq.isEmpty();\nboolean has = pq.contains(42);", "complexity": "O(1) / O(1) / O(n)", "note": "contains is O(n) — heap doesn't support fast lookup" },
+            { "label": "Top K pattern", "code": "PriorityQueue<Integer> minHeap = new PriorityQueue<>();\nfor (int num : nums) {\n  minHeap.offer(num);\n  if (minHeap.size() > k) minHeap.poll();\n}\n// minHeap now has top k largest; peek() = kth largest", "complexity": "O(n log k)", "note": "Min-heap of size k; smallest of top-k is the kth largest" },
+            { "label": "Merge K Sorted Lists", "code": "PriorityQueue<ListNode> pq = new PriorityQueue<>((a, b) -> a.val - b.val);\nfor (ListNode head : lists) if (head != null) pq.offer(head);\nListNode dummy = new ListNode(0), cur = dummy;\nwhile (!pq.isEmpty()) {\n  ListNode node = pq.poll();\n  cur.next = node; cur = cur.next;\n  if (node.next != null) pq.offer(node.next);\n}\nreturn dummy.next;", "complexity": "O(n log k)", "note": "k = number of lists; dummy head avoids edge cases" },
+            { "label": "Dijkstra's Algorithm", "code": "PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);\nint[] dist = new int[n]; Arrays.fill(dist, Integer.MAX_VALUE);\ndist[src] = 0; pq.offer(new int[]{src, 0});\nwhile (!pq.isEmpty()) {\n  int[] cur = pq.poll();\n  if (cur[1] > dist[cur[0]]) continue; // stale entry\n  for (int[] e : graph.get(cur[0])) {\n    int newDist = dist[cur[0]] + e[1];\n    if (newDist < dist[e[0]]) { dist[e[0]] = newDist; pq.offer(new int[]{e[0], newDist}); }\n  }\n}", "complexity": "O(E log V)", "note": "Lazy deletion: skip stale entries instead of decrease-key" },
+            { "label": "remove", "code": "pq.remove(element);", "complexity": "O(n)", "note": "Linear scan to find element; rarely used in interviews" },
+            { "label": "Kth Largest in Stream", "code": "PriorityQueue<Integer> minHeap;\nint k;\nvoid init(int k, int[] nums) {\n  this.k = k;\n  minHeap = new PriorityQueue<>();\n  for (int n : nums) add(n);\n}\nint add(int val) {\n  minHeap.offer(val);\n  if (minHeap.size() > k) minHeap.poll();\n  return minHeap.peek();\n}", "complexity": "O(log k) per add", "note": "Maintain min-heap of size k; peek() is always the kth largest" },
+            { "label": "Median Finder (two heaps)", "code": "PriorityQueue<Integer> lo = new PriorityQueue<>(Collections.reverseOrder()); // max-heap\nPriorityQueue<Integer> hi = new PriorityQueue<>(); // min-heap\nvoid addNum(int num) {\n  lo.offer(num);\n  hi.offer(lo.poll());\n  if (lo.size() < hi.size()) lo.offer(hi.poll());\n}\ndouble findMedian() {\n  return lo.size() > hi.size() ? lo.peek() : (lo.peek() + hi.peek()) / 2.0;\n}", "complexity": "O(log n) add, O(1) median", "note": "lo (max-heap) holds smaller half; hi (min-heap) holds larger half" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queue-deque",
+      "name": "Queue / Deque",
+      "icon": "🔄",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Queue (LinkedList)",
+          "items": [
+            { "label": "Create", "code": "Queue<Integer> queue = new LinkedList<>();", "note": "LinkedList implements Queue; ArrayDeque is faster for most uses" },
+            { "label": "offer / poll / peek", "code": "queue.offer(42);        // enqueue (returns true)\nint front = queue.poll(); // dequeue (returns null if empty)\nint look = queue.peek();  // front without removing", "complexity": "O(1)", "note": "offer/poll/peek return special values; add/remove/element throw exceptions" },
+            { "label": "add vs offer", "code": "queue.add(42);    // throws IllegalStateException if full\nqueue.offer(42);  // returns false if full", "note": "Prefer offer/poll/peek in interview code — no exceptions" },
+            { "label": "size / isEmpty", "code": "int n = queue.size();\nboolean empty = queue.isEmpty();", "complexity": "O(1)" },
+            { "label": "Queue from two stacks", "code": "Deque<Integer> in = new ArrayDeque<>(), out = new ArrayDeque<>();\nvoid push(int x) { in.push(x); }\nint pop() {\n  if (out.isEmpty()) while (!in.isEmpty()) out.push(in.pop());\n  return out.pop();\n}", "complexity": "O(1) amortized", "note": "Classic interview problem; each element moves at most twice" },
+            { "label": "BFS usage (Queue)", "code": "Queue<TreeNode> queue = new LinkedList<>();\nqueue.offer(root);\nwhile (!queue.isEmpty()) {\n  TreeNode node = queue.poll();\n  if (node.left != null) queue.offer(node.left);\n  if (node.right != null) queue.offer(node.right);\n}", "note": "Queue is the backbone of BFS; LinkedList or ArrayDeque", "link": "tpl-bfs" },
+            { "label": "ArrayDeque vs LinkedList", "code": "// ArrayDeque: faster, less memory, no null elements\n// LinkedList: allows null, implements List interface\n// For Queue/Stack usage: always prefer ArrayDeque", "note": "ArrayDeque is faster for both stack and queue operations" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Deque (ArrayDeque)",
+          "items": [
+            { "label": "Create", "code": "Deque<Integer> deque = new ArrayDeque<>();", "note": "Double-ended queue; faster than LinkedList" },
+            { "label": "offerFirst / offerLast", "code": "deque.offerFirst(1); // add to front\ndeque.offerLast(2);  // add to back", "complexity": "O(1)" },
+            { "label": "pollFirst / pollLast", "code": "int front = deque.pollFirst(); // remove from front\nint back = deque.pollLast();   // remove from back", "complexity": "O(1)", "note": "Returns null if empty" },
+            { "label": "peekFirst / peekLast", "code": "int front = deque.peekFirst();\nint back = deque.peekLast();", "complexity": "O(1)" },
+            { "label": "Sliding Window Maximum", "code": "Deque<Integer> dq = new ArrayDeque<>(); // stores indices\nfor (int i = 0; i < nums.length; i++) {\n  while (!dq.isEmpty() && dq.peekFirst() <= i - k) dq.pollFirst();\n  while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i]) dq.pollLast();\n  dq.offerLast(i);\n  if (i >= k - 1) res[i - k + 1] = nums[dq.peekFirst()];\n}", "complexity": "O(n)", "note": "Monotonic deque: front = max of window; maintain decreasing order" },
+            { "label": "size / isEmpty", "code": "int n = deque.size();\nboolean empty = deque.isEmpty();", "complexity": "O(1)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "string-builder",
+      "name": "String / StringBuilder",
+      "icon": "📝",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "String Operations",
+          "items": [
+            { "label": "charAt / length", "code": "char c = s.charAt(0);\nint len = s.length();", "complexity": "O(1)", "note": "Strings are immutable; length() is a method (not field like array.length)" },
+            { "label": "substring", "code": "String sub = s.substring(1, 4); // [1, 4)", "complexity": "O(n)", "note": "Returns new String; end index is exclusive" },
+            { "label": "indexOf / contains", "code": "int idx = s.indexOf(\"ab\");    // -1 if not found\nboolean has = s.contains(\"ab\");", "complexity": "O(n*m)", "note": "contains uses indexOf internally" },
+            { "label": "split", "code": "String[] parts = s.split(\",\");\nString[] limited = s.split(\",\", 3); // max 3 parts", "note": "Takes regex; escape dots as \\\\.split()" },
+            { "label": "join", "code": "String joined = String.join(\", \", list);\nString joined = String.join(\"-\", \"a\", \"b\", \"c\"); // \"a-b-c\"", "note": "Static method; works with Iterable or varargs" },
+            { "label": "replace", "code": "String r = s.replace('a', 'b');     // all occurrences of char\nString r = s.replace(\"old\", \"new\"); // all occurrences of string", "note": "Returns new String; replaceAll takes regex" },
+            { "label": "toCharArray", "code": "char[] arr = s.toCharArray();", "complexity": "O(n)", "note": "Creates a mutable copy; useful for in-place manipulation" },
+            { "label": "compareTo / equals", "code": "int cmp = s1.compareTo(s2); // lexicographic: <0, 0, >0\nboolean eq = s1.equals(s2); // content equality", "note": "NEVER use == for String comparison; always use .equals()" },
+            { "label": "trim / strip", "code": "String t = s.trim();   // remove leading/trailing whitespace\nString t = s.strip();  // Unicode-aware trim (Java 11+)", "note": "strip() handles more whitespace chars than trim()" },
+            { "label": "repeat", "code": "String r = \"ab\".repeat(3); // \"ababab\" (Java 11+)", "note": "Useful for building padding strings" },
+            { "label": "valueOf / parseInt", "code": "String s = String.valueOf(42);  // int → String\nint n = Integer.parseInt(\"42\"); // String → int", "note": "parseInt throws NumberFormatException on invalid input" },
+            { "label": "toUpperCase / toLowerCase", "code": "String up = s.toUpperCase();\nString lo = s.toLowerCase();", "note": "Returns new String; locale-sensitive" },
+            { "label": "startsWith / endsWith", "code": "boolean pre = s.startsWith(\"abc\");\nboolean suf = s.endsWith(\"xyz\");", "complexity": "O(m)", "note": "m = prefix/suffix length" },
+            { "label": "chars (IntStream)", "code": "s.chars().filter(c -> c == 'a').count();\ns.chars().mapToObj(c -> (char)c).collect(Collectors.toList());", "note": "Returns IntStream of char values; cast to char as needed" },
+            { "label": "Character utility", "code": "Character.isLetterOrDigit(c);\nCharacter.isDigit(c);\nCharacter.toLowerCase(c);\nint digit = c - '0'; // char to int\nchar ch = (char)('a' + i); // int to char", "note": "Essential for string manipulation in interviews" },
+            { "label": "String.format", "code": "String s = String.format(\"%d:%02d\", hours, mins); // \"3:05\"", "note": "Useful for formatting output; %02d = zero-padded 2 digits" },
+            { "label": "isEmpty / isBlank", "code": "boolean empty = s.isEmpty();  // length == 0\nboolean blank = s.isBlank();  // only whitespace (Java 11+)", "note": "isBlank returns true for empty or whitespace-only strings" },
+            { "label": "matches (regex)", "code": "boolean isNum = s.matches(\"\\\\d+\");      // all digits\nboolean isAlpha = s.matches(\"[a-zA-Z]+\"); // all letters", "note": "Full regex match (like ^...$); use for simple validation" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "StringBuilder",
+          "items": [
+            { "label": "Create", "code": "StringBuilder sb = new StringBuilder();\nStringBuilder sb = new StringBuilder(\"init\");", "note": "Mutable; use for string concatenation in loops" },
+            { "label": "append", "code": "sb.append(\"hello\").append(' ').append(42);", "complexity": "O(1) amortized", "note": "Chainable; accepts any type (auto-converts to String)" },
+            { "label": "insert", "code": "sb.insert(0, \"prefix\");", "complexity": "O(n)", "note": "Shifts characters right; use sparingly" },
+            { "label": "delete / deleteCharAt", "code": "sb.delete(1, 3);    // delete [1, 3)\nsb.deleteCharAt(0); // delete single char", "complexity": "O(n)", "note": "Shifts characters left" },
+            { "label": "reverse", "code": "sb.reverse();", "complexity": "O(n)", "note": "In-place reversal; common for palindrome building" },
+            { "label": "toString", "code": "String result = sb.toString();", "complexity": "O(n)", "note": "Final conversion back to immutable String" },
+            { "label": "Why StringBuilder", "code": "// BAD: O(n²) — creates new String each iteration\nString s = \"\";\nfor (int i = 0; i < n; i++) s += i;\n// GOOD: O(n) — appends in-place\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < n; i++) sb.append(i);", "note": "String concat in loop = O(n²); StringBuilder = O(n)" },
+            { "label": "charAt / setCharAt / length", "code": "char c = sb.charAt(0);\nsb.setCharAt(0, 'X');\nint len = sb.length();", "complexity": "O(1)", "note": "Unlike String, StringBuilder supports setCharAt for mutation" },
+            { "label": "Build comma-separated string", "code": "StringJoiner sj = new StringJoiner(\", \", \"[\", \"]\");\nfor (int x : nums) sj.add(String.valueOf(x));\nString result = sj.toString(); // [1, 2, 3]", "note": "StringJoiner handles delimiter, prefix, suffix; avoids trailing comma" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arrays",
+      "name": "Arrays",
+      "icon": "📐",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Declaration & Init",
+          "items": [
+            { "label": "Declare & init", "code": "int[] arr = new int[10];           // default 0\nint[] arr = {1, 2, 3};\nint[][] grid = new int[3][4];      // 3 rows, 4 cols\nboolean[] seen = new boolean[26];  // default false", "note": "Primitive arrays default to 0/false/0.0; Object arrays to null" },
+            { "label": "Array length", "code": "int n = arr.length; // field, not method", "note": "arr.length (no parentheses) vs str.length() vs list.size()" },
+            { "label": "2D array init", "code": "int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};\nint[][] dp = new int[m + 1][n + 1];", "note": "Rows can have different lengths (jagged arrays)" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Arrays Utility",
+          "items": [
+            { "label": "sort", "code": "Arrays.sort(arr);               // ascending\nArrays.sort(arr, 0, k);        // sort subrange [0, k)\nInteger[] boxed = {3,1,2};\nArrays.sort(boxed, Comparator.reverseOrder()); // descending", "complexity": "O(n log n)", "note": "Primitive sort = dual-pivot quicksort; Object sort = TimSort" },
+            { "label": "binarySearch", "code": "int idx = Arrays.binarySearch(arr, target);\n// returns index if found, or -(insertion point) - 1", "complexity": "O(log n)", "note": "Array must be sorted; negative result = not found" },
+            { "label": "fill", "code": "Arrays.fill(arr, -1);          // fill entire array\nArrays.fill(arr, 0, 5, -1);   // fill [0, 5) with -1", "complexity": "O(n)", "note": "Common for initializing DP arrays to sentinel values" },
+            { "label": "copyOf / copyOfRange", "code": "int[] copy = Arrays.copyOf(arr, arr.length);\nint[] sub = Arrays.copyOfRange(arr, 1, 4); // [1, 4)", "complexity": "O(n)", "note": "Returns a new array; useful for creating snapshots" },
+            { "label": "equals / deepEquals", "code": "boolean eq = Arrays.equals(a, b);         // 1D\nboolean deq = Arrays.deepEquals(grid1, grid2); // 2D+", "note": "== compares references; .equals() compares contents" },
+            { "label": "asList", "code": "List<Integer> list = Arrays.asList(1, 2, 3); // fixed-size\n// Can't add/remove, but can set()\nList<Integer> mutable = new ArrayList<>(Arrays.asList(1, 2, 3));", "note": "asList returns fixed-size list backed by array" },
+            { "label": "stream", "code": "int sum = Arrays.stream(arr).sum();\nint max = Arrays.stream(arr).max().orElse(0);\nint[] filtered = Arrays.stream(arr).filter(x -> x > 0).toArray();", "note": "IntStream for int[]; Stream<Integer> for Integer[]", "link": "streams" },
+            { "label": "toString / deepToString", "code": "System.out.println(Arrays.toString(arr));       // [1, 2, 3]\nSystem.out.println(Arrays.deepToString(grid));  // [[1,2],[3,4]]", "note": "Essential for debugging; arrays don't override toString()" },
+            { "label": "Custom sort (2D array)", "code": "int[][] intervals = {{1,3},{2,4},{0,5}};\nArrays.sort(intervals, (a, b) -> a[0] - b[0]);\n// Or safer: Comparator.comparingInt(a -> a[0])", "complexity": "O(n log n)", "note": "Lambda comparator; use Comparator.comparingInt to avoid overflow" },
+            { "label": "Array max / min / sum", "code": "int max = Arrays.stream(arr).max().getAsInt();\nint min = Arrays.stream(arr).min().getAsInt();\nint sum = Arrays.stream(arr).sum();", "complexity": "O(n)", "note": "Stream operations; or use manual loop for no-overhead version" },
+            { "label": "Swap elements", "code": "int tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;", "complexity": "O(1)", "note": "No built-in swap; must use temp variable" },
+            { "label": "Reverse array", "code": "for (int l = 0, r = arr.length - 1; l < r; l++, r--) {\n  int tmp = arr[l]; arr[l] = arr[r]; arr[r] = tmp;\n}", "complexity": "O(n)", "note": "Two-pointer swap from edges to center" },
+            { "label": "2D array row/col iteration", "code": "int rows = grid.length, cols = grid[0].length;\nfor (int r = 0; r < rows; r++)\n  for (int c = 0; c < cols; c++)\n    // grid[r][c]", "note": "grid.length = rows; grid[0].length = cols" },
+            { "label": "Direction arrays (4-dir / 8-dir)", "code": "int[][] dirs4 = {{0,1},{0,-1},{1,0},{-1,0}};\nint[][] dirs8 = {{0,1},{0,-1},{1,0},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};\nfor (int[] d : dirs4) {\n  int nr = r + d[0], nc = c + d[1];\n}", "note": "Standard pattern for grid BFS/DFS; check bounds before accessing" },
+            { "label": "Clone / deep copy", "code": "int[] clone = arr.clone();             // shallow copy\nint[][] deep = new int[m][];\nfor (int i = 0; i < m; i++) deep[i] = grid[i].clone(); // deep copy 2D", "note": "clone() for 1D; manual loop for 2D deep copy" },
+            { "label": "Matrix transpose", "code": "int[][] transposed = new int[cols][rows];\nfor (int i = 0; i < rows; i++)\n  for (int j = 0; j < cols; j++)\n    transposed[j][i] = matrix[i][j];", "complexity": "O(m * n)", "note": "Swap rows and columns; for rotation: transpose then reverse rows" },
+            { "label": "Spiral order traversal", "code": "int top = 0, bot = m-1, left = 0, right = n-1;\nList<Integer> res = new ArrayList<>();\nwhile (top <= bot && left <= right) {\n  for (int c = left; c <= right; c++) res.add(matrix[top][c]); top++;\n  for (int r = top; r <= bot; r++) res.add(matrix[r][right]); right--;\n  if (top <= bot) { for (int c = right; c >= left; c--) res.add(matrix[bot][c]); bot--; }\n  if (left <= right) { for (int r = bot; r >= top; r--) res.add(matrix[r][left]); left++; }\n}", "complexity": "O(m * n)", "note": "Shrink boundaries after each direction; check bounds before bottom and left" },
+            { "label": "Convert int[] to Integer[]", "code": "Integer[] boxed = Arrays.stream(arr).boxed().toArray(Integer[]::new);\nint[] unboxed = Arrays.stream(boxed).mapToInt(Integer::intValue).toArray();", "note": "Needed for sorting with custom Comparator (can't use lambda on int[])" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "streams",
+      "name": "Streams & Lambdas",
+      "icon": "⚡",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Creating Streams",
+          "items": [
+            { "label": "From collection", "code": "Stream<String> s = list.stream();", "note": "Most common way to create a stream" },
+            { "label": "From array", "code": "IntStream is = Arrays.stream(arr);         // int[]\nStream<String> ss = Arrays.stream(strArr); // String[]", "note": "IntStream for primitives; Stream<T> for objects" },
+            { "label": "Stream.of / generate / iterate", "code": "Stream<Integer> s = Stream.of(1, 2, 3);\nStream<Double> rand = Stream.generate(Math::random).limit(10);\nStream<Integer> nums = Stream.iterate(0, n -> n + 2).limit(5);", "note": "generate/iterate are infinite — always use limit()" },
+            { "label": "IntStream.range / rangeClosed", "code": "IntStream.range(0, 10)       // 0..9\nIntStream.rangeClosed(1, 10) // 1..10", "note": "Useful for index-based operations" },
+            { "label": "String chars stream", "code": "long vowels = s.chars().filter(c -> \"aeiou\".indexOf(c) >= 0).count();", "note": "String.chars() returns IntStream of char values" },
+            { "label": "Parallel stream", "code": "list.parallelStream().filter(x -> x > 0).collect(Collectors.toList());", "note": "Uses ForkJoinPool; avoid for small data or side effects" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Intermediate Operations",
+          "items": [
+            { "label": "filter", "code": "stream.filter(x -> x > 0)", "note": "Keep elements matching predicate" },
+            { "label": "map", "code": "stream.map(x -> x * 2)           // Stream<T> → Stream<R>\nstream.mapToInt(Integer::intValue) // Stream → IntStream", "note": "mapToInt avoids boxing when you need primitives" },
+            { "label": "flatMap", "code": "stream.flatMap(list -> list.stream())\n// [[1,2],[3,4]] → [1,2,3,4]", "note": "Flatten nested structures; one-to-many transformation" },
+            { "label": "sorted", "code": "stream.sorted()                          // natural order\nstream.sorted(Comparator.reverseOrder()) // descending\nstream.sorted(Comparator.comparing(Person::getName))", "note": "Returns new sorted stream; original unchanged" },
+            { "label": "distinct", "code": "stream.distinct() // removes duplicates (uses .equals())", "note": "Like putting into a Set" },
+            { "label": "limit / skip", "code": "stream.limit(5)  // take first 5\nstream.skip(3)   // skip first 3", "note": "Combine for pagination: skip(offset).limit(pageSize)" },
+            { "label": "peek (debugging)", "code": "stream.peek(x -> System.out.println(x)).filter(...)", "note": "Inspect elements mid-pipeline without consuming; for debugging only" },
+            { "label": "mapToInt / mapToLong", "code": "int sum = stream.mapToInt(String::length).sum();\nlong total = stream.mapToLong(x -> x).sum();", "note": "Convert to primitive stream for sum/max/min/average" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Terminal Operations",
+          "items": [
+            { "label": "collect (toList)", "code": "List<Integer> list = stream.collect(Collectors.toList());\nList<Integer> list = stream.toList(); // Java 16+, immutable", "note": "Collectors.toList() is mutable; .toList() is not" },
+            { "label": "forEach", "code": "stream.forEach(System.out::println);", "note": "Terminal; cannot use stream again after this" },
+            { "label": "reduce", "code": "int sum = stream.reduce(0, Integer::sum);\nOptional<Integer> max = stream.reduce(Integer::max);", "note": "First form has identity; second returns Optional", "link": "optional" },
+            { "label": "count", "code": "long n = stream.filter(x -> x > 0).count();", "note": "Returns long, not int" },
+            { "label": "anyMatch / allMatch / noneMatch", "code": "boolean any = stream.anyMatch(x -> x > 0);\nboolean all = stream.allMatch(x -> x > 0);\nboolean none = stream.noneMatch(x -> x < 0);", "note": "Short-circuit: stops as soon as answer is known" },
+            { "label": "findFirst", "code": "Optional<Integer> first = stream.filter(x -> x > 0).findFirst();", "note": "Returns Optional; use with .orElse() or .ifPresent()", "link": "optional" },
+            { "label": "toArray", "code": "int[] arr = intStream.toArray();\nString[] arr = stream.toArray(String[]::new);", "note": "IntStream.toArray() returns int[]; Stream needs array constructor" },
+            { "label": "min / max", "code": "Optional<Integer> max = stream.max(Comparator.naturalOrder());\nint intMax = intStream.max().orElse(0);", "note": "Stream<T> needs Comparator; IntStream returns OptionalInt" },
+            { "label": "sum / average (IntStream)", "code": "int sum = intStream.sum();\nOptionalDouble avg = intStream.average();", "note": "Only available on IntStream/LongStream/DoubleStream, not Stream<T>" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Collectors",
+          "items": [
+            { "label": "toList / toSet", "code": "List<T> list = stream.collect(Collectors.toList());\nSet<T> set = stream.collect(Collectors.toSet());", "note": "toList = ArrayList; toSet = HashSet" },
+            { "label": "toMap", "code": "Map<String, Integer> map = stream.collect(\n  Collectors.toMap(Person::getName, Person::getAge));", "note": "Throws on duplicate keys; add merge function: (a,b) -> a" },
+            { "label": "groupingBy", "code": "Map<String, List<Person>> byCity = stream.collect(\n  Collectors.groupingBy(Person::getCity));", "note": "Like SQL GROUP BY; returns Map<K, List<V>>" },
+            { "label": "joining", "code": "String csv = stream.map(String::valueOf)\n  .collect(Collectors.joining(\", \"));", "note": "Concatenate strings with delimiter" },
+            { "label": "counting", "code": "Map<String, Long> freq = stream.collect(\n  Collectors.groupingBy(Function.identity(), Collectors.counting()));", "note": "Frequency map with streams" },
+            { "label": "partitioningBy", "code": "Map<Boolean, List<Integer>> parts = stream.collect(\n  Collectors.partitioningBy(x -> x % 2 == 0));", "note": "Split into two groups: true-key and false-key" },
+            { "label": "toUnmodifiableList/Set/Map", "code": "List<T> list = stream.collect(Collectors.toUnmodifiableList()); // Java 10+", "note": "Returns immutable collection; throws NPE on null elements" },
+            { "label": "summarizingInt", "code": "IntSummaryStatistics stats = stream.collect(\n  Collectors.summarizingInt(Integer::intValue));\n// stats.getMax(), getMin(), getSum(), getAverage(), getCount()", "note": "All summary statistics in one pass" },
+            { "label": "toMap with merge", "code": "Map<String, Integer> map = stream.collect(\n  Collectors.toMap(keyFn, valueFn, (v1, v2) -> v1)); // keep first on conflict", "note": "Third arg = merge function for duplicate keys; without it, duplicates throw" },
+            { "label": "groupingBy + downstream", "code": "Map<String, Long> counts = stream.collect(\n  Collectors.groupingBy(Function.identity(), Collectors.counting()));\nMap<String, Optional<T>> maxByGroup = stream.collect(\n  Collectors.groupingBy(T::getGroup, Collectors.maxBy(comparator)));", "note": "Downstream collector processes each group (counting, maxBy, mapping, etc.)" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "optional",
+      "name": "Optional",
+      "icon": "❓",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Creating",
+          "items": [
+            { "label": "of / ofNullable / empty", "code": "Optional<String> opt = Optional.of(\"hello\");     // must not be null\nOptional<String> opt = Optional.ofNullable(val);  // null → empty\nOptional<String> opt = Optional.empty();           // no value", "note": "of() throws NPE if null; use ofNullable() when value might be null" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Usage",
+          "items": [
+            { "label": "isPresent / isEmpty", "code": "if (opt.isPresent()) { /* has value */ }\nif (opt.isEmpty()) { /* no value */ } // Java 11+", "note": "isEmpty() is the inverse of isPresent()" },
+            { "label": "ifPresent", "code": "opt.ifPresent(val -> System.out.println(val));", "note": "Execute action only if value present" },
+            { "label": "orElse / orElseGet", "code": "String val = opt.orElse(\"default\");\nString val = opt.orElseGet(() -> computeDefault());", "note": "orElse always evaluates default; orElseGet is lazy" },
+            { "label": "orElseThrow", "code": "String val = opt.orElseThrow();\nString val = opt.orElseThrow(() -> new IllegalStateException(\"missing\"));", "note": "No-arg form throws NoSuchElementException (Java 10+)" },
+            { "label": "map", "code": "Optional<Integer> len = opt.map(String::length);", "note": "Transform value if present; returns Optional" },
+            { "label": "flatMap", "code": "Optional<String> result = opt.flatMap(this::findById);", "note": "Use when mapper itself returns Optional (avoids Optional<Optional>)" },
+            { "label": "filter", "code": "Optional<String> filtered = opt.filter(s -> s.length() > 5);", "note": "Keep value only if predicate matches; else empty" },
+            { "label": "or (Java 9+)", "code": "Optional<String> result = opt.or(() -> Optional.of(\"fallback\"));", "note": "Return alternative Optional if empty; lazy evaluation" },
+            { "label": "stream (Java 9+)", "code": "Stream<String> s = opt.stream(); // 0 or 1 element stream", "note": "Useful with flatMap to filter empty Optionals from a stream" },
+            { "label": "ifPresentOrElse (Java 9+)", "code": "opt.ifPresentOrElse(\n  val -> System.out.println(val),\n  () -> System.out.println(\"empty\")\n);", "note": "Handle both present and empty cases" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "loops-java",
+      "name": "Loops & Iteration",
+      "icon": "🔁",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Classic Loops",
+          "items": [
+            { "label": "for loop", "code": "for (int i = 0; i < n; i++) { /* ... */ }\nfor (int i = n - 1; i >= 0; i--) { /* reverse */ }", "note": "Standard indexed loop; i is scoped to the loop" },
+            { "label": "while", "code": "while (condition) { /* ... */ }", "note": "Check condition before each iteration" },
+            { "label": "do-while", "code": "do { /* ... */ } while (condition);", "note": "Executes body at least once; rarely used in interviews" },
+            { "label": "enhanced for-each", "code": "for (int x : nums) { /* ... */ }\nfor (Map.Entry<String, Integer> e : map.entrySet()) { /* ... */ }", "note": "Works on arrays and Iterable; cannot modify collection during iteration" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Modern Iteration",
+          "items": [
+            { "label": "forEach (Collection)", "code": "list.forEach(x -> System.out.println(x));\nmap.forEach((k, v) -> System.out.println(k + \"=\" + v));", "note": "Functional style; cannot break/continue from lambda" },
+            { "label": "Iterator", "code": "Iterator<Integer> it = list.iterator();\nwhile (it.hasNext()) {\n  int val = it.next();\n  if (val < 0) it.remove(); // safe removal during iteration\n}", "note": "Only way to safely remove during iteration" },
+            { "label": "ListIterator", "code": "ListIterator<Integer> it = list.listIterator();\nwhile (it.hasNext()) {\n  int val = it.next();\n  it.set(val * 2); // modify current element\n}", "note": "Bidirectional; supports set() and add() during iteration" },
+            { "label": "Enumerate pattern (index + value)", "code": "for (int i = 0; i < list.size(); i++) {\n  int val = list.get(i);\n  // i = index, val = value\n}", "note": "Java has no built-in enumerate; use indexed for loop" },
+            { "label": "Iterate map entries", "code": "for (var e : map.entrySet()) {\n  var key = e.getKey();\n  var val = e.getValue();\n}", "note": "var (Java 10+) for concise local types; entrySet is most efficient" },
+            { "label": "Stream with index", "code": "IntStream.range(0, list.size())\n  .filter(i -> list.get(i) > 0)\n  .forEach(i -> /* i = index, list.get(i) = value */);", "note": "Workaround for no built-in indexed forEach" },
+            { "label": "Nested loop with pairs", "code": "for (int i = 0; i < n; i++)\n  for (int j = i + 1; j < n; j++)\n    // all unique pairs (i, j)", "note": "n*(n-1)/2 pairs; start j from i+1 to avoid duplicates" },
+            { "label": "Bit manipulation loops", "code": "for (int mask = 0; mask < (1 << n); mask++) {\n  for (int i = 0; i < n; i++) {\n    if ((mask & (1 << i)) != 0) { /* bit i is set */ }\n  }\n}", "note": "Enumerate all 2^n subsets using bitmask; bit i set = include element i" },
+            { "label": "Two-pointer loop pattern", "code": "int left = 0;\nfor (int right = 0; right < n; right++) {\n  // process right\n  while (/* condition */) left++;\n  // window [left, right] is valid\n}", "note": "Outer loop moves right; inner while moves left as needed" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Labels",
+          "items": [
+            { "label": "break with label", "code": "outer:\nfor (int i = 0; i < m; i++) {\n  for (int j = 0; j < n; j++) {\n    if (grid[i][j] == target) break outer;\n  }\n}", "note": "Breaks out of the labeled outer loop; useful for nested loops" },
+            { "label": "continue with label", "code": "outer:\nfor (int i = 0; i < m; i++) {\n  for (int j = 0; j < n; j++) {\n    if (skip(i, j)) continue outer;\n  }\n}", "note": "Skip to next iteration of outer loop" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sorting-java",
+      "name": "Sorting",
+      "icon": "🔢",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Classic",
+          "items": [
+            { "label": "Comparable interface", "code": "class Pair implements Comparable<Pair> {\n  int key, value;\n  public int compareTo(Pair o) {\n    return this.key - o.key; // ascending by key\n  }\n}", "note": "Natural ordering; return negative/zero/positive" },
+            { "label": "Comparator interface", "code": "class ByValue implements Comparator<Pair> {\n  public int compare(Pair a, Pair b) {\n    return a.value - b.value;\n  }\n}", "note": "External ordering; can have multiple comparators" },
+            { "label": "Arrays.sort", "code": "Arrays.sort(arr);                     // primitives: ascending\nArrays.sort(boxed, (a, b) -> b - a); // objects: custom order", "complexity": "O(n log n)", "note": "Primitives use dual-pivot quicksort; objects use TimSort (stable)" },
+            { "label": "Collections.sort", "code": "Collections.sort(list);\nCollections.sort(list, (a, b) -> a - b);", "complexity": "O(n log n)", "note": "Equivalent to list.sort(comparator)" },
+            { "label": "Sort stability", "code": "// Java's Arrays.sort for objects (TimSort) is STABLE\n// Arrays.sort for primitives (dual-pivot quicksort) is NOT stable\n// Use Integer[] instead of int[] if stability matters", "note": "Stable sort preserves relative order of equal elements" },
+            { "label": "Bucket Sort", "code": "int[] bucket = new int[maxVal + 1];\nfor (int num : nums) bucket[num]++;\nint idx = 0;\nfor (int v = 0; v <= maxVal; v++)\n  while (bucket[v]-- > 0) nums[idx++] = v;", "complexity": "O(n + k)", "note": "O(n) when value range k is bounded; used in Top K frequency problems" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Modern: Lambdas",
+          "items": [
+            { "label": "Lambda comparator", "code": "list.sort((a, b) -> a.length() - b.length());\nArrays.sort(intervals, (a, b) -> a[0] - b[0]);", "note": "Concise inline comparator; beware int overflow" },
+            { "label": "Comparator.comparing", "code": "list.sort(Comparator.comparing(String::length));\nlist.sort(Comparator.comparing(Person::getAge));", "note": "Type-safe; extracts key then compares naturally" },
+            { "label": "thenComparing", "code": "list.sort(Comparator.comparing(Person::getCity)\n  .thenComparing(Person::getName));", "note": "Multi-level sort; first by city, then by name" },
+            { "label": "reversed", "code": "list.sort(Comparator.comparing(String::length).reversed());", "note": "Flip any comparator to descending" },
+            { "label": "comparingInt (overflow-safe)", "code": "list.sort(Comparator.comparingInt(a -> a[0]));", "note": "Avoids int overflow that (a-b) can cause for extreme values" },
+            { "label": "naturalOrder / reverseOrder", "code": "list.sort(Comparator.naturalOrder());      // ascending\nlist.sort(Comparator.reverseOrder());     // descending\nlist.sort(Comparator.nullsFirst(Comparator.naturalOrder()));", "note": "nullsFirst/nullsLast handle null elements safely" },
+            { "label": "Custom record/class sort", "code": "record Pair(int key, int val) {}\nList<Pair> pairs = new ArrayList<>();\npairs.sort(Comparator.comparingInt(Pair::key)\n  .thenComparingInt(Pair::val));", "note": "Records (Java 16+) auto-generate constructor, equals, hashCode, toString" },
+            { "label": "Sort String chars", "code": "char[] chars = s.toCharArray();\nArrays.sort(chars);\nString sorted = new String(chars);", "complexity": "O(n log n)", "note": "Common for anagram grouping: sorted string as map key" },
+            { "label": "Counting sort (bounded range)", "code": "int[] count = new int[maxVal + 1];\nfor (int x : arr) count[x]++;\n// count[i] = frequency of value i", "complexity": "O(n + k)", "note": "O(n) when range k is small; basis for radix sort" },
+            { "label": "Custom sort with map", "code": "Map<Integer, Integer> freq = new HashMap<>();\nfor (int x : arr) freq.merge(x, 1, Integer::sum);\nInteger[] boxed = Arrays.stream(arr).boxed().toArray(Integer[]::new);\nArrays.sort(boxed, (a, b) -> freq.get(a) != freq.get(b)\n  ? freq.get(a) - freq.get(b) : b - a);", "note": "Sort by frequency ascending, then by value descending" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gotchas-java",
+      "name": "Common Gotchas",
+      "icon": "⚠️",
+      "sections": [
+        {
+          "type": "operations",
+          "title": "Equality & Identity",
+          "items": [
+            { "label": "== vs .equals() for objects", "code": "String a = new String(\"hello\");\nString b = new String(\"hello\");\na == b;      // false (different objects)\na.equals(b); // true  (same content)", "note": "== compares references; .equals() compares content. ALWAYS use .equals() for objects" },
+            { "label": "String pool", "code": "String a = \"hello\";\nString b = \"hello\";\na == b; // true (same pool reference)\nString c = new String(\"hello\");\na == c; // false (new object bypasses pool)", "note": "Literals are interned; new String() is not. Still use .equals() always" },
+            { "label": "Integer cache (-128 to 127)", "code": "Integer a = 127, b = 127;\na == b; // true  (cached)\nInteger c = 128, d = 128;\nc == d; // false (not cached!)", "note": "Java caches Integer -128 to 127; outside this range == fails. Use .equals()" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Autoboxing",
+          "items": [
+            { "label": "Integer ↔ int pitfalls", "code": "Map<String, Integer> map = new HashMap<>();\nmap.put(\"a\", 1);\nint val = map.get(\"b\"); // NPE! get returns null, unboxing null crashes", "note": "Always check for null before unboxing, or use getOrDefault" },
+            { "label": "Null unboxing NPE", "code": "Integer x = null;\nint y = x; // NullPointerException!\n// Fix: check null first or use Optional", "note": "Unboxing null Integer/Long/Boolean etc. always throws NPE" },
+            { "label": "Comparing boxed types", "code": "Integer a = 200, b = 200;\nif (a == b) { /* WRONG — reference comparison */ }\nif (a.equals(b)) { /* CORRECT */ }\nif (a.intValue() == b.intValue()) { /* also correct */ }", "note": "Unbox explicitly or use .equals() for boxed comparisons" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Overflow",
+          "items": [
+            { "label": "int overflow", "code": "int a = Integer.MAX_VALUE; // 2,147,483,647\na + 1; // -2,147,483,648 (wraps silently!)\n// Fix: use long\nlong safe = (long)a + 1;", "note": "Java int overflows silently; no exception thrown" },
+            { "label": "Mid-point overflow", "code": "int mid = (lo + hi) / 2;           // WRONG if lo+hi overflows\nint mid = lo + (hi - lo) / 2;     // SAFE", "note": "Always use lo + (hi - lo) / 2 in binary search" },
+            { "label": "Math.addExact / multiplyExact", "code": "int safe = Math.addExact(a, b);       // throws ArithmeticException on overflow\nlong safe = Math.multiplyExact(a, b); // same for multiply", "note": "Use when you want overflow detection rather than silent wraparound" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Null Safety",
+          "items": [
+            { "label": "Common NPE patterns", "code": "// map.get() returns null for missing keys\n// str.equals(null) is fine; null.equals(str) is NPE\n// Always put constant first: \"expected\".equals(str)", "note": "Defensive: constant.equals(variable) avoids NPE" },
+            { "label": "Optional for safety", "code": "Optional.ofNullable(map.get(\"key\"))\n  .orElse(defaultValue);", "note": "Wrap nullable returns in Optional for safe handling", "link": "optional" }
+          ]
+        },
+        {
+          "type": "operations",
+          "title": "Generics & Collections",
+          "items": [
+            { "label": "Type erasure", "code": "// At runtime, List<Integer> and List<String> are both just List\n// Can't do: new T[] or instanceof List<Integer>", "note": "Generic type info is erased at compile time" },
+            { "label": "Can't use primitives in generics", "code": "// List<int> — COMPILE ERROR\nList<Integer> list = new ArrayList<>();  // must use wrapper\nint[] arr = list.stream().mapToInt(Integer::intValue).toArray();", "note": "Use Integer, Long, Double etc. for collections; convert to primitive arrays via streams" },
+            { "label": "Diamond operator", "code": "Map<String, List<Integer>> map = new HashMap<>(); // infers types\n// Before Java 7: new HashMap<String, List<Integer>>()", "note": "Diamond <> infers generic types from left side (Java 7+)" },
+            { "label": "Arrays.asList pitfall", "code": "List<Integer> list = Arrays.asList(1, 2, 3);\nlist.add(4); // throws UnsupportedOperationException!\n// Fix: new ArrayList<>(Arrays.asList(1, 2, 3))", "note": "asList returns fixed-size list; wrap in ArrayList for mutability" },
+            { "label": "int[] in Collections", "code": "// Arrays.asList(new int[]{1,2,3}) → List<int[]> (one element!)\n// Fix: use Integer[] or stream\nList<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());", "note": "Autoboxing doesn't work for arrays; must box explicitly" },
+            { "label": "ConcurrentModificationException", "code": "// WRONG: modifying list during for-each\nfor (int x : list) if (x < 0) list.remove(x);\n// FIX 1: use Iterator.remove()\n// FIX 2: list.removeIf(x -> x < 0)", "note": "Never modify a collection during enhanced for-each; use Iterator or removeIf" },
+            { "label": "HashMap key mutability", "code": "// NEVER use mutable objects (like arrays) as HashMap keys\n// int[] doesn't override hashCode/equals\nMap<String, Integer> map = new HashMap<>(); // String is safe (immutable)", "note": "Keys must be immutable or at least not mutated after insertion" },
+            { "label": "char vs Character in generics", "code": "// Map<char, Integer> — COMPILE ERROR\nMap<Character, Integer> map = new HashMap<>();\nchar c = 'a';\nmap.put(c, 1); // autoboxed to Character", "note": "Use Character wrapper for generics; char autoboxes" },
+            { "label": "String.split edge cases", "code": "\"a,,b\".split(\",\")   // [\"a\", \"\", \"b\"] — 3 elements\n\"a,,b,\".split(\",\")  // [\"a\", \"\", \"b\"] — trailing empty dropped!\n\"a,,b,\".split(\",\", -1) // [\"a\", \"\", \"b\", \"\"] — keep all", "note": "split drops trailing empty strings by default; use -1 limit to keep them" },
+            { "label": "Integer.MIN_VALUE negation", "code": "int x = Integer.MIN_VALUE; // -2147483648\nint y = -x; // still -2147483648! (overflow)\nint z = Math.abs(x); // still -2147483648!", "note": "MIN_VALUE has no positive counterpart in int; use long for safe negation" },
+            { "label": "Array index out of bounds", "code": "// Java throws ArrayIndexOutOfBoundsException (not silent like C)\n// Always check: 0 <= idx < arr.length\n// For 2D: 0 <= r < grid.length && 0 <= c < grid[0].length", "note": "Unlike Python, negative indices are not supported" },
+            { "label": "Collections.unmodifiableList", "code": "List<Integer> immutable = Collections.unmodifiableList(list);\nimmutable.add(1); // throws UnsupportedOperationException\n// Note: List.of() and List.copyOf() also return immutable lists", "note": "Unmodifiable is a wrapper; changes to original still reflect" },
+            { "label": "HashMap iteration order", "code": "// HashMap: NO guaranteed order\n// LinkedHashMap: insertion order\n// TreeMap: sorted by key\n// Choose based on whether order matters", "note": "If you need deterministic order, don't use plain HashMap" },
+            { "label": "int division truncation", "code": "int a = 7 / 2;      // 3 (truncates toward zero)\nint b = -7 / 2;     // -3 (NOT -4)\ndouble c = 7.0 / 2;  // 3.5 (floating point)", "note": "Integer division truncates toward zero; cast to double for real division" },
+            { "label": "Modulo with negatives", "code": "int r = -7 % 3; // -1 in Java (NOT 2 like Python)\n// For positive modulo: ((n % m) + m) % m", "note": "Java % preserves sign of dividend; adjust for algorithms needing positive remainder" },
+            { "label": "PriorityQueue is NOT sorted", "code": "PriorityQueue<Integer> pq = new PriorityQueue<>(List.of(5,1,3));\n// Iterating pq does NOT give sorted order!\n// Only poll() guarantees min element\nwhile (!pq.isEmpty()) System.out.print(pq.poll()); // 1, 3, 5", "note": "Heap only guarantees top element; must poll() for sorted output" },
+            { "label": "Stack.push vs Deque.push", "code": "// java.util.Stack.push adds to END (index grows)\n// ArrayDeque.push adds to FRONT (head)\n// Both pop from the same end as push — both LIFO\n// Just use ArrayDeque everywhere", "note": "ArrayDeque.push/pop work on front; Iterator goes front to back" },
+            { "label": "Bit shift precedence", "code": "int wrong = 1 << n - 1;  // = 1 << (n-1) due to precedence!\nint right = (1 << n) - 1; // 2^n - 1 (all n bits set)", "note": "Arithmetic ops have higher precedence than shift; always parenthesize" },
+            { "label": "StringBuilder vs String +", "code": "// Compiler optimizes: String s = a + b + c → StringBuilder\n// BUT in a loop, it creates new StringBuilder each iteration\n// Always use explicit StringBuilder in loops", "note": "Single-line concat is fine; loop concat must use StringBuilder" }
+          ]
+        }
+      ]
+    }
+  ]
+}
