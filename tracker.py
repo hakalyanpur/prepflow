@@ -857,6 +857,7 @@ HTML = r"""<!DOCTYPE html>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
 .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding-bottom: 4px; }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 12px; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
@@ -878,6 +879,9 @@ table { width: 100%; border-collapse: collapse; font-size: .85rem; }
 th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; }
 td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 tr:hover { background: var(--hover-row); }
+tr.last-solved { background: rgba(255,85,85,.06); }
+tr.last-solved td:first-child { border-left: 3px solid var(--red); padding-left: 9px; }
+tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin-right: 4px; }
 /* Badges */
 .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .75rem; font-weight: 600; cursor: pointer; user-select: none; }
 .badge-pending { background: var(--border); color: var(--muted); }
@@ -982,6 +986,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 </head>
 <body>
 <div class="container">
+<div class="sticky-header">
 <div class="header-row">
   <h1>Interview Prep Hub</h1>
   <div class="header-actions">
@@ -1002,6 +1007,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <div class="tab" data-tab="stats">Stats</div>
   <div class="tab" data-tab="pytips">Python Ref</div>
   <div class="tab" data-tab="mechanics">Mechanics</div>
+</div>
 </div>
 
 <div id="weekly" class="panel active"></div>
@@ -1266,6 +1272,18 @@ function probUrl(p) {
   return p.url || lcUrl(p);
 }
 
+let lastSolvedId = null;
+
+function computeLastSolved() {
+  let latest = null;
+  [...problems, ...sdProblems].forEach(p => {
+    if (p.status === 'done' && p.next_review) {
+      if (!latest || p.next_review > latest.next_review) latest = p;
+    }
+  });
+  lastSolvedId = latest ? latest.id : null;
+}
+
 function problemRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
   const isSD = p.id.startsWith('sd-');
@@ -1275,8 +1293,10 @@ function problemRow(p) {
     : badgeHTML(p);
   const notesCol = isSD ? sdNotesHTML(p) : notesHTML(p);
   const timerCol = isSD ? sdTimerHTML(p) : timerHTML(p);
-  return `<tr>
-    <td>${p._rowNum || ''}</td>
+  const isLast = p.id === lastSolvedId;
+  const marker = isLast ? '<span class="last-solved-marker">&#9654;</span>' : '';
+  return `<tr${isLast ? ' class="last-solved"' : ''}>
+    <td>${marker}${p._rowNum || ''}</td>
     <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td>${cat}</td>
@@ -1862,6 +1882,7 @@ function sdRow(p) {
 
 
 function render() {
+  computeLastSolved();
   const tab = activeTab();
   if (tab === 'weekly') renderWeekly();
   else if (tab === 'all') renderAll();
