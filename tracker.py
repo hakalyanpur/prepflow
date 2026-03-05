@@ -1278,7 +1278,7 @@ function computeLastSolved() {
   let latest = null;
   [...problems, ...sdProblems].forEach(p => {
     if (p.status === 'done' && p.next_review) {
-      if (!latest || p.next_review > latest.next_review) latest = p;
+      if (!latest || p.next_review >= latest.next_review) latest = p;
     }
   });
   lastSolvedId = latest ? latest.id : null;
