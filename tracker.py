@@ -812,6 +812,38 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(p)
             return self._json({"error": "not found"}, 404)
 
+        # /api/problems/<id>/week
+        m = re.match(r"/api/problems/(\d+)/week", self.path)
+        if m:
+            pid = m.group(1)
+            body = self._read_body()
+            week = body.get("week")
+            if week is None or not isinstance(week, int) or week < 1 or week > 14:
+                return self._json({"error": "Invalid week (1-14)"}, 400)
+            problems = load_data()
+            for p in problems:
+                if p["id"] == pid:
+                    p["week"] = week
+                    save_data(problems)
+                    return self._json(p)
+            return self._json({"error": "not found"}, 404)
+
+        # /api/sd/problems/<id>/week
+        m = re.match(r"/api/sd/problems/(sd-\d+)/week", self.path)
+        if m:
+            pid = m.group(1)
+            body = self._read_body()
+            week = body.get("week")
+            if week is None or not isinstance(week, int) or week < 1 or week > 14:
+                return self._json({"error": "Invalid week (1-14)"}, 400)
+            problems = load_sd_data()
+            for p in problems:
+                if p["id"] == pid:
+                    p["week"] = week
+                    save_sd_data(problems)
+                    return self._json(p)
+            return self._json({"error": "not found"}, 404)
+
         # /api/sync/leetcode
         if self.path == "/api/sync/leetcode":
             body = self._read_body()
@@ -958,6 +990,13 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .sync-result .error { color: var(--red); }
 .sync-result .synced-titles { color: var(--green); }
 @media (max-width: 700px) { .sync-pill input { width: 100px; } .sync-result { display: none; } }
+/* Week picker */
+.week-num { cursor: pointer; position: relative; }
+.week-num:hover { color: var(--accent); }
+.week-picker { position: absolute; top: 100%; left: 0; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; box-shadow: 0 4px 12px rgba(0,0,0,.3); min-width: 140px; }
+.week-picker span { padding: 4px 8px; border-radius: 4px; cursor: pointer; text-align: center; font-size: .8rem; color: var(--text); }
+.week-picker span:hover { background: var(--accent); color: #fff; }
+.week-picker span.current { background: var(--border); font-weight: 600; }
 /* Week group header */
 .week-header { background: var(--surface); padding: 8px 12px; font-weight: 600; font-size: .9rem; border-radius: 6px; margin: 12px 0 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .week-header:hover { background: var(--week-hover); }
@@ -1284,6 +1323,43 @@ function computeLastSolved() {
   lastSolvedId = latest ? latest.id : null;
 }
 
+function showWeekPicker(event, pid, currentWeek) {
+  event.stopPropagation();
+  // Remove any existing picker
+  document.querySelectorAll('.week-picker').forEach(el => el.remove());
+  const picker = document.createElement('div');
+  picker.className = 'week-picker';
+  for (let w = 1; w <= 14; w++) {
+    const s = document.createElement('span');
+    s.textContent = w === 13 ? 'OF' : `W${w}`;
+    s.title = w === 13 ? 'Overflow' : `Week ${w}`;
+    if (w === currentWeek) s.classList.add('current');
+    s.onclick = (e) => { e.stopPropagation(); moveToWeek(pid, w); };
+    picker.appendChild(s);
+  }
+  event.currentTarget.style.position = 'relative';
+  event.currentTarget.appendChild(picker);
+  // Close on outside click
+  const close = (e) => { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', close); } };
+  setTimeout(() => document.addEventListener('click', close), 0);
+}
+
+async function moveToWeek(pid, week) {
+  document.querySelectorAll('.week-picker').forEach(el => el.remove());
+  const isSD = pid.startsWith('sd-');
+  const url = isSD ? `/api/sd/problems/${pid}/week` : `/api/problems/${pid}/week`;
+  await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({week})
+  });
+  // Update local data and re-render
+  const arr = isSD ? sdProblems : problems;
+  const p = arr.find(x => x.id === pid);
+  if (p) p.week = week;
+  render();
+}
+
 function problemRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
   const isSD = p.id.startsWith('sd-');
@@ -1295,8 +1371,9 @@ function problemRow(p) {
   const timerCol = isSD ? sdTimerHTML(p) : timerHTML(p);
   const isLast = p.id === lastSolvedId;
   const marker = isLast ? '<span class="last-solved-marker">&#9654;</span>' : '';
+  const numCell = `<span class="week-num" onclick="showWeekPicker(event,'${p.id}',${p.week})" title="Move to another week">${marker}${p._rowNum || ''}</span>`;
   return `<tr${isLast ? ' class="last-solved"' : ''}>
-    <td>${marker}${p._rowNum || ''}</td>
+    <td>${numCell}</td>
     <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td>${cat}</td>
