@@ -1028,7 +1028,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 
 <div class="tabs">
   <div class="tab active" data-tab="weekly">Weekly Plan</div>
-  <div class="tab" data-tab="all">Problem Bank</div>
   <div class="tab" data-tab="review">Review Today</div>
   <div class="tab" data-tab="pytips">Python Toolkit</div>
   <div class="tab" data-tab="mechanics">Patterns</div>
@@ -1036,7 +1035,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 </div>
 
 <div id="weekly" class="panel active"></div>
-<div id="all" class="panel"></div>
 <div id="review" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
@@ -1498,42 +1496,79 @@ function renderWeekly() {
     ${breakdownHtml}
   </div>`;
 
-  // Merge coding + SD problems by week
-  const weeks = {};
-  problems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).coding.push(p); });
-  sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).sd.push(p); });
-  Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
-    const wk = weeks[w];
-    const allProbs = [...wk.coding, ...wk.sd];
-    const label = w == 13 ? 'Overflow' : `Week ${w} · ${weekDates(Number(w))}`;
-    const done = allProbs.filter(p=>p.status==='done').length;
-    const total = allProbs.length;
-    const collapsed = collapsedWeeks.has(w);
-    const pct = Math.round(done/total*100);
-    html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="toggleWeek('${w}')">
-      <span>${label} — ${done}/${total} done (${pct}%)</span>
-      <span class="chevron">&#9660;</span>
-    </div>`;
-    html += `<div class="week-body ${collapsed?'hidden':''}">`;
-    const codingCtx = 'wk'+w+'c', sdCtx = 'wk'+w+'s';
-    if (wk.coding.length) {
-      if (wk.sd.length) html += `<p style="margin:8px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">Coding</p>`;
-      html += tableHeader(codingCtx, 'renderWeekly');
-      let rowNum = 1;
-      const sorted = sortProblems(wk.coding, codingCtx);
-      sorted.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
+  // Filter bar
+  const allCats = [...new Set(problems.map(p=>p.category))].sort();
+  html += `<div class="filters">
+    <select id="f-cat" onchange="applyFilter('cat',this.value)"><option value="">All Categories</option>${allCats.map(c=>`<option${filterState.cat===c?' selected':''}>${c}</option>`).join('')}</select>
+    <select id="f-diff" onchange="applyFilter('diff',this.value)"><option value="">All Difficulties</option>${['E','M','H'].map(d=>`<option value="${d}"${filterState.diff===d?' selected':''}>${{E:'Easy',M:'Medium',H:'Hard'}[d]}</option>`).join('')}</select>
+    <select id="f-status" onchange="applyFilter('status',this.value)"><option value="">All Statuses</option>${['pending','done','struggled','review'].map(s=>`<option${filterState.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <input id="f-search" placeholder="Search title..." value="${filterState.search.replace(/"/g,'&quot;')}" oninput="applyFilter('search',this.value)" />
+  </div>`;
+
+  if (hasActiveFilter()) {
+    // Flat filtered view (LeetCode only)
+    const q = filterState.search.toLowerCase();
+    let filtered = problems.filter(p =>
+      (!filterState.cat || p.category === filterState.cat) &&
+      (!filterState.diff || p.difficulty === filterState.diff) &&
+      (!filterState.status || p.status === filterState.status) &&
+      (!q || p.title.toLowerCase().includes(q))
+    );
+    const fDone = filtered.filter(p => p.status === 'done').length;
+    const label = filterState.cat || 'Filtered';
+    html += `<p style="color:var(--muted);font-size:.85rem;margin-bottom:8px">${label} · ${fDone}/${filtered.length} done</p>`;
+    if (filtered.length) {
+      filtered.forEach((p, i) => { p._rowNum = i + 1; });
+      const sorted = sortProblems(filtered, 'filtered');
+      sorted.forEach((p, i) => { p._rowNum = i + 1; });
+      html += tableHeader('filtered', 'renderWeekly');
+      sorted.forEach(p => html += problemRow(p));
       html += '</tbody></table>';
+    } else {
+      html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
     }
-    if (wk.sd.length) {
-      if (wk.coding.length) html += `<p style="margin:12px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">System Design</p>`;
-      html += sdTableHeader(sdCtx, 'renderWeekly');
-      const sdSorted = sortProblems(wk.sd, sdCtx);
-      sdSorted.forEach(p => html += sdRow(p));
-      html += '</tbody></table>';
-    }
-    html += '</div>';
-  });
+  } else {
+    // Weekly grouped view
+    const weeks = {};
+    problems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).coding.push(p); });
+    sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).sd.push(p); });
+    Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
+      const wk = weeks[w];
+      const allProbs = [...wk.coding, ...wk.sd];
+      const label = w == 13 ? 'Overflow' : `Week ${w} · ${weekDates(Number(w))}`;
+      const done = allProbs.filter(p=>p.status==='done').length;
+      const total = allProbs.length;
+      const collapsed = collapsedWeeks.has(w);
+      const pct = Math.round(done/total*100);
+      html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="toggleWeek('${w}')">
+        <span>${label} — ${done}/${total} done (${pct}%)</span>
+        <span class="chevron">&#9660;</span>
+      </div>`;
+      html += `<div class="week-body ${collapsed?'hidden':''}">`;
+      const codingCtx = 'wk'+w+'c', sdCtx = 'wk'+w+'s';
+      if (wk.coding.length) {
+        if (wk.sd.length) html += `<p style="margin:8px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">Coding</p>`;
+        html += tableHeader(codingCtx, 'renderWeekly');
+        let rowNum = 1;
+        const sorted = sortProblems(wk.coding, codingCtx);
+        sorted.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
+        html += '</tbody></table>';
+      }
+      if (wk.sd.length) {
+        if (wk.coding.length) html += `<p style="margin:12px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">System Design</p>`;
+        html += sdTableHeader(sdCtx, 'renderWeekly');
+        const sdSorted = sortProblems(wk.sd, sdCtx);
+        sdSorted.forEach(p => html += sdRow(p));
+        html += '</tbody></table>';
+      }
+      html += '</div>';
+    });
+  }
   el.innerHTML = html;
+
+  // Restore search focus
+  const searchEl = document.getElementById('f-search');
+  if (searchEl && filterState.search) { searchEl.focus(); searchEl.selectionStart = searchEl.selectionEnd = searchEl.value.length; }
 }
 
 function toggleWeek(w) {
@@ -1543,66 +1578,19 @@ function toggleWeek(w) {
 }
 
 let filterState = { cat: '', diff: '', status: '', search: '' };
-let allInitialized = false;
+
+function hasActiveFilter() {
+  return filterState.cat || filterState.diff || filterState.status || filterState.search;
+}
+
+function applyFilter(field, value) {
+  filterState[field] = value;
+  renderWeekly();
+}
 
 function getAllProblems() {
-  // Merge coding + SD into one list; SD problems get category "System Design"
   const sdWithCat = sdProblems.map(p => ({...p, category: 'System Design'}));
   return [...problems, ...sdWithCat];
-}
-
-function renderAll() {
-  const el = document.getElementById('all');
-  if (!allInitialized) {
-    const cats = [...new Set(problems.map(p=>p.category)), 'System Design'].sort();
-    const diffs = ['E','M','H'];
-    const statuses = ['pending','done','struggled','review'];
-
-    let html = `<div class="filters">
-      <select id="f-cat"><option value="">All Categories</option>${cats.map(c=>`<option>${c}</option>`).join('')}</select>
-      <select id="f-diff"><option value="">All Difficulties</option>${diffs.map(d=>`<option value="${d}">${{E:'Easy',M:'Medium',H:'Hard'}[d]}</option>`).join('')}</select>
-      <select id="f-status"><option value="">All Statuses</option>${statuses.map(s=>`<option>${s}</option>`).join('')}</select>
-      <input id="f-search" placeholder="Search title..." />
-    </div>
-    <div id="all-table"></div>`;
-    el.innerHTML = html;
-
-    document.getElementById('f-cat').onchange = e => { filterState.cat = e.target.value; filterAll(); };
-    document.getElementById('f-diff').onchange = e => { filterState.diff = e.target.value; filterAll(); };
-    document.getElementById('f-status').onchange = e => { filterState.status = e.target.value; filterAll(); };
-    document.getElementById('f-search').oninput = e => { filterState.search = e.target.value; filterAll(); };
-    allInitialized = true;
-  }
-  filterAll();
-}
-
-function filterAll() {
-  const cat = filterState.cat;
-  const diff = filterState.diff;
-  const status = filterState.status;
-  const q = filterState.search.toLowerCase();
-
-  const all = getAllProblems();
-  let filtered = all.filter(p =>
-    (!cat || p.category === cat) &&
-    (!diff || p.difficulty === diff) &&
-    (!status || p.status === status) &&
-    (!q || p.title.toLowerCase().includes(q) || p.id.includes(q))
-  );
-
-  let html = '';
-  if (filtered.length) {
-    filtered.forEach((p, i) => { p._rowNum = i + 1; });
-    const sorted = sortProblems(filtered, 'bank');
-    sorted.forEach((p, i) => { p._rowNum = i + 1; });
-    html += tableHeader('bank', 'filterAll');
-    sorted.forEach(p => html += problemRow(p));
-    html += '</tbody></table>';
-  } else {
-    html = '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
-  }
-
-  document.getElementById('all-table').innerHTML = html;
 }
 
 function renderReview() {
@@ -1881,7 +1869,6 @@ function render() {
   computeLastSolved();
   const tab = activeTab();
   if (tab === 'weekly') renderWeekly();
-  else if (tab === 'all') renderAll();
   else if (tab === 'review') renderReview();
 else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
@@ -1901,7 +1888,7 @@ document.querySelectorAll('.tab').forEach(t => {
 
 // Restore saved tab
 const savedTab = localStorage.getItem('activeTab');
-if (savedTab && savedTab !== 'sysdesign' && savedTab !== 'stats') {
+if (savedTab && savedTab !== 'sysdesign' && savedTab !== 'stats' && savedTab !== 'all') {
   const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
   if (tabEl) {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
