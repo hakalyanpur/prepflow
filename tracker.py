@@ -913,7 +913,10 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .filters select, .filters input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: .85rem; }
 /* Table */
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; }
+th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; }
+th:hover { color: var(--text); }
+th .sort-arrow { font-size: .65rem; margin-left: 3px; opacity: .4; }
+th .sort-arrow.active { opacity: 1; color: var(--accent); }
 td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 tr:hover { background: var(--hover-row); }
 tr.last-solved { background: rgba(248,81,73,.06); }
@@ -973,15 +976,9 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .breakdown-pct { color: var(--muted); min-width: 28px; text-align: right; }
 /* Sync pill in header */
 .sync-pill { display: flex; align-items: center; gap: 6px; }
-.sync-pill input { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .8rem; width: 140px; }
-.sync-pill input:focus { outline: none; border-color: var(--accent); }
-.sync-pill button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: .8rem; font-weight: 600; }
+.sync-pill button { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 1.1rem; line-height: 1; }
 .sync-pill button:hover { color: var(--text); border-color: var(--muted); }
 .sync-pill button:disabled { opacity: .5; cursor: not-allowed; }
-.sync-result { font-size: .75rem; color: var(--muted); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sync-result .error { color: var(--red); }
-.sync-result .synced-titles { color: var(--green); }
-@media (max-width: 700px) { .sync-pill input { width: 100px; } .sync-result { display: none; } }
 /* Week picker */
 .week-num { cursor: pointer; position: relative; }
 .week-num:hover { color: var(--accent); }
@@ -1022,9 +1019,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <h1>Interview Prep Hub</h1>
   <div class="header-actions">
     <div class="sync-pill" id="sync-pill">
-      <input id="lc-username" placeholder="LeetCode username" spellcheck="false" onkeydown="if(event.key==='Enter')syncLeetCode()">
-      <button id="lc-sync-btn" onclick="syncLeetCode()" title="Sync from LeetCode">Sync</button>
-      <span id="lc-sync-result" class="sync-result"></span>
+      <button id="lc-sync-btn" onclick="syncLeetCode()" title="Sync from LeetCode">⟳</button>
     </div>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
   </div>
@@ -1350,6 +1345,57 @@ async function moveToWeek(pid, week) {
   render();
 }
 
+// --- Sorting ---
+const sortState = {}; // key: context string, value: {col, asc}
+const diffOrder = {E:0, M:1, H:2};
+const statusOrder = {pending:0, struggled:1, review:2, done:3};
+
+function getSort(ctx) { return sortState[ctx] || {col: null, asc: true}; }
+
+function toggleSort(ctx, col, renderFn) {
+  const cur = getSort(ctx);
+  if (cur.col === col) sortState[ctx] = {col, asc: !cur.asc};
+  else sortState[ctx] = {col, asc: true};
+  renderFn();
+}
+
+function sortArrow(ctx, col) {
+  const s = getSort(ctx);
+  if (s.col !== col) return '<span class="sort-arrow">⇅</span>';
+  return `<span class="sort-arrow active">${s.asc ? '▲' : '▼'}</span>`;
+}
+
+function lastTime(p) {
+  return p.attempts.length ? p.attempts[p.attempts.length-1].duration_sec : -1;
+}
+
+function sortProblems(arr, ctx) {
+  const s = getSort(ctx);
+  if (!s.col) return arr;
+  const sorted = [...arr];
+  const dir = s.asc ? 1 : -1;
+  sorted.sort((a, b) => {
+    let va, vb;
+    switch(s.col) {
+      case '#': va = a._rowNum||0; vb = b._rowNum||0; break;
+      case 'title': case 'problem': va = a.title.toLowerCase(); vb = b.title.toLowerCase(); break;
+      case 'diff': va = diffOrder[a.difficulty]||0; vb = diffOrder[b.difficulty]||0; break;
+      case 'category': va = (a.category||'').toLowerCase(); vb = (b.category||'').toLowerCase(); break;
+      case 'status': va = statusOrder[a.status]||0; vb = statusOrder[b.status]||0; break;
+      case 'last time': va = lastTime(a); vb = lastTime(b); break;
+      default: return 0;
+    }
+    if (va < vb) return -dir;
+    if (va > vb) return dir;
+    return 0;
+  });
+  return sorted;
+}
+
+function sortableTh(ctx, col, label, renderFn) {
+  return `<th onclick="toggleSort('${ctx}','${col}',${renderFn})">${label} ${sortArrow(ctx, col)}</th>`;
+}
+
 function problemRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
   const isSD = p.id.startsWith('sd-');
@@ -1374,8 +1420,12 @@ function problemRow(p) {
   </tr>`;
 }
 
-function tableHeader() {
-  return `<table><thead><tr><th>#</th><th>Title</th><th>Diff</th><th>Category</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
+function tableHeader(ctx, renderFn) {
+  return `<table><thead><tr>${sortableTh(ctx,'#','#',renderFn)}${sortableTh(ctx,'title','Title',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'category','Category',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
+}
+
+function sdTableHeader(ctx, renderFn) {
+  return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
 }
 
 const collapsedWeeks = new Set();
@@ -1465,17 +1515,20 @@ function renderWeekly() {
       <span class="chevron">&#9660;</span>
     </div>`;
     html += `<div class="week-body ${collapsed?'hidden':''}">`;
-    let rowNum = 1;
+    const codingCtx = 'wk'+w+'c', sdCtx = 'wk'+w+'s';
     if (wk.coding.length) {
       if (wk.sd.length) html += `<p style="margin:8px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">Coding</p>`;
-      html += tableHeader();
-      wk.coding.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
+      html += tableHeader(codingCtx, 'renderWeekly');
+      let rowNum = 1;
+      const sorted = sortProblems(wk.coding, codingCtx);
+      sorted.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
       html += '</tbody></table>';
     }
     if (wk.sd.length) {
       if (wk.coding.length) html += `<p style="margin:12px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">System Design</p>`;
-      html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
-      wk.sd.forEach(p => html += sdRow(p));
+      html += sdTableHeader(sdCtx, 'renderWeekly');
+      const sdSorted = sortProblems(wk.sd, sdCtx);
+      sdSorted.forEach(p => html += sdRow(p));
       html += '</tbody></table>';
     }
     html += '</div>';
@@ -1539,8 +1592,11 @@ function filterAll() {
 
   let html = '';
   if (filtered.length) {
-    html += tableHeader();
-    filtered.forEach((p, i) => { p._rowNum = i + 1; html += problemRow(p); });
+    filtered.forEach((p, i) => { p._rowNum = i + 1; });
+    const sorted = sortProblems(filtered, 'bank');
+    sorted.forEach((p, i) => { p._rowNum = i + 1; });
+    html += tableHeader('bank', 'filterAll');
+    sorted.forEach(p => html += problemRow(p));
     html += '</tbody></table>';
   } else {
     html = '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
@@ -1562,61 +1618,50 @@ function renderReview() {
   }
   if (due.length) {
     html += `<p style="margin-bottom:8px;color:var(--muted)"><strong>Coding</strong> — ${due.length} due</p>`;
-    html += tableHeader();
-    due.forEach(p => html += problemRow(p));
+    due.forEach((p, i) => { p._rowNum = i + 1; });
+    const sortedDue = sortProblems(due, 'reviewC');
+    sortedDue.forEach((p, i) => { p._rowNum = i + 1; });
+    html += tableHeader('reviewC', 'renderReview');
+    sortedDue.forEach(p => html += problemRow(p));
     html += '</tbody></table>';
   }
   if (sdDue.length) {
     html += `<p style="margin:16px 0 8px;color:var(--muted)"><strong>System Design</strong> — ${sdDue.length} due</p>`;
-    html += `<table><thead><tr><th>Problem</th><th>Diff</th><th>Status</th><th>Notes</th><th>Last Time</th><th>Timer</th></tr></thead><tbody>`;
-    sdDue.forEach(p => html += sdRow(p));
+    const sortedSdDue = sortProblems(sdDue, 'reviewSD');
+    html += sdTableHeader('reviewSD', 'renderReview');
+    sortedSdDue.forEach(p => html += sdRow(p));
     html += '</tbody></table>';
   }
   el.innerHTML = html;
 }
 
+let lcUsername = '';
 async function loadConfig() {
   try {
     const r = await fetch('/api/config');
     const cfg = await r.json();
-    const input = document.getElementById('lc-username');
-    if (cfg.leetcode_username && input) input.value = cfg.leetcode_username;
+    if (cfg.leetcode_username) lcUsername = cfg.leetcode_username;
   } catch(e) {}
 }
 
 async function syncLeetCode() {
-  const input = document.getElementById('lc-username');
+  if (!lcUsername) return;
   const btn = document.getElementById('lc-sync-btn');
-  const resultEl = document.getElementById('lc-sync-result');
-  const username = input.value.trim();
-  if (!username) { resultEl.innerHTML = '<span class="error">Enter a username</span>'; return; }
   btn.disabled = true;
-  btn.textContent = 'Syncing\u2026';
-  resultEl.innerHTML = '';
+  btn.textContent = '⟳';
   try {
     const r = await fetch('/api/sync/leetcode', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({username})
+      body: JSON.stringify({username: lcUsername})
     });
-    const data = await r.json();
-    if (data.error) {
-      resultEl.innerHTML = `<span class="error">${esc(data.error)}</span>`;
-    } else {
-      let msg = data.synced > 0
-        ? `<span class="synced-titles">+${data.synced} synced</span>`
-        : `Up to date`;
-      msg += ` (${data.already_done + data.synced} matched)`;
-      resultEl.innerHTML = msg;
-      // Refresh data and re-render current tab
-      await fetchProblems();
-      render();
-    }
-  } catch(e) {
-    resultEl.innerHTML = `<span class="error">Network error</span>`;
-  } finally {
+    await r.json();
+    await fetchProblems();
+    render();
+  } catch(e) {}
+  finally {
     btn.disabled = false;
-    btn.textContent = 'Sync';
+    btn.textContent = '⟳';
   }
 }
 
