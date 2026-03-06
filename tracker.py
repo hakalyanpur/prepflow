@@ -944,22 +944,24 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .notes-toggle:hover { color: var(--accent); }
 .notes-preview { font-size: .75rem; color: var(--muted); font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .notes-preview:hover { color: var(--accent); }
-/* Collapsible cards (Python Toolkit & Patterns) */
-.cards-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .9rem; margin-bottom: 12px; }
-.cards-search:focus { outline: none; border-color: var(--accent); }
-.card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
-.card-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; background: var(--surface); font-weight: 600; font-size: .95rem; user-select: none; }
-.card-header:hover { background: var(--week-hover); }
-.card-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
-.card-header.collapsed .chevron { transform: rotate(-90deg); }
-.card-body { padding: 8px 16px 16px; }
-.card-body.hidden { display: none; }
-.card-item { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; }
-.card-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
-.card-item pre { background: var(--bg) !important; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 4px 0 0; }
-.card-item pre code.hljs { background: transparent !important; padding: 0; }
-.card-item pre code { font-size: .85rem; line-height: 1.5; color: var(--text); }
-.card-item-note { font-size: .8rem; color: var(--muted); margin-top: 4px; font-style: italic; }
+/* Scroll + TOC layout (Python Toolkit & Patterns) */
+.ref-layout { display: flex; gap: 32px; }
+.ref-toc { position: sticky; top: 60px; align-self: flex-start; width: 160px; flex-shrink: 0; }
+.ref-toc a { display: block; padding: 5px 12px; font-size: .8rem; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
+.ref-toc a:hover { color: var(--text); }
+.ref-toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.ref-content { flex: 1; min-width: 0; }
+.ref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .9rem; margin-bottom: 16px; }
+.ref-search:focus { outline: none; border-color: var(--accent); }
+.ref-topic { margin-bottom: 36px; scroll-margin-top: 70px; }
+.ref-topic-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.ref-item { margin-bottom: 10px; }
+.ref-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
+.ref-item pre { background: var(--surface) !important; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 4px 0 0; }
+.ref-item pre code.hljs { background: transparent !important; padding: 0; }
+.ref-item pre code { font-size: .85rem; line-height: 1.5; color: var(--text); }
+.ref-item-note { font-size: .78rem; color: var(--muted); margin-top: 4px; font-style: italic; }
+@media (max-width: 700px) { .ref-toc { display: none; } }
 /* Progress donuts */
 .progress-summary { display: flex; gap: 24px; align-items: center; padding: 12px 16px; }
 .donut-wrap { display: flex; align-items: center; gap: 10px; }
@@ -1552,19 +1554,23 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 // --- Python Toolkit ---
 let pyrefData = null;
 let pyrefSearch = '';
-const pyrefExpanded = new Set();
 
 async function fetchPyRef() {
   const r = await fetch('/api/pyref');
   pyrefData = await r.json();
 }
 
-function toggleCard(set, id, renderFn) {
-  if (set.has(id)) set.delete(id); else set.add(id);
-  renderFn();
+// --- Patterns ---
+let mechData = null;
+let mechSearch = '';
+
+async function fetchMech() {
+  const r = await fetch('/api/mechanics');
+  mechData = await r.json();
 }
 
-function renderCards(el, topics, search, expanded, searchId, renderFn) {
+// --- Shared scroll+TOC renderer ---
+function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
   const q = search.toLowerCase();
   const filtered = q
     ? topics.filter(t => t.name.toLowerCase().includes(q) ||
@@ -1575,9 +1581,15 @@ function renderCards(el, topics, search, expanded, searchId, renderFn) {
         ))
     : topics;
 
-  let html = `<input class="cards-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
+  // TOC
+  let tocHtml = '';
   for (const t of filtered) {
-    const isCollapsed = !expanded.has(t.id);
+    tocHtml += `<a href="#ref-${t.id}" onclick="event.preventDefault();document.getElementById('ref-${t.id}').scrollIntoView({behavior:'smooth'})">${t.name}</a>`;
+  }
+
+  // Content
+  let contentHtml = `<input class="ref-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
+  for (const t of filtered) {
     let items = t.items;
     if (q) {
       items = items.filter(it =>
@@ -1586,54 +1598,62 @@ function renderCards(el, topics, search, expanded, searchId, renderFn) {
         (it.note && it.note.toLowerCase().includes(q))
       );
     }
-    html += `<div class="card">`;
-    html += `<div class="card-header${isCollapsed ? ' collapsed' : ''}" onclick="toggleCard(${expanded === pyrefExpanded ? 'pyrefExpanded' : 'mechExpanded'}, '${t.id}', ${renderFn})"><span>${t.name}</span><span class="chevron">▼</span></div>`;
-    html += `<div class="card-body${isCollapsed ? ' hidden' : ''}">`;
+    contentHtml += `<div class="ref-topic" id="ref-${t.id}">`;
+    contentHtml += `<div class="ref-topic-title">${t.name}</div>`;
     for (const item of items) {
-      html += `<div class="card-item">`;
-      html += `<div class="card-item-label">${esc(item.label)}</div>`;
-      html += `<pre><code class="language-python">${esc(item.code)}</code></pre>`;
-      if (item.note) html += `<div class="card-item-note">${esc(item.note)}</div>`;
-      html += `</div>`;
+      contentHtml += `<div class="ref-item">`;
+      contentHtml += `<div class="ref-item-label">${esc(item.label)}</div>`;
+      contentHtml += `<pre><code class="language-python">${esc(item.code)}</code></pre>`;
+      if (item.note) contentHtml += `<div class="ref-item-note">${esc(item.note)}</div>`;
+      contentHtml += `</div>`;
     }
-    html += `</div></div>`;
+    contentHtml += `</div>`;
   }
 
-  el.innerHTML = html;
+  el.innerHTML = `<div class="ref-layout"><nav class="ref-toc" id="${searchId}-toc">${tocHtml}</nav><div class="ref-content">${contentHtml}</div></div>`;
   hljs.highlightAll();
 
+  // Search binding
   const searchEl = document.getElementById(searchId);
   if (searchEl) {
     searchEl.oninput = e => {
-      if (expanded === pyrefExpanded) pyrefSearch = e.target.value;
+      if (searchVar === 'pyref') pyrefSearch = e.target.value;
       else mechSearch = e.target.value;
       renderFn();
       const newEl = document.getElementById(searchId);
       if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
     };
   }
+
+  // TOC scroll highlight
+  const tocEl = document.getElementById(searchId + '-toc');
+  if (tocEl) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          tocEl.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+          const link = tocEl.querySelector(`a[href="#${e.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    el.querySelectorAll('.ref-topic').forEach(t => obs.observe(t));
+    // Activate first
+    const firstLink = tocEl.querySelector('a');
+    if (firstLink) firstLink.classList.add('active');
+  }
 }
 
 async function renderPyRef() {
   const el = document.getElementById('pytips');
   if (!pyrefData) await fetchPyRef();
-  renderCards(el, pyrefData.topics || [], pyrefSearch, pyrefExpanded, 'pyref-search', renderPyRef);
-}
-
-// --- Patterns ---
-let mechData = null;
-let mechSearch = '';
-const mechExpanded = new Set();
-
-async function fetchMech() {
-  const r = await fetch('/api/mechanics');
-  mechData = await r.json();
+  renderRefTab(el, pyrefData.topics || [], pyrefSearch, 'pyref-search', 'pyref', renderPyRef);
 }
 
 async function renderMech() {
   const el = document.getElementById('mechanics');
   if (!mechData) await fetchMech();
-  renderCards(el, mechData.topics || [], mechSearch, mechExpanded, 'mech-search', renderMech);
+  renderRefTab(el, mechData.topics || [], mechSearch, 'mech-search', 'mech', renderMech);
 }
 
 // --- System Design tab ---
@@ -1769,6 +1789,7 @@ document.querySelectorAll('.tab').forEach(t => {
     t.classList.add('active');
     document.getElementById(t.dataset.tab).classList.add('active');
     localStorage.setItem('activeTab', t.dataset.tab);
+    window.scrollTo(0, 0);
     render();
   });
 });
