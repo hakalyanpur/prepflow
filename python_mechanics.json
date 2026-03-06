@@ -1,637 +1,563 @@
 {
   "topics": [
     {
-      "id": "callables",
-      "name": "Callables & key=",
-      "icon": "🔑",
-      "sections": [
+      "id": "pattern-selector",
+      "name": "Pattern Selector",
+      "items": [
         {
-          "type": "operations",
-          "title": "key= Parameter in Built-ins",
-          "items": [
-            {
-              "label": "sorted() with key",
-              "code": "words = [\"banana\", \"pie\", \"apple\"]\nsorted(words, key=len)        # ['pie', 'apple', 'banana']\nsorted(words, key=str.lower)  # case-insensitive sort",
-              "note": "key= takes a callable that returns a comparison value — original items are preserved"
-            },
-            {
-              "label": "max() / min() with key",
-              "code": "pairs = [(1, 'z'), (3, 'a'), (2, 'b')]\nmax(pairs, key=lambda x: x[0])  # (3, 'a')\nmin(pairs, key=lambda x: x[1])  # (3, 'a') — 'a' is min",
-              "note": "Returns the original element, not the key value"
-            },
-            {
-              "label": "heapq functions with key (no direct support!)",
-              "code": "import heapq\nnums = [5, 1, 8, 3]\nheapq.nlargest(2, nums)             # [8, 5]\nheapq.nsmallest(2, nums)            # [1, 3]\nheapq.nlargest(2, pairs, key=lambda x: x[1])  # nlargest/nsmallest DO support key\n# But heappush/heappop do NOT — use tuple trick:\nheapq.heappush(heap, (priority, item))",
-              "note": "heappush/heappop have NO key param — wrap items in tuples for custom ordering"
-            },
-            {
-              "label": "heapq is module-level, not a class",
-              "code": "import heapq\nheap = []\nheapq.heappush(heap, 5)   # heap is passed as first arg\nheapq.heappop(heap)        # returns 5\nheapq.heapify(nums)        # in-place, O(n)\n# There is no heap.push() — it's heapq.heappush(heap, val)",
-              "note": "Common mistake: treating heapq like a class. It's a module with functions that take a list."
-            }
-          ]
+          "label": "Keywords to Pattern Map",
+          "code": "\"subarray, contiguous, window\"    -> Sliding Window / Prefix Sum\n\"substring + condition\"            -> Sliding Window + HashMap\n\"sorted array + search\"            -> Binary Search\n\"top k, kth largest\"               -> Heap / Bucket Sort\n\"all combinations, permutations\"   -> Backtracking\n\"shortest path, minimum steps\"     -> BFS (unweighted) / Dijkstra\n\"connected, regions, islands\"      -> DFS / BFS / Union-Find\n\"parentheses, brackets, nesting\"   -> Stack\n\"next greater, next smaller\"       -> Monotonic Stack\n\"duplicate, seen before\"           -> Set / HashMap\n\"min cost, max profit, # of ways\" -> Dynamic Programming\n\"merge intervals, overlapping\"     -> Sort + Scan\n\"prefix, word dictionary\"          -> Trie\n\"locally optimal, scheduling\"      -> Greedy",
+          "note": "Read the problem statement and match keywords to narrow down the pattern before coding."
         },
         {
-          "type": "operations",
-          "title": "Callable Types as key=",
-          "items": [
-            {
-              "label": "lambda vs named function",
-              "code": "# Lambda — inline, single expression\nsorted(words, key=lambda w: w[-1])  # sort by last char\n\n# Named function — reusable, can have logic\ndef by_second(pair):\n    return pair[1]\nsorted(pairs, key=by_second)",
-              "note": "Use lambda for simple transforms, named functions for complex logic"
-            },
-            {
-              "label": "dict.get as callable",
-              "code": "priority = {'high': 0, 'med': 1, 'low': 2}\ntasks = ['low', 'high', 'med']\nsorted(tasks, key=priority.get)  # ['high', 'med', 'low']\n\n# Custom ordering with index:\norder = ['S', 'M', 'L', 'XL']\nsorted(sizes, key=order.index)",
-              "note": "dict.get is already a callable — no need for lambda d: priority[d]"
-            },
-            {
-              "label": "operator.itemgetter / attrgetter",
-              "code": "from operator import itemgetter, attrgetter\ndata = [('alice', 90), ('bob', 85), ('carol', 95)]\nsorted(data, key=itemgetter(1))     # sort by index 1\nsorted(data, key=itemgetter(1, 0))  # sort by score, then name\n\n# attrgetter for objects:\nfrom collections import namedtuple\nPoint = namedtuple('Point', 'x y')\npts = [Point(3, 1), Point(1, 2)]\nsorted(pts, key=attrgetter('x'))    # sort by x attribute",
-              "note": "itemgetter is faster than lambda for simple index access — also supports multiple keys"
-            },
-            {
-              "label": "functools.cmp_to_key",
-              "code": "from functools import cmp_to_key\n\n# Custom comparator: return -1, 0, or 1\ndef compare(a, b):\n    # For largest number problem (LC 179)\n    if a + b > b + a: return -1\n    elif a + b < b + a: return 1\n    return 0\n\nnums_str = ['3', '30', '34']\nsorted(nums_str, key=cmp_to_key(compare))  # ['34', '3', '30']",
-              "note": "Use cmp_to_key when you need pairwise comparison logic (like LC 179 Largest Number)"
-            }
-          ]
+          "label": "Constraints to Complexity",
+          "code": "n <= 20        -> O(2^n) or O(n!)   -> Backtracking, Bitmask DP\nn <= 500       -> O(n^2) or O(n^3)  -> DP (2D), nested loops\nn <= 10^5      -> O(n log n)        -> Sort, Heap, Binary Search\nn <= 10^6      -> O(n)              -> HashMap, Sliding Window, Prefix Sum\nn <= 10^9+     -> O(log n) or O(1)  -> Binary Search, Math",
+          "note": "Always check constraints first. They tell you the expected time complexity, which eliminates many patterns."
+        },
+        {
+          "label": "5-Step Problem Solving Checklist",
+          "code": "# 1. Understand: restate the problem, clarify edge cases\n# 2. Match: use keywords + constraints to pick a pattern\n# 3. Plan: write pseudocode using the pattern template\n# 4. Code: translate pseudocode to Python\n# 5. Verify: trace through examples, check edge cases\n#    - empty input, single element, duplicates, negatives",
+          "note": "Never skip step 2. Pattern matching is the highest-leverage skill in interviews."
         }
       ]
     },
     {
-      "id": "comparison",
-      "name": "Comparison Rules",
-      "icon": "⚖️",
-      "sections": [
+      "id": "two-pointers",
+      "name": "Two Pointers",
+      "items": [
         {
-          "type": "operations",
-          "title": "Tuple & Sequence Comparison",
-          "items": [
-            {
-              "label": "Tuple comparison is element-by-element",
-              "code": "(1, 3) < (1, 5)    # True — first elements equal, compare second\n(1, 3) < (2, 0)    # True — first element decides it\n(1, 2) < (1, 2, 0) # True — shorter tuple is \"less\" if prefix matches",
-              "note": "This is why tuples work as heap priorities — first element is primary sort key"
-            },
-            {
-              "label": "min/max with tuples",
-              "code": "data = [(2, 'b'), (1, 'z'), (1, 'a')]\nmin(data)  # (1, 'a') — compares first element, then second to break ties\nmax(data)  # (2, 'b')\n\n# Heap trick: push (cost, tiebreaker, item)\nimport heapq\nheapq.heappush(h, (cost, counter, node))  # counter breaks ties",
-              "note": "If first elements tie, Python compares next element — ensure all elements are comparable"
-            },
-            {
-              "label": "Chained comparisons",
-              "code": "x = 5\n1 < x < 10       # True (same as 1 < x and x < 10)\n1 < x > 3        # True (1 < 5 and 5 > 3)\na == b == c       # checks all three are equal\n0 <= i < len(arr) # bounds check in one expression",
-              "note": "Python evaluates chained comparisons with implicit 'and' — very clean for range checks"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: sorted array, pair sum, in-place, remove duplicates, palindrome\nStructure: linear data, two ends converging or slow/fast",
+          "note": "Works on sorted arrays or when you need to compare elements from both ends."
         },
         {
-          "type": "operations",
-          "title": "Identity vs Equality",
-          "items": [
-            {
-              "label": "== vs is",
-              "code": "a = [1, 2, 3]\nb = [1, 2, 3]\na == b   # True — same value\na is b   # False — different objects\n\nc = a\na is c   # True — same reference\n\n# Gotcha with small integers (CPython caches -5 to 256):\nx = 256\ny = 256\nx is y   # True (cached)\nx = 257\ny = 257\nx is y   # False (not cached) — NEVER rely on this",
-              "note": "Always use == for value comparison. Use 'is' only for None, True, False."
-            },
-            {
-              "label": "None comparisons",
-              "code": "x = None\nx is None      # True — correct way\nx == None      # True but discouraged (uses __eq__)\n\n# Python 3: None is not orderable\nNone < 0       # TypeError: '<' not supported\nNone > 0       # TypeError\n# Python 2 allowed this — watch out in old code",
-              "note": "Always use 'is None' / 'is not None' — never == None"
-            },
-            {
-              "label": "bool is subclass of int",
-              "code": "isinstance(True, int)   # True!\nTrue + True             # 2\nTrue * 10               # 10\nFalse + 1               # 1\nsum([True, False, True]) # 2 — count truthy values!\n\n# This means:\n{True: 'a', 1: 'b'}    # {True: 'b'} — True and 1 are same key!",
-              "note": "sum(bool_list) counts True values — very useful for interview one-liners"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# Sorted array or string\n# Two index variables: left, right (or slow, fast)\n# No extra space needed — O(1) space pattern",
+          "note": "No extra space needed. This is an O(1) space pattern."
         },
         {
-          "type": "operations",
-          "title": "Truthiness & Falsy Values",
-          "items": [
-            {
-              "label": "Falsy values in Python",
-              "code": "# All of these are falsy:\nbool(None)    # False\nbool(0)       # False\nbool(0.0)     # False\nbool('')      # False\nbool([])      # False\nbool({})      # False\nbool(set())   # False\n\n# So you can write:\nif not lst:    # checks if list is empty\nif node:       # checks if node is not None",
-              "note": "Empty collections and zero are falsy — use 'if lst' instead of 'if len(lst) > 0'"
-            },
-            {
-              "label": "Short-circuit evaluation",
-              "code": "# 'and' returns first falsy or last value\n0 and 5       # 0\n3 and 5       # 5\n'' and 'hi'   # ''\n\n# 'or' returns first truthy or last value\n0 or 5        # 5\n3 or 5        # 3\n'' or 'default'  # 'default'  — useful for defaults\n\n# Common pattern:\nresult = cache.get(key) or compute(key)",
-              "note": "'or' for default values, 'and' for guarded access — they return values, not just True/False"
-            }
-          ]
+          "label": "Template",
+          "code": "def two_pointers(arr, target):\n    left, right = 0, len(arr) - 1\n    while left < right:\n        curr = arr[left] + arr[right]\n        if curr == target:\n            return [left, right]\n        elif curr < target:\n            left += 1\n        else:\n            right -= 1\n    return []",
+          "note": "O(n) time, O(1) space. Array must be sorted for this variant."
+        },
+        {
+          "label": "Example 1 — LC 167 Two Sum II (Sorted)",
+          "code": "def twoSum(numbers, target):\n    l, r = 0, len(numbers) - 1\n    while l < r:\n        s = numbers[l] + numbers[r]\n        if s == target:\n            return [l + 1, r + 1]  # 1-indexed\n        elif s < target:\n            l += 1\n        else:\n            r -= 1",
+          "note": "Classic converging pointers. Guaranteed exactly one solution."
+        },
+        {
+          "label": "Example 2 — LC 11 Container With Most Water",
+          "code": "def maxArea(height):\n    l, r = 0, len(height) - 1\n    ans = 0\n    while l < r:\n        ans = max(ans, min(height[l], height[r]) * (r - l))\n        if height[l] < height[r]:\n            l += 1\n        else:\n            r -= 1\n    return ans",
+          "note": "Move the shorter side inward — moving the taller side can never increase area."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Why move the pointer with the smaller value?\n# The bottleneck is the shorter line. Moving the taller\n# line inward only shrinks width without helping height.\n# So we always move the shorter pointer to search for\n# a taller line that might increase the area.",
+          "note": "Two pointers reduces O(n^2) brute force to O(n) by eliminating impossible pairs."
         }
       ]
     },
     {
-      "id": "mutability",
-      "name": "Mutable vs Immutable",
-      "icon": "🔒",
-      "sections": [
+      "id": "sliding-window",
+      "name": "Sliding Window",
+      "items": [
         {
-          "type": "operations",
-          "title": "Hashability Rules",
-          "items": [
-            {
-              "label": "What's hashable (can be dict key / set item)",
-              "code": "# Immutable = hashable (usually)\nhash(42)           # works\nhash('hello')      # works\nhash((1, 2, 3))    # works — tuple of immutables\n\n# Mutable = NOT hashable\nhash([1, 2, 3])    # TypeError: unhashable type: 'list'\nhash({1: 2})       # TypeError: unhashable type: 'dict'\nhash({1, 2})       # TypeError: unhashable type: 'set'\n\n# Gotcha: tuple containing mutable is unhashable\nhash((1, [2, 3]))  # TypeError!",
-              "note": "Rule: if it can change, it can't be hashed. Tuples of immutables are fine."
-            },
-            {
-              "label": "frozenset — hashable set",
-              "code": "# Regular set: mutable, unhashable\ns = {1, 2, 3}\n# hash(s)  # TypeError\n\n# Frozenset: immutable, hashable\nfs = frozenset([1, 2, 3])\nhash(fs)  # works!\n\n# Use case: set of sets (e.g., grouping)\nseen = set()\nseen.add(frozenset([1, 2]))  # track sets you've visited\n\n# Also works as dict key:\ncache = {frozenset([1, 2]): 'result'}",
-              "note": "Need a set as dict key or inside another set? Use frozenset."
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: subarray, substring, contiguous, window, at most k, longest, shortest\nStructure: contiguous sequence with a constraint",
+          "note": "If the problem says 'contiguous subarray/substring' + optimization, think sliding window."
         },
         {
-          "type": "operations",
-          "title": "Mutable Default Argument Trap",
-          "items": [
-            {
-              "label": "The classic bug",
-              "code": "def append_to(val, lst=[]):\n    lst.append(val)\n    return lst\n\nappend_to(1)  # [1]\nappend_to(2)  # [1, 2]  — BUG! Same list reused!\nappend_to(3)  # [1, 2, 3]",
-              "note": "Default arguments are evaluated ONCE at function definition, not each call"
-            },
-            {
-              "label": "The fix: use None sentinel",
-              "code": "def append_to(val, lst=None):\n    if lst is None:\n        lst = []\n    lst.append(val)\n    return lst\n\nappend_to(1)  # [1]\nappend_to(2)  # [2]  — correct! Fresh list each time",
-              "note": "Always use None as default for mutable args (list, dict, set)"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "from collections import defaultdict\n# HashMap (Counter) for frequency tracking\nwindow = defaultdict(int)\n# Two pointers: left, right defining window [left, right]",
+          "note": "The window expands right and contracts left to maintain a valid state."
         },
         {
-          "type": "operations",
-          "title": "Shallow vs Deep Copy",
-          "items": [
-            {
-              "label": "Shallow copy methods",
-              "code": "original = [[1, 2], [3, 4]]\n\n# All of these create SHALLOW copies:\na = original[:]           # slice\nb = list(original)        # constructor\nc = original.copy()       # method\nimport copy\nd = copy.copy(original)   # copy module\n\na[0].append(99)\nprint(original)  # [[1, 2, 99], [3, 4]] — inner list shared!",
-              "note": "Shallow copy creates new outer container but inner objects are still shared references"
-            },
-            {
-              "label": "Deep copy",
-              "code": "import copy\noriginal = [[1, 2], [3, 4]]\ndeep = copy.deepcopy(original)\n\ndeep[0].append(99)\nprint(original)  # [[1, 2], [3, 4]] — safe! Fully independent\nprint(deep)      # [[1, 2, 99], [3, 4]]",
-              "note": "Use deepcopy when you have nested mutable objects and need full independence"
-            },
-            {
-              "label": "When shallow copy IS enough",
-              "code": "# Flat list of immutables — shallow copy is fine:\nnums = [1, 2, 3, 4]\ncopy_nums = nums[:]\ncopy_nums[0] = 99\nprint(nums)  # [1, 2, 3, 4] — safe because ints are immutable\n\n# Dict of simple values:\nd = {'a': 1, 'b': 2}\nd2 = d.copy()  # fine for flat dicts",
-              "note": "If all elements are immutable (int, str, tuple), shallow copy is sufficient"
-            }
-          ]
+          "label": "Template",
+          "code": "def sliding_window(s):\n    window = defaultdict(int)\n    left = 0\n    ans = 0\n    for right in range(len(s)):\n        window[s[right]] += 1          # expand\n        while window_invalid():         # shrink\n            window[s[left]] -= 1\n            left += 1\n        ans = max(ans, right - left + 1)  # update\n    return ans",
+          "note": "O(n) time — each element enters and leaves the window at most once."
+        },
+        {
+          "label": "Example 1 — LC 3 Longest Substring Without Repeating Characters",
+          "code": "def lengthOfLongestSubstring(s):\n    seen = {}\n    left = 0\n    ans = 0\n    for right, ch in enumerate(s):\n        if ch in seen and seen[ch] >= left:\n            left = seen[ch] + 1\n        seen[ch] = right\n        ans = max(ans, right - left + 1)\n    return ans",
+          "note": "Track last-seen index. Jump left pointer past the duplicate."
+        },
+        {
+          "label": "Example 2 — LC 567 Permutation in String",
+          "code": "from collections import Counter\ndef checkInclusion(s1, s2):\n    need = Counter(s1)\n    window = Counter()\n    left = 0\n    for right in range(len(s2)):\n        window[s2[right]] += 1\n        if right - left + 1 > len(s1):\n            ch = s2[left]\n            window[ch] -= 1\n            if window[ch] == 0:\n                del window[ch]\n            left += 1\n        if window == need:\n            return True\n    return False",
+          "note": "Fixed-size window of len(s1). Compare frequency maps."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Fixed window: size is known -> slide by adding right, removing left\n# Variable window: size unknown -> expand right, shrink left until valid\n# Always ask: what makes the window invalid?",
+          "note": "The shrink condition is the core of every sliding window problem."
         }
       ]
     },
     {
-      "id": "references",
-      "name": "References & Copies",
-      "icon": "🔗",
-      "sections": [
+      "id": "binary-search",
+      "name": "Binary Search",
+      "items": [
         {
-          "type": "operations",
-          "title": "Assignment is Aliasing",
-          "items": [
-            {
-              "label": "Assignment shares reference",
-              "code": "a = [1, 2, 3]\nb = a          # b points to SAME list\nb.append(4)\nprint(a)       # [1, 2, 3, 4] — a is modified too!\n\n# Same with dicts:\nd1 = {'x': 1}\nd2 = d1\nd2['y'] = 2\nprint(d1)      # {'x': 1, 'y': 2}",
-              "note": "In Python, variables are labels pointing to objects — assignment creates another label"
-            },
-            {
-              "label": "id() to check identity",
-              "code": "a = [1, 2, 3]\nb = a\nid(a) == id(b)  # True — same object in memory\n\nc = a[:]\nid(a) == id(c)  # False — different objects\n\n# Immutables can share identity (interning):\nx = 'hello'\ny = 'hello'\nid(x) == id(y)  # True (string interning)",
-              "note": "id() returns the memory address — useful for debugging reference issues"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: sorted, search, minimum/maximum that satisfies, rotated sorted\nStructure: monotonic property — if f(mid) is true, all values beyond also true",
+          "note": "Binary search applies anytime there is a monotonic decision boundary."
         },
         {
-          "type": "operations",
-          "title": "The [[0]*n]*m Trap",
-          "items": [
-            {
-              "label": "WRONG: multiplied list of lists",
-              "code": "# This creates m references to the SAME inner list!\ngrid = [[0] * 3] * 3\ngrid[0][0] = 1\nprint(grid)\n# [[1, 0, 0],\n#  [1, 0, 0],   <-- all rows changed!\n#  [1, 0, 0]]",
-              "note": "* on a list copies references, not objects"
-            },
-            {
-              "label": "CORRECT: list comprehension",
-              "code": "# Each iteration creates a NEW inner list\ngrid = [[0] * 3 for _ in range(3)]\ngrid[0][0] = 1\nprint(grid)\n# [[1, 0, 0],\n#  [0, 0, 0],   <-- only row 0 changed\n#  [0, 0, 0]]\n\n# Note: [0] * 3 is fine because ints are immutable\n# The trap is only with mutable inner elements",
-              "note": "Always use list comprehension for 2D arrays: [[val]*cols for _ in range(rows)]"
-            },
-            {
-              "label": "Same trap with dicts and sets",
-              "code": "# WRONG:\nrows = [{}] * 3\nrows[0]['a'] = 1\nprint(rows)  # [{'a': 1}, {'a': 1}, {'a': 1}]\n\n# CORRECT:\nrows = [{} for _ in range(3)]\nrows[0]['a'] = 1\nprint(rows)  # [{'a': 1}, {}, {}]",
-              "note": "Any mutable object multiplied with * shares references"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# Sorted array or implicit search space [lo, hi]\n# Three pointers: lo, hi, mid\n# Can also binary search on the answer (e.g., minimum speed)",
+          "note": "Binary search on the answer transforms optimization into a decision problem."
         },
         {
-          "type": "operations",
-          "title": "Rebinding vs Mutating",
-          "items": [
-            {
-              "label": "Rebinding creates new reference",
-              "code": "a = [1, 2, 3]\nb = a\n\n# Mutating (affects both a and b):\na.append(4)   # a and b are still the same object\n\n# Rebinding (only affects a):\na = [5, 6, 7]  # a now points to new list\nprint(b)       # [1, 2, 3, 4] — b still points to old list",
-              "note": "a.method() mutates in place; a = new_value creates a new binding"
-            },
-            {
-              "label": "+= behaves differently for mutables vs immutables",
-              "code": "# Lists: += mutates in place (calls __iadd__)\na = [1, 2]\nb = a\na += [3]       # same as a.extend([3])\nprint(b)       # [1, 2, 3] — b sees the change\n\n# Tuples: += rebinds (creates new tuple)\na = (1, 2)\nb = a\na += (3,)      # creates new tuple, rebinds a\nprint(b)       # (1, 2) — b unchanged",
-              "note": "For lists, += is in-place mutation. For tuples/strings, += creates a new object."
-            }
-          ]
+          "label": "Template",
+          "code": "def binary_search(arr, target):\n    lo, hi = 0, len(arr) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1  # not found\n\n# Boundary search (first True):\ndef first_true(lo, hi, condition):\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if condition(mid):\n            hi = mid\n        else:\n            lo = mid + 1\n    return lo",
+          "note": "lo <= hi for exact match. lo < hi for boundary search. Know both variants."
+        },
+        {
+          "label": "Example 1 — LC 704 Binary Search",
+          "code": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1",
+          "note": "Textbook binary search. O(log n) time, O(1) space."
+        },
+        {
+          "label": "Example 2 — LC 875 Koko Eating Bananas",
+          "code": "import math\ndef minEatingSpeed(piles, h):\n    lo, hi = 1, max(piles)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        hours = sum(math.ceil(p / mid) for p in piles)\n        if hours <= h:\n            hi = mid       # mid speed works, try slower\n        else:\n            lo = mid + 1   # too slow, go faster\n    return lo",
+          "note": "Binary search on the answer. Search space is [1, max(piles)]. Monotonic: higher speed -> fewer hours."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Binary search on answer: define a feasibility function\n# f(x) that is monotonic (False...False, True...True).\n# Then find the first x where f(x) is True.\n# This transforms optimization into a decision problem.",
+          "note": "Whenever you see 'minimum value that satisfies X', think binary search on the answer."
         }
       ]
     },
     {
-      "id": "unpacking",
-      "name": "Unpacking & Destructuring",
-      "icon": "📦",
-      "sections": [
+      "id": "stack",
+      "name": "Stack",
+      "items": [
         {
-          "type": "operations",
-          "title": "Basic Unpacking",
-          "items": [
-            {
-              "label": "Tuple / list unpacking",
-              "code": "a, b = 1, 2          # a=1, b=2\na, b = [1, 2]         # same with list\nx, y, z = 'abc'       # x='a', y='b', z='c'\n\n# Swap — no temp variable needed:\na, b = b, a           # evaluates RHS first, then assigns\n\n# Rotate three variables:\na, b, c = b, c, a",
-              "note": "RHS is fully evaluated before assignment — that's why swap works"
-            },
-            {
-              "label": "Star unpacking (*)",
-              "code": "first, *rest = [1, 2, 3, 4, 5]\n# first=1, rest=[2, 3, 4, 5]\n\n*init, last = [1, 2, 3, 4, 5]\n# init=[1, 2, 3, 4], last=5\n\nfirst, *mid, last = [1, 2, 3, 4, 5]\n# first=1, mid=[2, 3, 4], last=5\n\n# Single element:\na, *rest = [1]\n# a=1, rest=[]  — rest is always a list",
-              "note": "Star variable always becomes a list (possibly empty). Only one * allowed per assignment."
-            },
-            {
-              "label": "Nested unpacking",
-              "code": "(a, b), c = [1, 2], 3\n# a=1, b=2, c=3\n\n(a, b), (c, d) = (1, 2), (3, 4)\n# a=1, b=2, c=3, d=4\n\n# Useful with enumerate:\nfor i, (key, val) in enumerate(d.items()):\n    print(i, key, val)",
-              "note": "Nested unpacking matches structure — great for iterating over structured data"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: parentheses, brackets, valid nesting, next greater, next smaller, stock span\nStructure: nested or hierarchical processing, monotonic relationships",
+          "note": "If you need to match pairs or find next-greater/smaller elements, use a stack."
         },
         {
-          "type": "operations",
-          "title": "Function Arguments",
-          "items": [
-            {
-              "label": "*args and **kwargs",
-              "code": "def f(*args, **kwargs):\n    print(args)    # tuple of positional args\n    print(kwargs)  # dict of keyword args\n\nf(1, 2, x=3, y=4)\n# args = (1, 2)\n# kwargs = {'x': 3, 'y': 4}",
-              "note": "*args collects positional into tuple, **kwargs collects keyword into dict"
-            },
-            {
-              "label": "Unpacking into function calls",
-              "code": "def add(a, b, c):\n    return a + b + c\n\nargs = [1, 2, 3]\nadd(*args)           # add(1, 2, 3)\n\nkwargs = {'a': 1, 'b': 2, 'c': 3}\nadd(**kwargs)        # add(a=1, b=2, c=3)\n\n# Combine:\nadd(*[1, 2], **{'c': 3})  # add(1, 2, c=3)",
-              "note": "* unpacks iterable into positional args, ** unpacks dict into keyword args"
-            },
-            {
-              "label": "Enumerate and zip unpacking",
-              "code": "# Enumerate unpacking:\nfor i, val in enumerate(['a', 'b', 'c'], start=1):\n    print(i, val)  # 1 a, 2 b, 3 c\n\n# Zip unpacking:\nnames = ['Alice', 'Bob']\nscores = [90, 85]\nfor name, score in zip(names, scores):\n    print(name, score)\n\n# Unzip with zip(*...)\npairs = [('a', 1), ('b', 2), ('c', 3)]\nletters, numbers = zip(*pairs)\n# letters = ('a', 'b', 'c'), numbers = (1, 2, 3)",
-              "note": "zip(*pairs) is the idiomatic 'unzip' — transposes rows and columns"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# Python list as stack: append() to push, pop() to pop\nstack = []  # stores indices or values\n# Monotonic stack: maintain increasing or decreasing order",
+          "note": "Monotonic stack processes elements and pops when the monotonic property is violated."
         },
         {
-          "type": "operations",
-          "title": "Dict Unpacking",
-          "items": [
-            {
-              "label": "Merge dicts with **",
-              "code": "d1 = {'a': 1, 'b': 2}\nd2 = {'b': 3, 'c': 4}\n\n# Python 3.5+: unpack into new dict\nmerged = {**d1, **d2}  # {'a': 1, 'b': 3, 'c': 4}\n# Later dict wins on conflicts\n\n# Python 3.9+: merge operator\nmerged = d1 | d2       # {'a': 1, 'b': 3, 'c': 4}\nd1 |= d2               # in-place merge",
-              "note": "** unpacking: later values override. | operator is Python 3.9+ only."
-            }
-          ]
+          "label": "Template (Monotonic Stack — Next Greater)",
+          "code": "def next_greater(nums):\n    n = len(nums)\n    result = [-1] * n\n    stack = []  # stores indices, decreasing values\n    for i in range(n):\n        while stack and nums[i] > nums[stack[-1]]:\n            idx = stack.pop()\n            result[idx] = nums[i]\n        stack.append(i)\n    return result",
+          "note": "O(n) — each element is pushed and popped at most once."
+        },
+        {
+          "label": "Example 1 — LC 20 Valid Parentheses",
+          "code": "def isValid(s):\n    stack = []\n    pairs = {')': '(', ']': '[', '}': '{'}\n    for ch in s:\n        if ch in pairs:\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n        else:\n            stack.append(ch)\n    return len(stack) == 0",
+          "note": "Push openers, pop on matching closer. Stack must be empty at end."
+        },
+        {
+          "label": "Example 2 — LC 739 Daily Temperatures",
+          "code": "def dailyTemperatures(temperatures):\n    n = len(temperatures)\n    ans = [0] * n\n    stack = []  # indices of unresolved days\n    for i in range(n):\n        while stack and temperatures[i] > temperatures[stack[-1]]:\n            prev = stack.pop()\n            ans[prev] = i - prev\n        stack.append(i)\n    return ans",
+          "note": "Monotonic decreasing stack. When a warmer day appears, pop and record the gap."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Matching problems -> basic stack (push/pop pairs)\n# Next greater/smaller -> monotonic stack\n# Monotonic decreasing: pop when current > top (finds next greater)\n# Monotonic increasing: pop when current < top (finds next smaller)",
+          "note": "Monotonic stacks solve 'next greater/smaller' in O(n) instead of O(n^2)."
         }
       ]
     },
     {
-      "id": "iteration",
-      "name": "Iteration Protocols",
-      "icon": "🔄",
-      "sections": [
+      "id": "bfs",
+      "name": "BFS",
+      "items": [
         {
-          "type": "operations",
-          "title": "Iterators Are Single-Pass",
-          "items": [
-            {
-              "label": "Consumed iterators are empty",
-              "code": "z = zip([1, 2], [3, 4])\nlist(z)  # [(1, 3), (2, 4)]\nlist(z)  # [] — consumed! Nothing left\n\nm = map(str, [1, 2, 3])\nlist(m)  # ['1', '2', '3']\nlist(m)  # [] — also consumed\n\n# Fix: convert to list first if you need multiple passes\nzipped = list(zip([1, 2], [3, 4]))  # now reusable",
-              "note": "zip, map, filter, generators — all single-use. Convert to list if you need to iterate twice."
-            },
-            {
-              "label": "Generators are lazy iterators",
-              "code": "# Generator expression (like list comp but with parens):\ngen = (x**2 for x in range(5))\nnext(gen)  # 0\nnext(gen)  # 1\n# Values computed on demand, not stored in memory\n\n# Generator function:\ndef fib():\n    a, b = 0, 1\n    while True:\n        yield a\n        a, b = b, a + b\n\nf = fib()\n[next(f) for _ in range(7)]  # [0, 1, 1, 2, 3, 5, 8]",
-              "note": "Generators use O(1) memory — perfect for large sequences you only need once"
-            },
-            {
-              "label": "range is NOT an iterator",
-              "code": "r = range(5)\nlist(r)  # [0, 1, 2, 3, 4]\nlist(r)  # [0, 1, 2, 3, 4] — still works! range is reusable\n\n# range supports O(1) membership test:\n999999 in range(1000000)  # True — instant, not linear scan\n\n# range supports indexing:\nrange(10)[7]     # 7\nrange(0, 20, 3)  # 0, 3, 6, 9, 12, 15, 18",
-              "note": "range is a lazy sequence (not iterator) — supports len, indexing, 'in', and reuse"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: shortest path (unweighted), level order, minimum steps, nearest\nStructure: graph or grid, exploring layer by layer",
+          "note": "BFS guarantees shortest path in unweighted graphs. Use Dijkstra for weighted."
         },
         {
-          "type": "operations",
-          "title": "zip Behaviors",
-          "items": [
-            {
-              "label": "zip truncates to shortest",
-              "code": "list(zip([1, 2, 3], [4, 5]))  # [(1, 4), (2, 5)] — 3 is dropped!\n\n# Use itertools.zip_longest to pad:\nfrom itertools import zip_longest\nlist(zip_longest([1, 2, 3], [4, 5], fillvalue=0))\n# [(1, 4), (2, 5), (3, 0)]",
-              "note": "zip silently drops extras — use zip_longest if you need all elements"
-            },
-            {
-              "label": "zip with enumerate and dict",
-              "code": "# Create dict from two lists:\nkeys = ['a', 'b', 'c']\nvals = [1, 2, 3]\nd = dict(zip(keys, vals))  # {'a': 1, 'b': 2, 'c': 3}\n\n# Parallel iteration with index:\nfor i, (a, b) in enumerate(zip(list1, list2)):\n    print(i, a, b)",
-              "note": "dict(zip(keys, vals)) is the idiomatic way to build a dict from parallel lists"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "from collections import deque\nqueue = deque()    # FIFO queue\nvisited = set()    # track visited nodes",
+          "note": "Always use deque for O(1) popleft. Never use list — pop(0) is O(n)."
         },
         {
-          "type": "operations",
-          "title": "Iteration Patterns",
-          "items": [
-            {
-              "label": "reversed() needs sequence or __reversed__",
-              "code": "reversed([1, 2, 3])      # works — list has __reversed__\nreversed(range(5))        # works — range has __reversed__\n# reversed({1, 2, 3})     # TypeError — sets have no order\n# reversed(gen)            # TypeError — generators can't reverse\n\n# For dicts (Python 3.8+):\nreversed(d)               # iterates keys in reverse insertion order",
-              "note": "reversed returns an iterator — wrap in list() if you need a list"
-            },
-            {
-              "label": "Dictionary iteration order",
-              "code": "d = {'b': 2, 'a': 1, 'c': 3}\nlist(d)         # ['b', 'a', 'c'] — insertion order (3.7+)\nlist(d.keys())  # ['b', 'a', 'c']\nlist(d.values())# [2, 1, 3]\nlist(d.items()) # [('b', 2), ('a', 1), ('c', 3)]\n\n# Iterate and modify — must copy keys first:\nfor k in list(d):  # list() snapshot of keys\n    if d[k] < 2:\n        del d[k]",
-              "note": "Dict preserves insertion order since Python 3.7. Don't modify dict while iterating."
-            },
-            {
-              "label": "enumerate start parameter",
-              "code": "for i, v in enumerate(['a', 'b', 'c']):\n    print(i, v)  # 0 a, 1 b, 2 c\n\nfor i, v in enumerate(['a', 'b', 'c'], start=1):\n    print(i, v)  # 1 a, 2 b, 3 c\n\n# Common pattern — build index map:\nidx = {v: i for i, v in enumerate(arr)}",
-              "note": "start=1 for 1-indexed output. enumerate returns (index, value) pairs."
-            }
-          ]
+          "label": "Template",
+          "code": "from collections import deque\ndef bfs(graph, start):\n    queue = deque([start])\n    visited = {start}\n    level = 0\n    while queue:\n        for _ in range(len(queue)):  # process one level\n            node = queue.popleft()\n            for nei in graph[node]:\n                if nei not in visited:\n                    visited.add(nei)\n                    queue.append(nei)\n        level += 1\n    return level",
+          "note": "The for-loop over len(queue) processes one level at a time."
+        },
+        {
+          "label": "Example 1 — LC 200 Number of Islands (BFS)",
+          "code": "from collections import deque\ndef numIslands(grid):\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                queue = deque([(r, c)])\n                grid[r][c] = '0'\n                while queue:\n                    cr, cc = queue.popleft()\n                    for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n                        nr, nc = cr+dr, cc+dc\n                        if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]=='1':\n                            grid[nr][nc] = '0'\n                            queue.append((nr, nc))\n    return count",
+          "note": "Flood-fill with BFS. Mark visited by setting to '0' (in-place)."
+        },
+        {
+          "label": "Example 2 — LC 994 Rotting Oranges",
+          "code": "from collections import deque\ndef orangesRotting(grid):\n    rows, cols = len(grid), len(grid[0])\n    queue = deque()\n    fresh = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 2:\n                queue.append((r, c))\n            elif grid[r][c] == 1:\n                fresh += 1\n    minutes = 0\n    while queue and fresh:\n        minutes += 1\n        for _ in range(len(queue)):\n            r, c = queue.popleft()\n            for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n                nr, nc = r+dr, c+dc\n                if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]==1:\n                    grid[nr][nc] = 2\n                    fresh -= 1\n                    queue.append((nr, nc))\n    return minutes if fresh == 0 else -1",
+          "note": "Multi-source BFS — start from all rotten oranges simultaneously."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Single-source BFS: one starting point\n# Multi-source BFS: add ALL sources to queue before starting\n# Grid BFS: use directions = [(0,1),(0,-1),(1,0),(-1,0)]\n# Level tracking: process len(queue) nodes per iteration",
+          "note": "Multi-source BFS is just BFS with multiple starting points in the initial queue."
         }
       ]
     },
     {
-      "id": "scope",
-      "name": "Scope & Closures",
-      "icon": "🔭",
-      "sections": [
+      "id": "dfs",
+      "name": "DFS",
+      "items": [
         {
-          "type": "operations",
-          "title": "LEGB Rule",
-          "items": [
-            {
-              "label": "Scope lookup order",
-              "code": "x = 'global'             # Global\n\ndef outer():\n    x = 'enclosing'      # Enclosing\n    def inner():\n        x = 'local'      # Local\n        print(x)          # 'local'\n    inner()\n\n# Lookup order: Local → Enclosing → Global → Built-in\n# Built-in examples: len, range, print, int, list",
-              "note": "LEGB = Local, Enclosing, Global, Built-in. Python searches in this order."
-            },
-            {
-              "label": "global keyword",
-              "code": "count = 0\n\ndef increment():\n    global count      # without this, count += 1 would fail\n    count += 1\n\nincrement()\nprint(count)  # 1",
-              "note": "global lets you modify module-level variables inside a function — rarely needed in interviews"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: explore all paths, tree traversal, connected components, cycle detection\nStructure: graph or tree, depth-first exploration",
+          "note": "DFS when you need to explore all paths or process subtrees. BFS when you need shortest path."
         },
         {
-          "type": "operations",
-          "title": "nonlocal and Closures",
-          "items": [
-            {
-              "label": "Why count += 1 fails without nonlocal",
-              "code": "def make_counter():\n    count = 0\n    def increment():\n        count += 1     # UnboundLocalError!\n        return count\n    return increment\n\n# Python sees 'count =' and treats it as local,\n# but it's referenced before assignment → error\n\n# Fix with nonlocal:\ndef make_counter():\n    count = 0\n    def increment():\n        nonlocal count  # now refers to enclosing scope\n        count += 1\n        return count\n    return increment\n\nc = make_counter()\nc()  # 1\nc()  # 2",
-              "note": "Any assignment (including +=) makes Python treat the variable as local in that scope"
-            },
-            {
-              "label": "Mutable object trick (avoid nonlocal)",
-              "code": "def make_counter():\n    state = [0]         # list is mutable\n    def increment():\n        state[0] += 1   # mutating, not rebinding — no nonlocal needed\n        return state[0]\n    return increment\n\n# Same trick with dict:\ndef make_counter():\n    state = {'count': 0}\n    def increment():\n        state['count'] += 1  # mutating dict, not rebinding\n        return state['count']\n    return increment",
-              "note": "Mutating a mutable object doesn't require nonlocal — only rebinding does"
-            },
-            {
-              "label": "DFS with nonlocal (common interview pattern)",
-              "code": "def max_depth(root):\n    result = 0\n    def dfs(node, depth):\n        nonlocal result\n        if not node:\n            return\n        result = max(result, depth)\n        dfs(node.left, depth + 1)\n        dfs(node.right, depth + 1)\n    dfs(root, 1)\n    return result\n\n# Alternative: use return values instead of nonlocal\ndef max_depth(root):\n    if not root:\n        return 0\n    return 1 + max(max_depth(root.left), max_depth(root.right))",
-              "note": "In interviews, prefer return values over nonlocal when possible — cleaner and less error-prone"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# Recursion stack (implicit) or explicit stack\n# visited set for graphs (trees don't need it)\nvisited = set()\n# Watch recursion depth: sys.setrecursionlimit(10**6)",
+          "note": "Use sys.setrecursionlimit or iterative DFS for large inputs."
         },
         {
-          "type": "operations",
-          "title": "Closure Traps",
-          "items": [
-            {
-              "label": "Late binding in loops",
-              "code": "# BUG: all functions return 4 (last value of i)\nfuncs = []\nfor i in range(5):\n    funcs.append(lambda: i)  # captures variable i, not its value\n\n[f() for f in funcs]  # [4, 4, 4, 4, 4]\n\n# FIX 1: default argument captures current value\nfuncs = []\nfor i in range(5):\n    funcs.append(lambda i=i: i)  # i=i captures current value\n\n[f() for f in funcs]  # [0, 1, 2, 3, 4]\n\n# FIX 2: use functools.partial\nfrom functools import partial\nfuncs = [partial(lambda x: x, i) for i in range(5)]",
-              "note": "Closures capture variables by reference, not by value. Use default arg trick to capture current value."
-            }
-          ]
+          "label": "Template",
+          "code": "# Recursive DFS on graph\ndef dfs(node, visited, graph):\n    visited.add(node)\n    for nei in graph[node]:\n        if nei not in visited:\n            dfs(nei, visited, graph)\n\n# Recursive DFS on tree\ndef dfs_tree(root):\n    if not root:\n        return 0\n    left = dfs_tree(root.left)\n    right = dfs_tree(root.right)\n    return 1 + max(left, right)",
+          "note": "Graph DFS needs visited. Tree DFS does not (no cycles in trees)."
+        },
+        {
+          "label": "Example 1 — LC 104 Maximum Depth of Binary Tree",
+          "code": "def maxDepth(root):\n    if not root:\n        return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))",
+          "note": "Base case: null -> 0. Recursive case: 1 + max of children. Simplest tree DFS."
+        },
+        {
+          "label": "Example 2 — LC 200 Number of Islands (DFS)",
+          "code": "def numIslands(grid):\n    rows, cols = len(grid), len(grid[0])\n    def dfs(r, c):\n        if r<0 or r>=rows or c<0 or c>=cols or grid[r][c]!='1':\n            return\n        grid[r][c] = '0'  # mark visited\n        dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1)\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count",
+          "note": "Flood-fill with DFS. Same result as BFS but recursive. Mark cells '0' to avoid revisiting."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# DFS on trees: usually postorder (process children first)\n# DFS on graphs: need visited set to avoid infinite loops\n# Grid DFS: bounds check + visited check at top of recursion\n# Iterative DFS: use explicit stack (append, pop) — LIFO",
+          "note": "DFS is about going deep before going wide. Return values bubble up from leaves to root."
         }
       ]
     },
     {
-      "id": "numbers",
-      "name": "Number Gotchas",
-      "icon": "🔢",
-      "sections": [
+      "id": "backtracking",
+      "name": "Backtracking",
+      "items": [
         {
-          "type": "operations",
-          "title": "Python Integer Properties",
-          "items": [
-            {
-              "label": "Unbounded integers — no overflow",
-              "code": "2 ** 100   # 1267650600228229401496703205376  — no problem!\n10 ** 1000 # works fine, arbitrary precision\n\n# No need for long type (Python 2 had int vs long)\n# No need for BigInteger like Java\n# This matters for: factorial, power, large DP values\n\nimport sys\nsys.maxsize  # 9223372036854775807 — max for C-level, but Python ints go beyond",
-              "note": "Python ints never overflow — no need for modular arithmetic unless the problem asks for it"
-            },
-            {
-              "label": "float('inf') and math.inf",
-              "code": "INF = float('inf')\n-INF = float('-inf')\n\nINF > 10**1000       # True\nINF + 1 == INF       # True\nINF - INF            # nan\nINF == float('inf')  # True\n\nimport math\nmath.inf == float('inf')  # True — same thing\nmath.isinf(INF)           # True\n\n# Common usage:\nmin_val = float('inf')\nfor x in arr:\n    min_val = min(min_val, x)",
-              "note": "float('inf') is the standard sentinel for min/max tracking in interviews"
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: all combinations, all permutations, generate all, subsets, partition\nStructure: explore decision tree, prune invalid branches",
+          "note": "If the problem asks to 'generate all' or 'find all', it is almost certainly backtracking."
         },
         {
-          "type": "operations",
-          "title": "Division Behaviors",
-          "items": [
-            {
-              "label": "// floor division with negatives",
-              "code": " 7 // 2    #  3   (floors toward negative infinity)\n-7 // 2    # -4   (not -3! floors DOWN)\n 7 // -2   # -4   (same — floors toward -inf)\n\n# C/Java would give -3 (truncation toward zero)\n# To get truncation toward zero in Python:\nint(-7 / 2)  # -3  (int() truncates toward zero)",
-              "note": "Python // floors toward -inf, not toward zero. Use int(a/b) for C-style truncation."
-            },
-            {
-              "label": "divmod(a, b)",
-              "code": "divmod(17, 5)   # (3, 2)  — quotient=3, remainder=2\ndivmod(-17, 5)  # (-4, 3) — floors! -4*5 + 3 = -17\n\n# Useful for coordinate conversion:\nrow, col = divmod(index, num_cols)\n\n# Time conversion:\nhours, minutes = divmod(total_minutes, 60)",
-              "note": "divmod returns (quotient, remainder) in one call — great for grid index conversion"
-            },
-            {
-              "label": "Modulo with negatives",
-              "code": " 7 % 3     #  1  (standard)\n-7 % 3     #  2  (Python: result has sign of divisor)\n 7 % -3    # -2  (result has sign of divisor)\n\n# C/Java: -7 % 3 = -1 (result has sign of dividend)\n# Python guarantees: a == (a // b) * b + (a % b)",
-              "note": "Python's modulo always returns result with the sign of the divisor — different from C/Java"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# result list to collect valid solutions\n# path (current state being built)\n# start index to avoid duplicates in combinations\nresult = []\npath = []",
+          "note": "Use start index for combinations (order doesn't matter). Don't use it for permutations."
         },
         {
-          "type": "operations",
-          "title": "Rounding & Conversion",
-          "items": [
-            {
-              "label": "math.ceil, math.floor, int(), round()",
-              "code": "import math\nmath.ceil(2.3)    #  3\nmath.ceil(-2.3)   # -2  (toward +inf)\nmath.floor(2.7)   #  2\nmath.floor(-2.7)  # -3  (toward -inf)\n\nint(2.7)          #  2  (truncate toward zero)\nint(-2.7)         # -2  (truncate toward zero)\n\nround(2.5)        #  2  (banker's rounding! rounds to even)\nround(3.5)        #  4  (rounds to even)\nround(2.55, 1)    #  2.5  (float precision issue)",
-              "note": "int() truncates toward zero, // floors toward -inf, round() uses banker's rounding"
-            },
-            {
-              "label": "Ceiling division trick",
-              "code": "# How many groups of size k for n items?\n# Standard: math.ceil(n / k)\nimport math\nmath.ceil(7 / 3)        # 3\n\n# Integer-only trick (no float):\n(n + k - 1) // k        # ceiling division\n(7 + 3 - 1) // 3        # 3\n\n# Or using negative floor division:\n-(-n // k)              # also ceiling division\n-(-7 // 3)              # 3",
-              "note": "(n + k - 1) // k is the classic ceiling division trick — avoids float imprecision"
-            }
-          ]
+          "label": "Template",
+          "code": "def backtrack(start, path, result, nums):\n    result.append(path[:])  # or check validity first\n    for i in range(start, len(nums)):\n        path.append(nums[i])\n        backtrack(i + 1, path, result, nums)  # i+1: no reuse\n        # backtrack(i, ...)   -> allow reuse\n        # backtrack(0, ...)   -> permutation\n        path.pop()  # undo choice\n\nresult = []\nbacktrack(0, [], result, nums)\nreturn result",
+          "note": "The three knobs: start=i+1 (subsets), start=i (reuse), start=0 (permutations)."
+        },
+        {
+          "label": "Example 1 — LC 78 Subsets",
+          "code": "def subsets(nums):\n    result = []\n    def backtrack(start, path):\n        result.append(path[:])\n        for i in range(start, len(nums)):\n            path.append(nums[i])\n            backtrack(i + 1, path)\n            path.pop()\n    backtrack(0, [])\n    return result",
+          "note": "Every node in the decision tree is a valid subset. Append at every call."
+        },
+        {
+          "label": "Example 2 — LC 39 Combination Sum",
+          "code": "def combinationSum(candidates, target):\n    result = []\n    def backtrack(start, path, remaining):\n        if remaining == 0:\n            result.append(path[:])\n            return\n        if remaining < 0:\n            return\n        for i in range(start, len(candidates)):\n            path.append(candidates[i])\n            backtrack(i, path, remaining - candidates[i])  # i: reuse\n            path.pop()\n    backtrack(0, [], target)\n    return result",
+          "note": "Pass i (not i+1) to allow reusing the same candidate. Prune when remaining < 0."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Subsets:       start=i+1, append at every node\n# Combinations:  start=i+1, append when target met\n# Combo w/reuse: start=i,   append when target met\n# Permutations:  no start,  use 'used' boolean array\n# Always: path.append -> recurse -> path.pop (backtrack)",
+          "note": "Backtracking = DFS on a decision tree. Each level = one choice. Pop = undo that choice."
         }
       ]
     },
     {
-      "id": "strings-mechanics",
-      "name": "String Mechanics",
-      "icon": "🧵",
-      "sections": [
+      "id": "dynamic-programming",
+      "name": "Dynamic Programming",
+      "items": [
         {
-          "type": "operations",
-          "title": "String Fundamentals",
-          "items": [
-            {
-              "label": "Strings are immutable sequences",
-              "code": "s = 'hello'\ns[0] = 'H'    # TypeError! Can't modify\n\n# Must create new string:\ns = 'H' + s[1:]  # 'Hello'\n\n# For heavy modification, use list:\nchars = list(s)    # ['H', 'e', 'l', 'l', 'o']\nchars[0] = 'h'\nresult = ''.join(chars)  # 'hello'",
-              "note": "String concatenation in a loop is O(n^2) — use list + join for building strings"
-            },
-            {
-              "label": "join is called on the separator",
-              "code": "# separator.join(iterable)\n', '.join(['a', 'b', 'c'])    # 'a, b, c'\n''.join(['h', 'e', 'l', 'l', 'o'])  # 'hello'\n'->'.join(['1', '2', '3'])   # '1->2->3'\n\n# Must be strings:\n' '.join([1, 2, 3])           # TypeError!\n' '.join(map(str, [1, 2, 3])) # '1 2 3' — convert first",
-              "note": "join only works on iterables of strings — use map(str, ...) for non-strings"
-            },
-            {
-              "label": "'in' checks substrings",
-              "code": "'ab' in 'abc'     # True — substring check\n'ac' in 'abc'     # False — must be contiguous\n'a' in 'abc'      # True — single char\n'' in 'abc'       # True — empty string is in everything\n\n# Different from list 'in':\n[1, 2] in [[1, 2], [3, 4]]  # True — element check, not subsequence",
-              "note": "For strings, 'in' checks substring. For lists, 'in' checks element membership."
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: minimum cost, maximum profit, number of ways, can you reach, longest\nStructure: overlapping subproblems + optimal substructure",
+          "note": "If brute force would recompute the same states, DP caches those results."
         },
         {
-          "type": "operations",
-          "title": "Character Operations",
-          "items": [
-            {
-              "label": "ord() and chr() for character arithmetic",
-              "code": "ord('a')           # 97\nord('A')           # 65\nord('0')           # 48\nchr(97)            # 'a'\nchr(65)            # 'A'\n\n# Character to 0-25 index:\nidx = ord('c') - ord('a')  # 2\n\n# Build frequency array:\nfreq = [0] * 26\nfor c in s:\n    freq[ord(c) - ord('a')] += 1\n\n# Check if letter: 'a' <= c <= 'z' or c.isalpha()",
-              "note": "ord(c) - ord('a') maps lowercase letters to 0-25. Essential for frequency arrays."
-            },
-            {
-              "label": "String methods for checking types",
-              "code": "'abc'.isalpha()     # True (letters only)\n'123'.isdigit()     # True (digits only)\n'abc123'.isalnum()  # True (letters or digits)\n'  '.isspace()      # True (whitespace only)\n'Hello'.isupper()   # False\n'HELLO'.isupper()   # True\n'hello'.islower()   # True\n\n# Common interview filter:\nclean = ''.join(c.lower() for c in s if c.isalnum())",
-              "note": "isalnum() for valid palindrome check (LC 125). These methods return False for empty strings."
-            },
-            {
-              "label": "f-strings and formatting",
-              "code": "name, score = 'Alice', 95.678\nf'{name}: {score}'          # 'Alice: 95.678'\nf'{score:.2f}'              # '95.68' — 2 decimal places\nf'{42:08b}'                 # '00101010' — 8-bit binary\nf'{42:05d}'                 # '00042' — zero-padded\nf'{42:>10}'                 # '        42' — right-aligned\n\n# Expressions inside f-strings:\nf'{2**10}'                  # '1024'\nf'{[1,2,3][-1]}'            # '3'",
-              "note": "f-strings support any expression including method calls — very flexible"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# 1D DP: dp = [0] * (n + 1)\n# 2D DP: dp = [[0] * (m + 1) for _ in range(n + 1)]\n# Memoization: from functools import lru_cache\nfrom functools import lru_cache",
+          "note": "Bottom-up (tabulation) vs top-down (memoization). Both work; bottom-up avoids recursion limits."
         },
         {
-          "type": "operations",
-          "title": "Common String Patterns",
-          "items": [
-            {
-              "label": "String multiplication and slicing",
-              "code": "'ab' * 3           # 'ababab'\n'-' * 20           # '--------------------'\n\n# Reverse:\ns[::-1]            # 'olleh' from 'hello'\n\n# Every other char:\ns[::2]             # 'hlo' from 'hello'\n\n# Check palindrome:\ns == s[::-1]       # True if palindrome",
-              "note": "s[::-1] is the Pythonic way to reverse a string"
-            },
-            {
-              "label": "split and strip",
-              "code": "'a,b,c'.split(',')        # ['a', 'b', 'c']\n'hello world'.split()      # ['hello', 'world'] — splits on whitespace\n'  hello  '.strip()        # 'hello'\n'  hello  '.lstrip()       # 'hello  '\n'  hello  '.rstrip()       # '  hello'\n'xxhelloxx'.strip('x')    # 'hello' — strips chars, not substring\n\n# Split with limit:\n'a.b.c.d'.split('.', 1)   # ['a', 'b.c.d'] — split once",
-              "note": "split() with no args splits on any whitespace and removes empty strings"
-            },
-            {
-              "label": "String building patterns",
-              "code": "# BAD: O(n^2) concatenation in loop\nresult = ''\nfor c in chars:\n    result += c    # creates new string each time\n\n# GOOD: O(n) with list + join\nparts = []\nfor c in chars:\n    parts.append(c)\nresult = ''.join(parts)\n\n# BEST: list comprehension + join\nresult = ''.join(c for c in s if c.isalpha())",
-              "note": "Always build strings with list + join in interviews — shows you understand immutability"
-            }
-          ]
+          "label": "Template",
+          "code": "# Bottom-up template\ndef dp_solve(n):\n    dp = [0] * (n + 1)\n    dp[0] = base_case\n    for i in range(1, n + 1):\n        dp[i] = recurrence(dp, i)  # e.g., dp[i-1] + dp[i-2]\n    return dp[n]\n\n# Top-down template\n@lru_cache(maxsize=None)\ndef solve(state):\n    if base_case:\n        return base_value\n    return recurrence(solve, state)",
+          "note": "Define: 1) State, 2) Base case, 3) Recurrence, 4) Answer location."
+        },
+        {
+          "label": "Example 1 — LC 70 Climbing Stairs",
+          "code": "def climbStairs(n):\n    if n <= 2:\n        return n\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    dp[2] = 2\n    for i in range(3, n + 1):\n        dp[i] = dp[i - 1] + dp[i - 2]\n    return dp[n]",
+          "note": "dp[i] = ways to reach step i. Fibonacci variant. Can optimize to O(1) space with two variables."
+        },
+        {
+          "label": "Example 2 — LC 322 Coin Change",
+          "code": "def coinChange(coins, amount):\n    dp = [float('inf')] * (amount + 1)\n    dp[0] = 0\n    for i in range(1, amount + 1):\n        for c in coins:\n            if c <= i:\n                dp[i] = min(dp[i], dp[i - c] + 1)\n    return dp[amount] if dp[amount] != float('inf') else -1",
+          "note": "dp[i] = min coins for amount i. Try each coin, take min. Classic unbounded knapsack."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# DP framework:\n# 1. State: what info defines a subproblem? (index, remaining)\n# 2. Choice: what decisions at each state?\n# 3. Base case: smallest subproblem answer\n# 4. Recurrence: how states relate (dp[i] = f(dp[j]))\n# 5. Space optimization: often only need last row/few values",
+          "note": "Start with brute-force recursion, add memoization, then convert to bottom-up if needed."
         }
       ]
     },
     {
-      "id": "stdlib-weapons",
-      "name": "Standard Library Weapons",
-      "icon": "🧰",
-      "sections": [
+      "id": "prefix-sum",
+      "name": "Prefix Sum",
+      "items": [
         {
-          "type": "operations",
-          "title": "collections Module",
-          "items": [
-            {
-              "label": "Counter",
-              "code": "from collections import Counter\nc = Counter('aabbc')       # Counter({'a': 2, 'b': 2, 'c': 1})\nc.most_common(2)           # [('a', 2), ('b', 2)]\nc['a']                     # 2\nc['z']                     # 0 (no KeyError!)\n\n# Arithmetic:\nc1 = Counter('aab')\nc2 = Counter('abc')\nc1 + c2    # Counter({'a': 3, 'b': 2, 'c': 1})\nc1 - c2    # Counter({'a': 1}) — drops zero/negative\nc1 & c2    # Counter({'a': 1, 'b': 1}) — min of each\nc1 | c2    # Counter({'a': 2, 'b': 1, 'c': 1}) — max of each",
-              "note": "Counter is a dict subclass. Accessing missing keys returns 0 (not KeyError)."
-            },
-            {
-              "label": "defaultdict",
-              "code": "from collections import defaultdict\n\n# Group items:\nd = defaultdict(list)\nfor key, val in pairs:\n    d[key].append(val)    # no need to check if key exists\n\n# Count items:\nd = defaultdict(int)\nfor item in items:\n    d[item] += 1          # int() returns 0 as default\n\n# Set of neighbors:\ngraph = defaultdict(set)\nfor u, v in edges:\n    graph[u].add(v)\n    graph[v].add(u)\n\n# Nested defaultdict:\nd = defaultdict(lambda: defaultdict(int))",
-              "note": "defaultdict(list) for grouping, defaultdict(int) for counting, defaultdict(set) for graphs"
-            },
-            {
-              "label": "deque",
-              "code": "from collections import deque\n\ndq = deque([1, 2, 3])\ndq.append(4)         # right: [1, 2, 3, 4]\ndq.appendleft(0)     # left:  [0, 1, 2, 3, 4]\ndq.pop()             # 4  O(1)\ndq.popleft()         # 0  O(1)\n\n# BFS pattern:\nqueue = deque([start])\nwhile queue:\n    node = queue.popleft()  # O(1) vs list.pop(0) which is O(n)\n    for neighbor in graph[node]:\n        queue.append(neighbor)\n\n# Fixed-size window:\ndq = deque(maxlen=3)\nfor x in [1, 2, 3, 4, 5]:\n    dq.append(x)\n# dq = deque([3, 4, 5]) — oldest auto-removed",
-              "note": "deque for BFS (popleft is O(1)). list.pop(0) is O(n) — never use it for queues."
-            }
-          ]
+          "label": "Trigger",
+          "code": "Keywords: subarray sum, range query, cumulative, sum equals k\nStructure: need sum of any subarray in O(1) after preprocessing",
+          "note": "Prefix sum turns range-sum queries from O(n) to O(1) with O(n) preprocessing."
         },
         {
-          "type": "operations",
-          "title": "itertools Module",
-          "items": [
-            {
-              "label": "combinations, permutations, product",
-              "code": "from itertools import combinations, permutations, product\n\nlist(combinations([1,2,3], 2))   # [(1,2), (1,3), (2,3)]\nlist(permutations([1,2,3], 2))   # [(1,2), (1,3), (2,1), (2,3), (3,1), (3,2)]\nlist(product([0,1], repeat=3))   # all 3-bit combos: (0,0,0)..(1,1,1)\nlist(product('ab', '12'))        # [('a','1'), ('a','2'), ('b','1'), ('b','2')]\n\n# combinations_with_replacement:\nfrom itertools import combinations_with_replacement\nlist(combinations_with_replacement([1,2,3], 2))\n# [(1,1), (1,2), (1,3), (2,2), (2,3), (3,3)]",
-              "note": "combinations: C(n,k), permutations: P(n,k), product: cartesian product. All return iterators."
-            },
-            {
-              "label": "accumulate and chain",
-              "code": "from itertools import accumulate, chain\n\n# Prefix sums:\nlist(accumulate([1, 2, 3, 4]))      # [1, 3, 6, 10]\nlist(accumulate([1, 2, 3], initial=0))  # [0, 1, 3, 6]  Python 3.8+\n\n# Running max:\nlist(accumulate([3, 1, 4, 1, 5], max))  # [3, 3, 4, 4, 5]\n\n# Flatten list of lists:\nnested = [[1, 2], [3, 4], [5]]\nlist(chain.from_iterable(nested))  # [1, 2, 3, 4, 5]\n\n# Concatenate iterables:\nlist(chain([1, 2], [3, 4], [5]))   # [1, 2, 3, 4, 5]",
-              "note": "accumulate for prefix sums, chain.from_iterable to flatten one level of nesting"
-            },
-            {
-              "label": "groupby (requires sorted input!)",
-              "code": "from itertools import groupby\n\n# MUST sort by key first!\ndata = [('A', 1), ('A', 2), ('B', 3), ('B', 4)]\nfor key, group in groupby(data, key=lambda x: x[0]):\n    print(key, list(group))\n# A [('A', 1), ('A', 2)]\n# B [('B', 3), ('B', 4)]\n\n# Count consecutive:\ns = 'aaabbbcc'\nfor char, group in groupby(s):\n    print(char, sum(1 for _ in group))  # a 3, b 3, c 2",
-              "note": "groupby groups consecutive equal elements — sort first if you want all-same-key groups together"
-            }
-          ]
+          "label": "Data Structures",
+          "code": "# Prefix sum array: prefix[i] = sum(nums[0:i])\n# HashMap for 'subarray sum equals k' variant\nfrom collections import defaultdict\nprefix_count = defaultdict(int)",
+          "note": "sum(nums[i:j]) = prefix[j] - prefix[i]. HashMap tracks how many times each prefix sum occurred."
         },
         {
-          "type": "operations",
-          "title": "bisect Module",
-          "items": [
-            {
-              "label": "bisect_left, bisect_right, insort",
-              "code": "from bisect import bisect_left, bisect_right, insort\n\narr = [1, 3, 3, 5, 7]\nbisect_left(arr, 3)    # 1 — leftmost position to insert 3\nbisect_right(arr, 3)   # 3 — rightmost position to insert 3\nbisect_left(arr, 4)    # 3 — where 4 would go\nbisect_left(arr, 0)    # 0 — before everything\n\n# Insert while maintaining sort:\ninsort(arr, 4)         # arr = [1, 3, 3, 4, 5, 7]\n\n# Binary search — find exact element:\ndef binary_search(arr, target):\n    i = bisect_left(arr, target)\n    if i < len(arr) and arr[i] == target:\n        return i\n    return -1",
-              "note": "bisect_left: first valid position. bisect_right: position after existing equal elements."
-            },
-            {
-              "label": "bisect for range queries",
-              "code": "from bisect import bisect_left, bisect_right\n\narr = [1, 2, 3, 3, 3, 5, 7]\n\n# Count of 3s:\ncount = bisect_right(arr, 3) - bisect_left(arr, 3)  # 3\n\n# Count elements < x:\ncount_less = bisect_left(arr, x)\n\n# Count elements <= x:\ncount_le = bisect_right(arr, x)\n\n# Count elements in range [lo, hi]:\ncount_range = bisect_right(arr, hi) - bisect_left(arr, lo)",
-              "note": "Combine bisect_left and bisect_right for O(log n) range counting on sorted arrays"
-            }
-          ]
+          "label": "Template",
+          "code": "# Build prefix sum\nprefix = [0] * (len(nums) + 1)\nfor i in range(len(nums)):\n    prefix[i + 1] = prefix[i] + nums[i]\n# sum of nums[i:j] = prefix[j] - prefix[i]\n\n# Subarray sum equals k (HashMap variant)\ndef subarraySum(nums, k):\n    count = 0\n    curr_sum = 0\n    prefix_count = {0: 1}\n    for num in nums:\n        curr_sum += num\n        count += prefix_count.get(curr_sum - k, 0)\n        prefix_count[curr_sum] = prefix_count.get(curr_sum, 0) + 1\n    return count",
+          "note": "curr_sum - k in the map means a prefix with that sum exists, so the subarray between sums to k."
         },
         {
-          "type": "operations",
-          "title": "functools & heapq",
-          "items": [
-            {
-              "label": "lru_cache / cache for memoization",
-              "code": "from functools import lru_cache, cache\n\n@lru_cache(maxsize=None)  # unlimited cache\ndef fib(n):\n    if n < 2:\n        return n\n    return fib(n-1) + fib(n-2)\n\nfib(100)  # instant — O(n) with memoization\n\n# Python 3.9+: @cache is shorthand for @lru_cache(maxsize=None)\n@cache\ndef solve(i, j):\n    if i == 0 or j == 0:\n        return 0\n    return solve(i-1, j) + solve(i, j-1)\n\n# IMPORTANT: arguments must be hashable (no lists!)\n# Convert list to tuple: solve(tuple(nums), target)",
-              "note": "Use @cache for top-down DP. Arguments must be hashable — convert lists to tuples."
-            },
-            {
-              "label": "heapq.merge for sorted iterables",
-              "code": "import heapq\n\n# Merge pre-sorted iterables (lazy — O(1) memory per element):\nlist(heapq.merge([1, 3, 5], [2, 4, 6]))  # [1, 2, 3, 4, 5, 6]\n\n# With key:\nlist(heapq.merge(\n    [('a', 1), ('c', 3)],\n    [('b', 2), ('d', 4)],\n    key=lambda x: x[1]\n))  # [('a', 1), ('b', 2), ('c', 3), ('d', 4)]\n\n# heapq cheat sheet:\nheapq.heapify(lst)            # O(n) — in-place\nheapq.heappush(heap, val)     # O(log n)\nheapq.heappop(heap)           # O(log n) — smallest\nheapq.heappushpop(heap, val)  # push then pop — more efficient\nheapq.heapreplace(heap, val)  # pop then push — more efficient",
-              "note": "heapq is min-heap only. For max-heap, negate values: heappush(h, -val)"
-            }
-          ]
+          "label": "Example 1 — LC 560 Subarray Sum Equals K",
+          "code": "def subarraySum(nums, k):\n    count = 0\n    curr_sum = 0\n    prefix_count = {0: 1}\n    for num in nums:\n        curr_sum += num\n        if curr_sum - k in prefix_count:\n            count += prefix_count[curr_sum - k]\n        prefix_count[curr_sum] = prefix_count.get(curr_sum, 0) + 1\n    return count",
+          "note": "O(n) time, O(n) space. Cannot use sliding window because nums can have negatives."
+        },
+        {
+          "label": "Example 2 — LC 238 Product of Array Except Self",
+          "code": "def productExceptSelf(nums):\n    n = len(nums)\n    ans = [1] * n\n    left = 1\n    for i in range(n):\n        ans[i] = left\n        left *= nums[i]\n    right = 1\n    for i in range(n - 1, -1, -1):\n        ans[i] *= right\n        right *= nums[i]\n    return ans",
+          "note": "Prefix product from left, then multiply suffix product from right. O(1) extra space."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Prefix sum + HashMap: if curr_sum - k exists in map,\n# a subarray summing to k ends at current index.\n# Same logic as Two Sum!\n# Two Sum: target - num in map\n# Subarray Sum: curr_sum - k in map",
+          "note": "The prefix sum + HashMap combo is one of the most reusable tricks in interviews."
+        }
+      ]
+    },
+    {
+      "id": "intervals",
+      "name": "Intervals",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: merge, overlap, interval scheduling, meeting rooms, insert interval\nStructure: list of [start, end] pairs",
+          "note": "Almost all interval problems start with sorting by start time."
+        },
+        {
+          "label": "Data Structures",
+          "code": "# Sort intervals by start time\nintervals.sort(key=lambda x: x[0])\n# Merged result list\nmerged = []",
+          "note": "For 'minimum removals' problems, sort by end time instead (greedy)."
+        },
+        {
+          "label": "Template",
+          "code": "def merge_intervals(intervals):\n    intervals.sort(key=lambda x: x[0])\n    merged = []\n    for start, end in intervals:\n        if merged and start <= merged[-1][1]:  # overlap\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged",
+          "note": "O(n log n) for sort. Two intervals overlap when start <= prev_end."
+        },
+        {
+          "label": "Example 1 — LC 56 Merge Intervals",
+          "code": "def merge(intervals):\n    intervals.sort(key=lambda x: x[0])\n    merged = []\n    for start, end in intervals:\n        if merged and start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged",
+          "note": "Classic merge. Compare current start with last merged end."
+        },
+        {
+          "label": "Example 2 — LC 435 Non-Overlapping Intervals",
+          "code": "def eraseOverlapIntervals(intervals):\n    intervals.sort(key=lambda x: x[1])  # sort by END\n    count = 0\n    prev_end = float('-inf')\n    for start, end in intervals:\n        if start >= prev_end:\n            prev_end = end  # keep this interval\n        else:\n            count += 1  # remove this interval\n    return count",
+          "note": "Greedy: sort by end time, keep intervals that start after previous ends. Minimize removals."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Overlap check: a.start <= b.end and b.start <= a.end\n# Merge: sort by start, extend end\n# Min removals: sort by end (greedy — pick earliest ending)\n# Insert: find position, merge with neighbors",
+          "note": "Sort by start for merge problems. Sort by end for scheduling/removal problems."
+        }
+      ]
+    },
+    {
+      "id": "heap",
+      "name": "Heap / Priority Queue",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: top k, kth largest, kth smallest, merge k sorted, median stream\nStructure: need repeated access to min or max element",
+          "note": "If you need the top-k or repeatedly extract the smallest/largest, use a heap."
+        },
+        {
+          "label": "Data Structures",
+          "code": "import heapq\nheapq.heappush(heap, val)   # push — O(log n)\nheapq.heappop(heap)         # pop smallest — O(log n)\nheapq.heapify(arr)          # in-place — O(n)\n# Max-heap trick: negate values\nheapq.heappush(heap, -val)",
+          "note": "Python only has min-heap. For max-heap, push -val and negate on pop."
+        },
+        {
+          "label": "Template (Top K)",
+          "code": "import heapq\ndef top_k_largest(nums, k):\n    # Min-heap of size k -> top gives kth largest\n    heap = []\n    for num in nums:\n        heapq.heappush(heap, num)\n        if len(heap) > k:\n            heapq.heappop(heap)  # remove smallest\n    return heap[0]  # kth largest\n\n# Or use nlargest/nsmallest\nheapq.nlargest(k, nums)\nheapq.nsmallest(k, nums)",
+          "note": "For kth largest, keep a min-heap of size k. The top is the kth largest. O(n log k)."
+        },
+        {
+          "label": "Example 1 — LC 703 Kth Largest Element in a Stream",
+          "code": "import heapq\nclass KthLargest:\n    def __init__(self, k, nums):\n        self.k = k\n        self.heap = nums\n        heapq.heapify(self.heap)\n        while len(self.heap) > k:\n            heapq.heappop(self.heap)\n\n    def add(self, val):\n        heapq.heappush(self.heap, val)\n        if len(self.heap) > self.k:\n            heapq.heappop(self.heap)\n        return self.heap[0]",
+          "note": "Maintain a min-heap of size k. Top element is always the kth largest."
+        },
+        {
+          "label": "Example 2 — LC 347 Top K Frequent Elements",
+          "code": "from collections import Counter\nimport heapq\ndef topKFrequent(nums, k):\n    count = Counter(nums)\n    return heapq.nlargest(k, count.keys(), key=count.get)\n\n# Bucket sort alternative — O(n):\ndef topKFrequent_bucket(nums, k):\n    count = Counter(nums)\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for num, freq in count.items():\n        buckets[freq].append(num)\n    result = []\n    for i in range(len(buckets) - 1, -1, -1):\n        result.extend(buckets[i])\n        if len(result) >= k:\n            return result[:k]",
+          "note": "heapq.nlargest is clean. Bucket sort avoids the heap entirely for O(n)."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Kth largest  -> min-heap of size k (top = answer)\n# Kth smallest -> max-heap of size k (top = answer)\n# Merge k lists -> heap of (value, list_idx, elem_idx)\n# Running median -> two heaps (max-heap left, min-heap right)",
+          "note": "Heap gives O(log k) per operation. For top-k problems, total is O(n log k)."
+        }
+      ]
+    },
+    {
+      "id": "hashmap-set",
+      "name": "HashMap / Set",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: duplicate, frequency, group by, anagram, contains, two sum, seen before\nStructure: need O(1) lookup, counting, or grouping",
+          "note": "HashMap is the most commonly used data structure in interviews. Master it."
+        },
+        {
+          "label": "Data Structures",
+          "code": "from collections import defaultdict, Counter\nfreq = Counter(nums)          # frequency count\ngroups = defaultdict(list)     # grouping\nseen = set()                   # dedup / O(1) lookup",
+          "note": "Counter is a dict subclass. defaultdict avoids KeyError. Set for membership tests."
+        },
+        {
+          "label": "Template",
+          "code": "# Two Sum pattern (complement lookup)\ndef two_sum(nums, target):\n    seen = {}  # val -> index\n    for i, num in enumerate(nums):\n        comp = target - num\n        if comp in seen:\n            return [seen[comp], i]\n        seen[num] = i\n\n# Group by pattern\ndef group_anagrams(strs):\n    groups = defaultdict(list)\n    for s in strs:\n        key = tuple(sorted(s))\n        groups[key].append(s)\n    return list(groups.values())",
+          "note": "The 'complement lookup' pattern (Two Sum) appears everywhere. Store what you've seen, check for complement."
+        },
+        {
+          "label": "Example 1 — LC 1 Two Sum",
+          "code": "def twoSum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i",
+          "note": "O(n) time, O(n) space. One pass — check then store."
+        },
+        {
+          "label": "Example 2 — LC 36 Valid Sudoku",
+          "code": "def isValidSudoku(board):\n    rows = defaultdict(set)\n    cols = defaultdict(set)\n    boxes = defaultdict(set)\n    for r in range(9):\n        for c in range(9):\n            val = board[r][c]\n            if val == '.':\n                continue\n            box_id = (r // 3) * 3 + (c // 3)\n            if (val in rows[r] or val in cols[c]\n                    or val in boxes[box_id]):\n                return False\n            rows[r].add(val)\n            cols[c].add(val)\n            boxes[box_id].add(val)\n    return True",
+          "note": "box_id = (row // 3) * 3 + (col // 3) maps each cell to its 3x3 box (0-8). Three sets track uniqueness."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# HashMap patterns:\n# 1. Complement lookup: target - val in map (Two Sum)\n# 2. Frequency count: Counter(nums) then process\n# 3. Group by key: defaultdict(list), group by sorted/hash\n# 4. Seen tracking: set for visited/duplicate detection\n# 5. Index mapping: val -> index for O(1) position lookup",
+          "note": "When stuck, ask: 'Can I store something to avoid a nested loop?' Usually yes, with a HashMap."
+        }
+      ]
+    },
+    {
+      "id": "greedy",
+      "name": "Greedy",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: locally optimal, scheduling, maximum/minimum with greedy choice, jump game\nStructure: making the best local choice leads to global optimum",
+          "note": "Greedy works when the problem has the 'greedy choice property' — local optimum leads to global optimum."
+        },
+        {
+          "label": "Data Structures",
+          "code": "# Often just variables tracking state\n# Sometimes sorted input\n# No special data structure — greedy is a strategy, not a structure",
+          "note": "Greedy problems are about proving the strategy works, not about complex data structures."
+        },
+        {
+          "label": "Template",
+          "code": "# General greedy approach:\n# 1. Sort input (if needed)\n# 2. Iterate and make locally optimal choice\n# 3. Update state\n# 4. Never reconsider past choices\n\ndef greedy(items):\n    items.sort(key=some_criteria)\n    state = initial_value\n    for item in items:\n        if can_take(item, state):\n            state = update(state, item)\n    return state",
+          "note": "The hard part is proving greedy works. If you can't prove it, consider DP instead."
+        },
+        {
+          "label": "Example 1 — LC 55 Jump Game",
+          "code": "def canJump(nums):\n    max_reach = 0\n    for i in range(len(nums)):\n        if i > max_reach:\n            return False\n        max_reach = max(max_reach, i + nums[i])\n    return True",
+          "note": "Track the farthest index reachable. If current index > max_reach, stuck. O(n) time."
+        },
+        {
+          "label": "Example 2 — LC 134 Gas Station",
+          "code": "def canCompleteCircuit(gas, cost):\n    if sum(gas) < sum(cost):\n        return -1\n    tank = 0\n    start = 0\n    for i in range(len(gas)):\n        tank += gas[i] - cost[i]\n        if tank < 0:\n            start = i + 1\n            tank = 0\n    return start",
+          "note": "If total gas >= total cost, solution exists. Reset start whenever tank goes negative."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Greedy vs DP:\n# Greedy: make one choice per step, never look back\n# DP: consider all choices, pick best via recurrence\n# Greedy is faster but only works with greedy choice property\n# Common greedy patterns:\n#   - Activity selection (sort by end time)\n#   - Jump game (track farthest reach)\n#   - Gas station (reset on failure)",
+          "note": "If the greedy approach gives wrong answers on edge cases, switch to DP."
+        }
+      ]
+    },
+    {
+      "id": "union-find",
+      "name": "Union-Find",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: connected components, group, union, redundant connection, accounts merge\nStructure: disjoint sets that get merged over time",
+          "note": "Union-Find is ideal when you process edges one at a time and need to check/merge components."
+        },
+        {
+          "label": "Data Structures",
+          "code": "# Parent array + rank array\n# Path compression + union by rank -> near O(1) per operation\nparent = list(range(n))\nrank = [0] * n",
+          "note": "Amortized O(alpha(n)) per operation — effectively constant."
+        },
+        {
+          "label": "Template",
+          "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n        self.components = n\n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # path compression\n        return self.parent[x]\n\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py:\n            return False  # already connected\n        if self.rank[px] < self.rank[py]:\n            px, py = py, px\n        self.parent[py] = px  # union by rank\n        if self.rank[px] == self.rank[py]:\n            self.rank[px] += 1\n        self.components -= 1\n        return True",
+          "note": "find() with path compression. union() by rank. Track component count."
+        },
+        {
+          "label": "Example 1 — LC 323 Number of Connected Components",
+          "code": "def countComponents(n, edges):\n    uf = UnionFind(n)\n    for u, v in edges:\n        uf.union(u, v)\n    return uf.components",
+          "note": "Start with n components, each union merges two. Final count is the answer."
+        },
+        {
+          "label": "Example 2 — LC 684 Redundant Connection",
+          "code": "def findRedundantConnection(edges):\n    uf = UnionFind(len(edges) + 1)\n    for u, v in edges:\n        if not uf.union(u, v):\n            return [u, v]  # already connected -> redundant",
+          "note": "The first edge connecting two already-connected nodes is the redundant one."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Union-Find vs DFS/BFS for connected components:\n# - DFS/BFS: build full graph, traverse -> O(V + E)\n# - Union-Find: process edges incrementally -> O(E * alpha(V))\n# Union-Find wins when:\n#   - Edges arrive one at a time (streaming)\n#   - Need to detect cycles in undirected graph\n#   - Need component count after each edge",
+          "note": "Union-Find for dynamic connectivity. DFS/BFS for static graphs."
+        }
+      ]
+    },
+    {
+      "id": "trie",
+      "name": "Trie",
+      "items": [
+        {
+          "label": "Trigger",
+          "code": "Keywords: prefix search, autocomplete, word dictionary, starts with, word search II\nStructure: tree where each edge is a character, shared prefixes",
+          "note": "Trie is the go-to for prefix-based problems. HashMap of children at each node."
+        },
+        {
+          "label": "Data Structures",
+          "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}  # char -> TrieNode\n        self.is_end = False",
+          "note": "Each node has up to 26 children (for lowercase English). is_end marks complete words."
+        },
+        {
+          "label": "Template",
+          "code": "class Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                node.children[ch] = TrieNode()\n            node = node.children[ch]\n        node.is_end = True\n\n    def search(self, word):\n        node = self._find(word)\n        return node is not None and node.is_end\n\n    def startsWith(self, prefix):\n        return self._find(prefix) is not None\n\n    def _find(self, prefix):\n        node = self.root\n        for ch in prefix:\n            if ch not in node.children:\n                return None\n            node = node.children[ch]\n        return node",
+          "note": "insert: O(m), search: O(m), startsWith: O(m) where m = word length."
+        },
+        {
+          "label": "Example 1 — LC 208 Implement Trie",
+          "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                node.children[ch] = TrieNode()\n            node = node.children[ch]\n        node.is_end = True\n\n    def search(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                return False\n            node = node.children[ch]\n        return node.is_end\n\n    def startsWith(self, prefix):\n        node = self.root\n        for ch in prefix:\n            if ch not in node.children:\n                return False\n            node = node.children[ch]\n        return True",
+          "note": "Exact implementation tested on LeetCode. Clean and minimal."
+        },
+        {
+          "label": "Example 2 — LC 212 Word Search II",
+          "code": "def findWords(board, words):\n    trie = Trie()\n    for w in words:\n        trie.insert(w)\n    rows, cols = len(board), len(board[0])\n    result = set()\n\n    def dfs(r, c, node, path):\n        if node.is_end:\n            result.add(path)\n            node.is_end = False  # avoid duplicates\n        if r<0 or r>=rows or c<0 or c>=cols:\n            return\n        ch = board[r][c]\n        if ch not in node.children:\n            return\n        board[r][c] = '#'  # mark visited\n        for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n            dfs(r+dr, c+dc, node.children[ch], path+ch)\n        board[r][c] = ch  # restore\n\n    for r in range(rows):\n        for c in range(cols):\n            dfs(r, c, trie.root, '')\n    return list(result)",
+          "note": "Trie + DFS backtracking. Trie prunes branches that can't form any word."
+        },
+        {
+          "label": "Key Insight",
+          "code": "# Trie vs HashMap for prefix problems:\n# HashMap: exact word O(1) but prefix search O(n*m)\n# Trie: prefix search O(m), shared prefixes save space\n# When to use Trie:\n#   - Multiple prefix queries\n#   - Autocomplete / typeahead\n#   - Word search in grid (prunes DFS branches)\n#   - Longest common prefix",
+          "note": "Trie is a prefix tree. If the problem involves prefixes of multiple words, Trie is the answer."
         }
       ]
     }

@@ -873,21 +873,26 @@ HTML = r"""<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interview Prep Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" disabled>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
 <style>
 :root, [data-theme="dark"] {
-  --bg: #282a36; --surface: #1e1f29; --border: #44475a;
-  --text: #f8f8f2; --muted: #6272a4; --accent: #bd93f9;
-  --green: #50fa7b; --yellow: #f1fa8c; --red: #ff5555; --purple: #ff79c6;
-  --hover-row: rgba(189,147,249,.06); --week-hover: #343746;
+  --bg: #0d1117; --surface: #161b22; --border: #30363d;
+  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #bc8cff;
+  --hover-row: rgba(88,166,255,.06); --week-hover: #1c2128;
 }
 [data-theme="light"] {
-  --bg: #fafafa; --surface: #f0f0f0; --border: #d3d3d3;
-  --text: #383a42; --muted: #a0a1a7; --accent: #4078f2;
-  --green: #50a14f; --yellow: #c18401; --red: #e45649; --purple: #a626a4;
-  --hover-row: rgba(64,120,242,.06); --week-hover: #e8e8e8;
+  --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
+  --text: #1f2328; --muted: #656d76; --accent: #0969da;
+  --green: #1a7f37; --yellow: #9a6700; --red: #cf222e; --purple: #8250df;
+  --hover-row: rgba(9,105,218,.06); --week-hover: #eaeef2;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); }
+code, pre, .mono { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace; }
 .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
 .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding-bottom: 4px; }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
@@ -907,11 +912,11 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .filters select, .filters input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: .85rem; }
 /* Table */
-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; }
 td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
 tr:hover { background: var(--hover-row); }
-tr.last-solved { background: rgba(255,85,85,.06); }
+tr.last-solved { background: rgba(248,81,73,.06); }
 tr.last-solved td:first-child { border-left: 3px solid var(--red); padding-left: 9px; }
 tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin-right: 4px; }
 /* Badges */
@@ -937,35 +942,22 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .notes-toggle:hover { color: var(--accent); }
 .notes-preview { font-size: .75rem; color: var(--muted); font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .notes-preview:hover { color: var(--accent); }
-/* Python Reference */
-.pyref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .85rem; margin-bottom: 12px; }
-.pyref-search:focus { outline: none; border-color: var(--accent); }
-.pyref-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
-.pyref-sidebar { border-right: 1px solid var(--border); padding-right: 12px; }
-.pyref-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: .85rem; color: var(--muted); border-left: 3px solid transparent; transition: all .15s; }
-.pyref-nav-item:hover { background: var(--hover-row); color: var(--text); }
-.pyref-nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--hover-row); font-weight: 600; }
-.pyref-nav-icon { font-size: 1.1rem; }
-.pyref-content { min-height: 400px; }
-.pyref-topic-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-.pyref-section { margin-bottom: 20px; }
-.pyref-section-title { font-size: .95rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.pyref-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
-.pyref-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.pyref-item-label { font-weight: 600; font-size: .85rem; }
-.pyref-complexity { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: .7rem; font-weight: 600; background: rgba(188,140,255,.15); color: var(--purple); }
-.pyref-item pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 0; }
-.pyref-item pre code { font-family: 'SF Mono', Menlo, monospace; font-size: .8rem; line-height: 1.5; color: var(--text); }
-.pyref-item-note { font-size: .8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
-.pyref-link { display: inline-block; margin-top: 6px; font-size: .8rem; color: var(--accent); cursor: pointer; font-weight: 600; }
-.pyref-link:hover { text-decoration: underline; }
-.pyref-empty { text-align: center; color: var(--muted); padding: 40px; font-size: .9rem; }
-@media (max-width: 768px) {
-  .pyref-layout { grid-template-columns: 1fr; }
-  .pyref-sidebar { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px; }
-  .pyref-nav-item { padding: 6px 10px; border-left: none; border-bottom: 2px solid transparent; }
-  .pyref-nav-item.active { border-left-color: transparent; border-bottom-color: var(--accent); }
-}
+/* Collapsible cards (Python Toolkit & Patterns) */
+.cards-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .9rem; margin-bottom: 12px; }
+.cards-search:focus { outline: none; border-color: var(--accent); }
+.card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+.card-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; cursor: pointer; background: var(--surface); font-weight: 600; font-size: .95rem; user-select: none; }
+.card-header:hover { background: var(--week-hover); }
+.card-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
+.card-header.collapsed .chevron { transform: rotate(-90deg); }
+.card-body { padding: 8px 16px 16px; }
+.card-body.hidden { display: none; }
+.card-item { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; }
+.card-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
+.card-item pre { background: var(--bg) !important; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 4px 0 0; }
+.card-item pre code.hljs { background: transparent !important; padding: 0; }
+.card-item pre code { font-size: .85rem; line-height: 1.5; color: var(--text); }
+.card-item-note { font-size: .8rem; color: var(--muted); margin-top: 4px; font-style: italic; }
 /* Stats */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
@@ -1037,15 +1029,15 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
   </div>
 </div>
-<p class="subtitle">NeetCode 150 + System Design + Python Reference — Interactive Study Dashboard</p>
+<p class="subtitle">NeetCode 150 + System Design + Python Toolkit — Interactive Study Dashboard</p>
 
 <div class="tabs">
   <div class="tab active" data-tab="weekly">Weekly Plan</div>
   <div class="tab" data-tab="all">Problem Bank</div>
   <div class="tab" data-tab="review">Review Today</div>
   <div class="tab" data-tab="stats">Stats</div>
-  <div class="tab" data-tab="pytips">Python Ref</div>
-  <div class="tab" data-tab="mechanics">Mechanics</div>
+  <div class="tab" data-tab="pytips">Python Toolkit</div>
+  <div class="tab" data-tab="mechanics">Patterns</div>
 </div>
 </div>
 
@@ -1640,26 +1632,36 @@ function activeTab() {
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// --- Python Reference ---
+// --- Python Toolkit ---
 let pyrefData = null;
-let pyrefActive = '';
 let pyrefSearch = '';
+const pyrefExpanded = new Set();
 
 async function fetchPyRef() {
   const r = await fetch('/api/pyref');
   pyrefData = await r.json();
 }
 
-function pyrefSelect(id) {
-  pyrefActive = id;
-  renderPyRef();
+function toggleCard(set, id, renderFn) {
+  if (set.has(id)) set.delete(id); else set.add(id);
+  renderFn();
 }
 
-function renderPyRefTopic(topic) {
-  const q = pyrefSearch.toLowerCase();
-  let html = `<div class="pyref-topic-title"><span>${topic.icon}</span> ${topic.name}</div>`;
-  for (const section of topic.sections) {
-    let items = section.items;
+function renderCards(el, topics, search, expanded, searchId, renderFn) {
+  const q = search.toLowerCase();
+  const filtered = q
+    ? topics.filter(t => t.name.toLowerCase().includes(q) ||
+        t.items.some(it =>
+          it.label.toLowerCase().includes(q) ||
+          it.code.toLowerCase().includes(q) ||
+          (it.note && it.note.toLowerCase().includes(q))
+        ))
+    : topics;
+
+  let html = `<input class="cards-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
+  for (const t of filtered) {
+    const isCollapsed = !expanded.has(t.id);
+    let items = t.items;
     if (q) {
       items = items.filter(it =>
         it.label.toLowerCase().includes(q) ||
@@ -1667,178 +1669,54 @@ function renderPyRefTopic(topic) {
         (it.note && it.note.toLowerCase().includes(q))
       );
     }
-    if (!items.length) continue;
-    html += `<div class="pyref-section">`;
-    html += `<div class="pyref-section-title">${section.title}</div>`;
+    html += `<div class="card">`;
+    html += `<div class="card-header${isCollapsed ? ' collapsed' : ''}" onclick="toggleCard(${expanded === pyrefExpanded ? 'pyrefExpanded' : 'mechExpanded'}, '${t.id}', ${renderFn})"><span>${t.name}</span><span class="chevron">▼</span></div>`;
+    html += `<div class="card-body${isCollapsed ? ' hidden' : ''}">`;
     for (const item of items) {
-      html += `<div class="pyref-item">`;
-      html += `<div class="pyref-item-header"><span class="pyref-item-label">${esc(item.label)}</span>`;
-      if (item.complexity) html += `<span class="pyref-complexity">${item.complexity}</span>`;
-      html += `</div>`;
-      html += `<pre><code>${esc(item.code)}</code></pre>`;
-      if (item.note) html += `<div class="pyref-item-note">${esc(item.note)}</div>`;
-      if (item.link) html += `<span class="pyref-link" onclick="pyrefSelect('${item.link}')">View Template →</span>`;
+      html += `<div class="card-item">`;
+      html += `<div class="card-item-label">${esc(item.label)}</div>`;
+      html += `<pre><code class="language-python">${esc(item.code)}</code></pre>`;
+      if (item.note) html += `<div class="card-item-note">${esc(item.note)}</div>`;
       html += `</div>`;
     }
-    html += `</div>`;
+    html += `</div></div>`;
   }
-  return html;
-}
-
-async function renderPyRef() {
-  const el = document.getElementById('pytips');
-  if (!pyrefData) await fetchPyRef();
-  const topics = pyrefData.topics || [];
-  const q = pyrefSearch.toLowerCase();
-
-  // Filter sidebar topics by search
-  const visibleTopics = q
-    ? topics.filter(t => t.name.toLowerCase().includes(q) ||
-        t.sections.some(s => s.items.some(it =>
-          it.label.toLowerCase().includes(q) ||
-          it.code.toLowerCase().includes(q) ||
-          (it.note && it.note.toLowerCase().includes(q))
-        ))
-      )
-    : topics;
-
-  // Auto-select first visible if current not visible
-  if (!pyrefActive && visibleTopics.length) pyrefActive = visibleTopics[0].id;
-  if (pyrefActive && !visibleTopics.find(t => t.id === pyrefActive) && visibleTopics.length) {
-    pyrefActive = visibleTopics[0].id;
-  }
-
-  let html = `<input class="pyref-search" id="pyref-search" placeholder="Search topics, operations, code..." value="${pyrefSearch.replace(/"/g,'&quot;')}" />`;
-  html += `<div class="pyref-layout">`;
-
-  // Sidebar
-  html += `<div class="pyref-sidebar">`;
-  for (const t of visibleTopics) {
-    const cls = t.id === pyrefActive ? 'pyref-nav-item active' : 'pyref-nav-item';
-    html += `<div class="${cls}" onclick="pyrefSelect('${t.id}')"><span class="pyref-nav-icon">${t.icon}</span> ${t.name}</div>`;
-  }
-  html += `</div>`;
-
-  // Content
-  html += `<div class="pyref-content">`;
-  const activeTopic = topics.find(t => t.id === pyrefActive);
-  if (activeTopic) {
-    html += renderPyRefTopic(activeTopic);
-  } else {
-    html += `<div class="pyref-empty">Select a topic from the sidebar</div>`;
-  }
-  html += `</div></div>`;
 
   el.innerHTML = html;
+  hljs.highlightAll();
 
-  // Bind search
-  const searchEl = document.getElementById('pyref-search');
+  const searchEl = document.getElementById(searchId);
   if (searchEl) {
     searchEl.oninput = e => {
-      pyrefSearch = e.target.value;
-      renderPyRef();
-      // Restore cursor position
-      const newEl = document.getElementById('pyref-search');
+      if (expanded === pyrefExpanded) pyrefSearch = e.target.value;
+      else mechSearch = e.target.value;
+      renderFn();
+      const newEl = document.getElementById(searchId);
       if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
     };
   }
 }
 
-// --- Python Mechanics ---
+async function renderPyRef() {
+  const el = document.getElementById('pytips');
+  if (!pyrefData) await fetchPyRef();
+  renderCards(el, pyrefData.topics || [], pyrefSearch, pyrefExpanded, 'pyref-search', renderPyRef);
+}
+
+// --- Patterns ---
 let mechData = null;
-let mechActive = '';
 let mechSearch = '';
+const mechExpanded = new Set();
 
 async function fetchMech() {
   const r = await fetch('/api/mechanics');
   mechData = await r.json();
 }
 
-function mechSelect(id) {
-  mechActive = id;
-  renderMech();
-}
-
-function renderMechTopic(topic) {
-  const q = mechSearch.toLowerCase();
-  let html = `<div class="pyref-topic-title"><span>${topic.icon}</span> ${topic.name}</div>`;
-  for (const section of topic.sections) {
-    let items = section.items;
-    if (q) {
-      items = items.filter(it =>
-        it.label.toLowerCase().includes(q) ||
-        it.code.toLowerCase().includes(q) ||
-        (it.note && it.note.toLowerCase().includes(q))
-      );
-    }
-    if (!items.length) continue;
-    html += `<div class="pyref-section">`;
-    html += `<div class="pyref-section-title">${section.title}</div>`;
-    for (const item of items) {
-      html += `<div class="pyref-item">`;
-      html += `<div class="pyref-item-header"><span class="pyref-item-label">${esc(item.label)}</span>`;
-      if (item.complexity) html += `<span class="pyref-complexity">${item.complexity}</span>`;
-      html += `</div>`;
-      html += `<pre><code>${esc(item.code)}</code></pre>`;
-      if (item.note) html += `<div class="pyref-item-note">${esc(item.note)}</div>`;
-      html += `</div>`;
-    }
-    html += `</div>`;
-  }
-  return html;
-}
-
 async function renderMech() {
   const el = document.getElementById('mechanics');
   if (!mechData) await fetchMech();
-  const topics = mechData.topics || [];
-  const q = mechSearch.toLowerCase();
-
-  const visibleTopics = q
-    ? topics.filter(t => t.name.toLowerCase().includes(q) ||
-        t.sections.some(s => s.items.some(it =>
-          it.label.toLowerCase().includes(q) ||
-          it.code.toLowerCase().includes(q) ||
-          (it.note && it.note.toLowerCase().includes(q))
-        ))
-      )
-    : topics;
-
-  if (!mechActive && visibleTopics.length) mechActive = visibleTopics[0].id;
-  if (mechActive && !visibleTopics.find(t => t.id === mechActive) && visibleTopics.length) {
-    mechActive = visibleTopics[0].id;
-  }
-
-  let html = `<input class="pyref-search" id="mech-search" placeholder="Search mechanics, rules, gotchas..." value="${mechSearch.replace(/"/g,'&quot;')}" />`;
-  html += `<div class="pyref-layout">`;
-
-  html += `<div class="pyref-sidebar">`;
-  for (const t of visibleTopics) {
-    const cls = t.id === mechActive ? 'pyref-nav-item active' : 'pyref-nav-item';
-    html += `<div class="${cls}" onclick="mechSelect('${t.id}')"><span class="pyref-nav-icon">${t.icon}</span> ${t.name}</div>`;
-  }
-  html += `</div>`;
-
-  html += `<div class="pyref-content">`;
-  const activeTopic = topics.find(t => t.id === mechActive);
-  if (activeTopic) {
-    html += renderMechTopic(activeTopic);
-  } else {
-    html += `<div class="pyref-empty">Select a topic from the sidebar</div>`;
-  }
-  html += `</div></div>`;
-
-  el.innerHTML = html;
-
-  const searchEl = document.getElementById('mech-search');
-  if (searchEl) {
-    searchEl.oninput = e => {
-      mechSearch = e.target.value;
-      renderMech();
-      const newEl = document.getElementById('mech-search');
-      if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
-    };
-  }
+  renderCards(el, mechData.topics || [], mechSearch, mechExpanded, 'mech-search', renderMech);
 }
 
 // --- System Design tab ---
@@ -1993,12 +1871,18 @@ if (savedTab && savedTab !== 'sysdesign') {
   }
 }
 
+function setHljsTheme(theme) {
+  document.getElementById('hljs-dark').disabled = (theme === 'light');
+  document.getElementById('hljs-light').disabled = (theme !== 'light');
+}
+
 function toggleTheme() {
   const html = document.documentElement;
   const curr = html.getAttribute('data-theme') || 'dark';
   const next = curr === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   document.getElementById('theme-btn').textContent = next === 'dark' ? 'Light' : 'Dark';
+  setHljsTheme(next);
   localStorage.setItem('theme', next);
 }
 // Restore saved theme
@@ -2006,6 +1890,7 @@ const saved = localStorage.getItem('theme');
 if (saved) {
   document.documentElement.setAttribute('data-theme', saved);
   document.getElementById('theme-btn').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  setHljsTheme(saved);
 }
 
 async function init() {
