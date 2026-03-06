@@ -958,19 +958,19 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .card-item pre code.hljs { background: transparent !important; padding: 0; }
 .card-item pre code { font-size: .85rem; line-height: 1.5; color: var(--text); }
 .card-item-note { font-size: .8rem; color: var(--muted); margin-top: 4px; font-style: italic; }
-/* Stats */
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
-.stat-card h3 { font-size: .9rem; margin-bottom: 8px; }
-.bar-bg { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 4px; background: var(--green); transition: width .3s; }
-.stat-nums { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-top: 4px; }
-.big-stat { text-align: center; padding: 24px; }
-.big-stat .num { font-size: 2.5rem; font-weight: 700; color: var(--accent); }
-.big-stat .label { color: var(--muted); font-size: .85rem; }
-/* Side-by-side stats */
-.stats-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-@media (max-width: 800px) { .stats-columns { grid-template-columns: 1fr; } }
+/* Progress donuts */
+.progress-summary { display: flex; gap: 24px; align-items: center; padding: 12px 16px; }
+.donut-wrap { display: flex; align-items: center; gap: 10px; }
+.donut-label { font-size: .8rem; color: var(--muted); }
+.donut-label .donut-title { font-weight: 600; color: var(--text); font-size: .85rem; }
+.donut-label .donut-num { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.progress-summary { cursor: pointer; user-select: none; }
+.progress-breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px 16px; padding: 10px 16px 12px; border-top: 1px solid var(--border); }
+.progress-breakdown.hidden { display: none; }
+.breakdown-item { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+.breakdown-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.breakdown-fill { height: 100%; border-radius: 3px; background: var(--green); }
+.breakdown-pct { color: var(--muted); min-width: 28px; text-align: right; }
 /* Sync pill in header */
 .sync-pill { display: flex; align-items: center; gap: 6px; }
 .sync-pill input { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .8rem; width: 140px; }
@@ -1035,7 +1035,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <div class="tab active" data-tab="weekly">Weekly Plan</div>
   <div class="tab" data-tab="all">Problem Bank</div>
   <div class="tab" data-tab="review">Review Today</div>
-  <div class="tab" data-tab="stats">Stats</div>
   <div class="tab" data-tab="pytips">Python Toolkit</div>
   <div class="tab" data-tab="mechanics">Patterns</div>
 </div>
@@ -1044,7 +1043,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div id="weekly" class="panel active"></div>
 <div id="all" class="panel"></div>
 <div id="review" class="panel"></div>
-<div id="stats" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
 </div>
@@ -1381,14 +1379,79 @@ function tableHeader() {
 }
 
 const collapsedWeeks = new Set();
+let breakdownOpen = false;
+
+function toggleBreakdown() {
+  breakdownOpen = !breakdownOpen;
+  renderWeekly();
+}
+
+function donutSvg(done, total, color) {
+  const r = 24, c = 2 * Math.PI * r;
+  const pct = total ? done / total : 0;
+  const offset = c * (1 - pct);
+  return `<svg width="56" height="56" viewBox="0 0 56 56">
+    <circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
+    <circle cx="28" cy="28" r="${r}" fill="none" stroke="${color}" stroke-width="5"
+      stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"
+      transform="rotate(-90 28 28)" style="transition:stroke-dashoffset .4s"/>
+    <text x="28" y="30" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">${total ? Math.round(pct*100) : 0}%</text>
+  </svg>`;
+}
 
 function renderWeekly() {
   const el = document.getElementById('weekly');
+
+  // Compute progress
+  const lcDone = problems.filter(p => p.status === 'done').length;
+  const sdDone = sdProblems.filter(p => p.status === 'done').length;
+
+  // Category breakdown
+  const cats = {};
+  problems.forEach(p => {
+    if (!cats[p.category]) cats[p.category] = {total:0, done:0};
+    cats[p.category].total++;
+    if (p.status === 'done') cats[p.category].done++;
+  });
+  const sdDiffs = {E:{total:0,done:0}, M:{total:0,done:0}, H:{total:0,done:0}};
+  const diffLabels = {E:'Easy', M:'Medium', H:'Hard'};
+  const diffColors = {E:'var(--green)', M:'var(--yellow)', H:'var(--red)'};
+  sdProblems.forEach(p => {
+    if (sdDiffs[p.difficulty]) { sdDiffs[p.difficulty].total++; }
+    if (p.status === 'done' && sdDiffs[p.difficulty]) sdDiffs[p.difficulty].done++;
+  });
+
+  let breakdownHtml = `<div class="progress-breakdown${breakdownOpen ? '' : ' hidden'}">`;
+  Object.keys(cats).sort().forEach(c => {
+    const {total, done} = cats[c];
+    const p = total ? Math.round(done/total*100) : 0;
+    breakdownHtml += `<div class="breakdown-item"><span>${c}</span><div class="breakdown-bar"><div class="breakdown-fill" style="width:${p}%"></div></div><span class="breakdown-pct">${done}/${total}</span></div>`;
+  });
+  breakdownHtml += `<div style="grid-column:1/-1;margin-top:4px;font-size:.75rem;color:var(--muted);font-weight:600">System Design</div>`;
+  ['E','M','H'].forEach(d => {
+    const {total, done} = sdDiffs[d];
+    const p = total ? Math.round(done/total*100) : 0;
+    breakdownHtml += `<div class="breakdown-item"><span>${diffLabels[d]}</span><div class="breakdown-bar"><div class="breakdown-fill" style="width:${p}%;background:${diffColors[d]}"></div></div><span class="breakdown-pct">${done}/${total}</span></div>`;
+  });
+  breakdownHtml += '</div>';
+
+  let html = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;">
+    <div class="progress-summary" onclick="toggleBreakdown()">
+      <div class="donut-wrap">${donutSvg(lcDone, problems.length, 'var(--green)')}
+        <div class="donut-label"><div class="donut-title">LeetCode</div><div class="donut-num">${lcDone}/${problems.length}</div></div>
+      </div>
+      <div class="donut-wrap">${donutSvg(sdDone, sdProblems.length, 'var(--accent)')}
+        <div class="donut-label"><div class="donut-title">System Design</div><div class="donut-num">${sdDone}/${sdProblems.length}</div></div>
+      </div>
+      <span class="chevron" style="margin-left:auto;font-size:.7rem;color:var(--muted);transition:transform .2s;${breakdownOpen ? '' : 'transform:rotate(-90deg)'}">▼</span>
+    </div>
+    ${breakdownHtml}
+  </div>`;
+
   // Merge coding + SD problems by week
   const weeks = {};
   problems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).coding.push(p); });
   sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).sd.push(p); });
-  let html = '';
   Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
     const wk = weeks[w];
     const allProbs = [...wk.coding, ...wk.sd];
@@ -1557,73 +1620,6 @@ async function syncLeetCode() {
   }
 }
 
-async function renderStats() {
-  const el = document.getElementById('stats');
-  const cats = {};
-  let totalDone = 0, totalTime = 0, totalAttempts = 0;
-  problems.forEach(p => {
-    if (!cats[p.category]) cats[p.category] = {total:0, done:0};
-    cats[p.category].total++;
-    if (p.status === 'done') { cats[p.category].done++; totalDone++; }
-    p.attempts.forEach(a => { totalTime += a.duration_sec; totalAttempts++; });
-  });
-
-  const avgTime = totalAttempts ? Math.round(totalTime / totalAttempts) : 0;
-  const pct = problems.length ? Math.round(totalDone/problems.length*100) : 0;
-
-  // --- Build LeetCode column ---
-  let lcHtml = `<div class="stats-col">`;
-  lcHtml += `<h2 style="margin-bottom:12px;font-size:1.1rem;">LeetCode</h2>`;
-  lcHtml += `<div class="stat-grid">
-    <div class="stat-card big-stat"><div class="num">${pct}%</div><div class="label">${totalDone} / ${problems.length} completed</div></div>
-    <div class="stat-card big-stat"><div class="num">${fmtTime(avgTime)}</div><div class="label">avg solve time (${totalAttempts} attempts)</div></div>
-  </div><div class="stat-grid" style="margin-top:12px">`;
-
-  Object.keys(cats).sort().forEach(c => {
-    const {total, done} = cats[c];
-    const p = Math.round(done/total*100);
-    lcHtml += `<div class="stat-card">
-      <h3>${c}</h3>
-      <div class="bar-bg"><div class="bar-fill" style="width:${p}%"></div></div>
-      <div class="stat-nums"><span>${done}/${total}</span><span>${p}%</span></div>
-    </div>`;
-  });
-  lcHtml += '</div></div>';
-
-  // --- Build System Design column ---
-  if (!sdProblems.length) await fetchSD();
-  let sdDone = 0, sdTime = 0, sdAttempts = 0;
-  const sdDiffs = {E:{total:0,done:0}, M:{total:0,done:0}, H:{total:0,done:0}};
-  sdProblems.forEach(p => {
-    if (sdDiffs[p.difficulty]) { sdDiffs[p.difficulty].total++; }
-    if (p.status === 'done') { sdDone++; if (sdDiffs[p.difficulty]) sdDiffs[p.difficulty].done++; }
-    p.attempts.forEach(a => { sdTime += a.duration_sec; sdAttempts++; });
-  });
-  const sdAvg = sdAttempts ? Math.round(sdTime / sdAttempts) : 0;
-  const sdPct = sdProblems.length ? Math.round(sdDone / sdProblems.length * 100) : 0;
-
-  let sdHtml = `<div class="stats-col">`;
-  sdHtml += `<h2 style="margin-bottom:12px;font-size:1.1rem;">System Design</h2>`;
-  sdHtml += `<div class="stat-grid">
-    <div class="stat-card big-stat"><div class="num">${sdPct}%</div><div class="label">${sdDone} / ${sdProblems.length} completed</div></div>
-    <div class="stat-card big-stat"><div class="num">${fmtTime(sdAvg)}</div><div class="label">avg solve time (${sdAttempts} attempts)</div></div>
-  </div><div class="stat-grid" style="margin-top:12px">`;
-
-  const diffLabels = {E:'Easy', M:'Medium', H:'Hard'};
-  const diffColors = {E:'var(--green)', M:'var(--yellow)', H:'var(--red)'};
-  ['E','M','H'].forEach(d => {
-    const {total, done} = sdDiffs[d];
-    const p = total ? Math.round(done/total*100) : 0;
-    sdHtml += `<div class="stat-card">
-      <h3>${diffLabels[d]}</h3>
-      <div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:${diffColors[d]}"></div></div>
-      <div class="stat-nums"><span>${done}/${total}</span><span>${p}%</span></div>
-    </div>`;
-  });
-  sdHtml += '</div></div>';
-
-  el.innerHTML = `<div class="stats-columns">${lcHtml}${sdHtml}</div>`;
-}
 
 function activeTab() {
   const t = document.querySelector('.tab.active');
@@ -1842,8 +1838,7 @@ function render() {
   if (tab === 'weekly') renderWeekly();
   else if (tab === 'all') renderAll();
   else if (tab === 'review') renderReview();
-  else if (tab === 'stats') renderStats();
-  else if (tab === 'pytips') renderPyRef();
+else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
 }
 
@@ -1861,7 +1856,7 @@ document.querySelectorAll('.tab').forEach(t => {
 
 // Restore saved tab
 const savedTab = localStorage.getItem('activeTab');
-if (savedTab && savedTab !== 'sysdesign') {
+if (savedTab && savedTab !== 'sysdesign' && savedTab !== 'stats') {
   const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
   if (tabEl) {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
