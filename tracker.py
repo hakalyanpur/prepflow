@@ -955,7 +955,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 /* Scroll + TOC layout (Python Toolkit & Patterns) */
 .ref-layout { display: flex; gap: 0; height: calc(100vh - 80px); }
 .ref-sidebar { width: 200px; flex-shrink: 0; border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 0; }
-.ref-sidebar a { display: block; padding: 8px 16px; font-size: .85rem; color: var(--muted); text-decoration: none; cursor: pointer; transition: all .15s; border-left: 3px solid transparent; }
+.ref-sidebar a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: .85rem; color: var(--muted); text-decoration: none; cursor: pointer; transition: all .15s; border-left: 3px solid transparent; }
 .ref-sidebar a:hover { color: var(--text); background: var(--week-hover); }
 .ref-sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; background: var(--week-hover); }
 .ref-main { flex: 1; overflow-y: auto; padding: 16px 24px; }
@@ -973,7 +973,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 /* Today's Focus */
 .today-section { margin-bottom: 24px; }
 .today-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.today-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
+.today-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
 .today-card-info { display: flex; flex-direction: column; gap: 6px; }
 .today-card-title { font-weight: 600; font-size: .95rem; }
 .today-card-meta { display: flex; gap: 10px; align-items: center; }
@@ -1706,9 +1706,9 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
   const activeTopic = filtered.find(t => t.id === activeId) || filtered[0];
 
   // Sidebar
-  let sidebarHtml = `<input class="ref-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
+  let sidebarHtml = '';
   for (const t of filtered) {
-    sidebarHtml += `<a class="${t.id === activeTopic?.id ? 'active' : ''}" onclick="selectRefTopic('${searchVar}','${t.id}',${renderFn.name})">${t.name}</a>`;
+    sidebarHtml += `<a class="${t.id === activeTopic?.id ? 'active' : ''}" onclick="selectRefTopic('${searchVar}','${t.id}',${renderFn.name})"><span>${t.name}</span><span style="font-size:.75rem;color:var(--muted);margin-left:auto">${t.items.length}</span></a>`;
   }
 
   // Content
@@ -1737,17 +1737,6 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
   // Highlight code
   el.querySelectorAll('.ref-main pre code').forEach(b => hljs.highlightElement(b));
 
-  // Search binding
-  const searchEl = document.getElementById(searchId);
-  if (searchEl) {
-    searchEl.oninput = e => {
-      if (searchVar === 'pyref') pyrefSearch = e.target.value;
-      else mechSearch = e.target.value;
-      renderFn();
-      const newEl = document.getElementById(searchId);
-      if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
-    };
-  }
 }
 
 async function renderPyRef() {
@@ -1868,7 +1857,8 @@ function sdTimerHTML(p) {
 
 function sdRow(p) {
   const lastAttempt = p.attempts.length ? fmtTime(p.attempts[p.attempts.length-1].duration_sec) : '-';
-  return `<tr>
+  const isToday = sdTodayIds.has(p.id);
+  return `<tr${isToday ? ' class="today-item"' : ''}>
     <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td><span class="badge badge-${p.status}" onclick="sdCycleStatus('${p.id}')">${p.status}</span></td>
@@ -1957,13 +1947,24 @@ function renderSD() {
       html += `<p style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Filtered · ${fDone}/${filtered.length} done</p>`;
     }
     if (filtered.length) {
-      const ctx = 'sd-tab';
-      filtered.forEach((p, i) => { p._rowNum = i + 1; });
-      const sorted = sortProblems(filtered, ctx);
-      sorted.forEach((p, i) => { p._rowNum = i + 1; });
-      html += sdTableHeader(ctx, 'renderSD');
-      sorted.forEach(p => html += sdRow(p));
-      html += '</tbody></table>';
+      const diffGroups = [
+        { key: 'E', label: 'Easy' },
+        { key: 'M', label: 'Medium' },
+        { key: 'H', label: 'Hard' }
+      ];
+      for (const g of diffGroups) {
+        const group = filtered.filter(p => p.difficulty === g.key);
+        if (!group.length) continue;
+        const gDone = group.filter(p => p.status === 'done').length;
+        html += `<div style="display:flex;align-items:center;gap:8px;margin:16px 0 8px;font-size:.8rem;color:var(--muted);font-weight:600"><span>${g.label}</span><span style="flex:1;height:1px;background:var(--border)"></span><span>${gDone}/${group.length}</span></div>`;
+        const ctx = 'sd-' + g.key;
+        group.forEach((p, i) => { p._rowNum = i + 1; });
+        const sorted = sortProblems(group, ctx);
+        sorted.forEach((p, i) => { p._rowNum = i + 1; });
+        html += sdTableHeader(ctx, 'renderSD');
+        sorted.forEach(p => html += sdRow(p));
+        html += '</tbody></table>';
+      }
     } else {
       html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
     }
