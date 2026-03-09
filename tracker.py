@@ -909,9 +909,10 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .theme-opt.active svg { stroke: #fff; }
 /* Tabs */
 .tabs { display: flex; gap: 0; align-items: center; }
-.tab { padding: 8px 16px; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; }
+.tab { padding: 8px 16px; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; cursor: pointer; transition: color .15s, border-color .15s; user-select: none; }
 .tab:hover { color: var(--text); }
-.tab.active { color: var(--accent); border-color: var(--accent); }
+.tab:active { opacity: .7; }
+.tab.active { color: var(--accent); border-color: var(--accent); font-weight: 600; }
 .panel { display: none; }
 .panel.active { display: block; }
 /* Filters */
