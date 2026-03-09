@@ -872,6 +872,9 @@ HTML = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interview Prep Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" disabled>
@@ -879,10 +882,10 @@ HTML = r"""<!DOCTYPE html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
 <style>
 :root, [data-theme="dark"] {
-  --bg: #0d1117; --surface: #161b22; --border: #30363d;
+  --bg: #0b0f15; --surface: #1c2230; --border: #3d4556;
   --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
   --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #bc8cff;
-  --hover-row: rgba(88,166,255,.06); --week-hover: #1c2128;
+  --hover-row: rgba(88,166,255,.08); --week-hover: #212838;
 }
 [data-theme="light"] {
   --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
@@ -891,10 +894,10 @@ HTML = r"""<!DOCTYPE html>
   --hover-row: rgba(9,105,218,.06); --week-hover: #eaeef2;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); }
-code, pre, .mono { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, monospace; }
-.container { max-width: 1100px; margin: 0 auto; padding: 16px; }
-.sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); letter-spacing: -0.01em; }
+code, pre, .mono { font-family: 'Hack Nerd Font Mono', 'Hack Nerd Font', 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
+.container { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
+.sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding: 12px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
@@ -906,21 +909,21 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .theme-opt.active svg { stroke: #fff; }
 /* Tabs */
 .tabs { display: flex; gap: 0; align-items: center; }
-.tab { padding: 6px 14px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: .85rem; }
+.tab { padding: 8px 16px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-color: var(--accent); }
 .panel { display: none; }
 .panel.active { display: block; }
 /* Filters */
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.filters select, .filters input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: .85rem; }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.filters select, .filters input { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .85rem; }
 /* Table */
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-th { text-align: left; padding: 8px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; }
+th { text-align: left; padding: 10px 12px; color: var(--muted); border-bottom: 1px solid var(--border); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; }
 th:hover { color: var(--text); }
 th .sort-arrow { font-size: .65rem; margin-left: 3px; opacity: .4; }
 th .sort-arrow.active { opacity: 1; color: var(--accent); }
-td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
 tr:hover { background: var(--hover-row); }
 tr.last-solved { background: rgba(248,81,73,.06); }
 tr.last-solved td:first-child { border-left: 3px solid var(--red); padding-left: 9px; }
@@ -951,31 +954,31 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 /* Scroll + TOC layout (Python Toolkit & Patterns) */
 .ref-layout { display: flex; gap: 32px; }
 .ref-toc { position: sticky; top: 60px; align-self: flex-start; width: 160px; flex-shrink: 0; }
-.ref-toc a { display: block; padding: 5px 12px; font-size: .8rem; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
+.ref-toc a { display: block; padding: 7px 14px; font-size: .85rem; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
 .ref-toc a:hover { color: var(--text); }
 .ref-toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
 .ref-content { flex: 1; min-width: 0; }
-.ref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: .9rem; margin-bottom: 16px; }
+.ref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-size: .9rem; margin-bottom: 24px; }
 .ref-search:focus { outline: none; border-color: var(--accent); }
-.ref-topic { margin-bottom: 36px; scroll-margin-top: 70px; }
-.ref-topic-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.ref-item { margin-bottom: 10px; }
-.ref-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
-.ref-item pre { background: var(--surface) !important; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 4px 0 0; }
+.ref-topic { margin-bottom: 44px; scroll-margin-top: 80px; }
+.ref-topic-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.ref-item { margin-bottom: 16px; }
+.ref-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 6px; }
+.ref-item pre { background: var(--surface) !important; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 6px 0 0; }
 .ref-item pre code.hljs { background: transparent !important; padding: 0; }
-.ref-item pre code { font-size: .85rem; line-height: 1.5; color: var(--text); }
-.ref-item-note { font-size: .78rem; color: var(--muted); margin-top: 4px; font-style: italic; }
+.ref-item pre code { font-size: .85rem; line-height: 1.6; color: var(--text); }
+.ref-item-note { font-size: .8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
 @media (max-width: 700px) { .ref-toc { display: none; } }
 /* Progress donuts */
-.progress-summary { display: flex; gap: 24px; align-items: center; padding: 12px 16px; }
+.progress-summary { display: flex; gap: 28px; align-items: center; padding: 16px 20px; }
 .donut-wrap { display: flex; align-items: center; gap: 10px; }
 .donut-label { font-size: .8rem; color: var(--muted); }
 .donut-label .donut-title { font-weight: 600; color: var(--text); font-size: .85rem; }
 .donut-label .donut-num { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
 .progress-summary { cursor: pointer; user-select: none; }
-.progress-breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px 16px; padding: 10px 16px 12px; border-top: 1px solid var(--border); }
+.progress-breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 20px; padding: 14px 20px 16px; border-top: 1px solid var(--border); }
 .progress-breakdown.hidden { display: none; }
-.breakdown-item { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+.breakdown-item { display: flex; align-items: center; gap: 10px; font-size: .82rem; padding: 2px 0; }
 .breakdown-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .breakdown-fill { height: 100%; border-radius: 3px; background: var(--green); }
 .breakdown-pct { color: var(--muted); min-width: 28px; text-align: right; }
@@ -992,7 +995,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .week-picker span:hover { background: var(--accent); color: #fff; }
 .week-picker span.current { background: var(--border); font-weight: 600; }
 /* Week group header */
-.week-header { background: var(--surface); padding: 8px 12px; font-weight: 600; font-size: .9rem; border-radius: 6px; margin: 12px 0 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.week-header { background: var(--surface); padding: 12px 16px; font-weight: 600; font-size: .9rem; border-radius: 8px; margin: 8px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 .week-header:hover { background: var(--week-hover); }
 .week-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
 .week-header.collapsed .chevron { transform: rotate(-90deg); }
@@ -1042,19 +1045,19 @@ const START_MONDAY = '__START_MONDAY__';
 const STATUS_CYCLE = ['pending','done','struggled','review'];
 
 function weekDates(w) {
-  const d = new Date(START_MONDAY + 'T00:00:00');
-  d.setDate(d.getDate() + (w - 1) * 7);
-  const end = new Date(d);
-  end.setDate(end.getDate() + 6);
+  const [sy,sm,sd] = START_MONDAY.split('-').map(Number);
+  const d = new Date(sy, sm-1, sd + (w - 1) * 7);
+  const end = new Date(sy, sm-1, sd + (w - 1) * 7 + 6);
   const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
   return `${fmt(d)} – ${fmt(end)}`;
 }
 
 function getCurrentPlanWeek() {
-  const planStart = new Date(START_MONDAY + 'T00:00:00');
+  const [sy,sm,sd] = START_MONDAY.split('-').map(Number);
   const now = new Date();
-  now.setHours(0,0,0,0);
-  const diffDays = Math.floor((now - planStart) / (1000*60*60*24));
+  const startLocal = new Date(sy, sm-1, sd);
+  const nowLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((nowLocal - startLocal) / (1000*60*60*24));
   return Math.max(1, Math.floor(diffDays / 7) + 1);
 }
 
@@ -1407,7 +1410,7 @@ function renderWeekly() {
   });
   breakdownHtml += '</div>';
 
-  let html = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;">
+  let html = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:24px;">
     <div class="progress-summary" onclick="toggleBreakdown()">
       <div class="donut-wrap">${donutSvg(lcDone, problems.length, 'var(--green)')}
         <div class="donut-label"><div class="donut-title">LeetCode</div><div class="donut-num">${lcDone}/${problems.length}</div></div>
