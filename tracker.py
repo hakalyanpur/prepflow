@@ -898,8 +898,12 @@ code, pre, .mono { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, 
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-.theme-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: .85rem; }
-.theme-btn:hover { color: var(--text); border-color: var(--muted); }
+.theme-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; gap: 1px; }
+.theme-opt { padding: 6px 10px; cursor: pointer; border: none; background: none; display: flex; align-items: center; justify-content: center; }
+.theme-opt svg { width: 16px; height: 16px; stroke: var(--muted); transition: stroke .15s; }
+.theme-opt:hover svg { stroke: var(--text); }
+.theme-opt.active { background: var(--accent); }
+.theme-opt.active svg { stroke: #fff; }
 /* Tabs */
 .tabs { display: flex; gap: 0; align-items: center; }
 .tab { padding: 6px 14px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: .85rem; }
@@ -1015,7 +1019,11 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
     <div class="sync-pill" id="sync-pill">
       <button id="lc-sync-btn" onclick="syncLeetCode()" title="Sync from LeetCode">⟳</button>
     </div>
-    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <div class="theme-toggle" id="theme-toggle">
+      <button class="theme-opt" data-mode="auto" onclick="setThemeMode('auto')" title="Auto"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+      <button class="theme-opt" data-mode="light" onclick="setThemeMode('light')" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+      <button class="theme-opt" data-mode="dark" onclick="setThemeMode('dark')" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    </div>
   </div>
 </div>
 </div>
@@ -1811,22 +1819,38 @@ function setHljsTheme(theme) {
   document.getElementById('hljs-light').disabled = (theme !== 'light');
 }
 
-function toggleTheme() {
-  const html = document.documentElement;
-  const curr = html.getAttribute('data-theme') || 'dark';
-  const next = curr === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  document.getElementById('theme-btn').textContent = next === 'dark' ? 'Light' : 'Dark';
-  setHljsTheme(next);
-  localStorage.setItem('theme', next);
+function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
+
+function applyTheme(resolved) {
+  document.documentElement.setAttribute('data-theme', resolved);
+  setHljsTheme(resolved);
+}
+
+function setThemeMode(mode) {
+  localStorage.setItem('themeMode', mode);
+  const resolved = mode === 'auto' ? getSystemTheme() : mode;
+  applyTheme(resolved);
+  updateThemeToggle(mode);
+}
+
+function updateThemeToggle(mode) {
+  document.querySelectorAll('.theme-opt').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+}
+
+// Listen for system theme changes when in auto mode
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if ((localStorage.getItem('themeMode') || 'dark') === 'auto') {
+    applyTheme(getSystemTheme());
+  }
+});
+
 // Restore saved theme
-const saved = localStorage.getItem('theme');
-if (saved) {
-  document.documentElement.setAttribute('data-theme', saved);
-  document.getElementById('theme-btn').textContent = saved === 'dark' ? 'Light' : 'Dark';
-  setHljsTheme(saved);
-}
+const savedMode = localStorage.getItem('themeMode') || 'dark';
+setThemeMode(savedMode);
 
 async function init() {
   await Promise.all([fetchProblems(), fetchSD(), loadConfig()]);
