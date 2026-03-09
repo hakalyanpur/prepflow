@@ -969,38 +969,42 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .ref-item pre code { font-size: .85rem; line-height: 1.6; color: var(--text); }
 .ref-item-note { font-size: .8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
 @media (max-width: 700px) { .ref-toc { display: none; } }
-/* Progress donuts */
-.progress-summary { display: flex; gap: 28px; align-items: center; padding: 16px 20px; }
-.donut-wrap { display: flex; align-items: center; gap: 10px; }
-.donut-label { font-size: .8rem; color: var(--muted); }
-.donut-label .donut-title { font-weight: 600; color: var(--text); font-size: .85rem; }
-.donut-label .donut-num { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-.progress-summary { cursor: pointer; user-select: none; }
-.progress-breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 20px; padding: 14px 20px 16px; border-top: 1px solid var(--border); }
-.progress-breakdown.hidden { display: none; }
-.breakdown-item { display: flex; align-items: center; gap: 10px; font-size: .82rem; padding: 2px 0; }
-.breakdown-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.breakdown-fill { height: 100%; border-radius: 3px; background: var(--green); }
-.breakdown-pct { color: var(--muted); min-width: 28px; text-align: right; }
+/* Today's Focus */
+.today-section { margin-bottom: 24px; }
+.today-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.today-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
+.today-card-info { display: flex; flex-direction: column; gap: 6px; }
+.today-card-title { font-weight: 600; font-size: .95rem; }
+.today-card-meta { display: flex; gap: 10px; align-items: center; }
+.today-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 32px; text-align: center; color: var(--muted); }
+/* Overall Progress */
+.overall-progress { margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+.overall-bar { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.overall-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .4s; }
+.overall-label { font-size: .9rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+/* Topic Progression */
+.topic-row { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; }
+.topic-row:hover { background: var(--week-hover); }
+.topic-header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
+.topic-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.topic-dot.completed { background: var(--green); }
+.topic-dot.in-progress { background: var(--accent); }
+.topic-dot.up-next { background: transparent; border: 2px solid var(--accent); width: 10px; height: 10px; box-sizing: border-box; }
+.topic-dot.locked { background: var(--border); }
+.topic-name { font-weight: 600; font-size: .9rem; flex-shrink: 0; }
+.topic-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 0 8px; }
+.topic-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .3s; }
+.topic-count { font-size: .8rem; color: var(--muted); white-space: nowrap; min-width: 30px; text-align: right; }
+.topic-chevron { font-size: .7rem; color: var(--muted); transition: transform .2s; }
+.topic-chevron.collapsed { transform: rotate(-90deg); }
+.topic-body { padding: 0 16px 16px; }
+.topic-body.hidden { display: none; }
+.topic-locked-label { color: var(--muted); font-size: .8rem; font-style: italic; padding: 8px 0; }
 /* Sync pill in header */
 .sync-pill { display: flex; align-items: center; gap: 6px; }
 .sync-pill button { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 1.1rem; line-height: 1; }
 .sync-pill button:hover { color: var(--text); border-color: var(--muted); }
 .sync-pill button:disabled { opacity: .5; cursor: not-allowed; }
-/* Week picker */
-.week-num { cursor: pointer; position: relative; }
-.week-num:hover { color: var(--accent); }
-.week-picker { position: absolute; top: 100%; left: 0; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; box-shadow: 0 4px 12px rgba(0,0,0,.3); min-width: 140px; }
-.week-picker span { padding: 4px 8px; border-radius: 4px; cursor: pointer; text-align: center; font-size: .8rem; color: var(--text); }
-.week-picker span:hover { background: var(--accent); color: #fff; }
-.week-picker span.current { background: var(--border); font-weight: 600; }
-/* Week group header */
-.week-header { background: var(--surface); padding: 12px 16px; font-weight: 600; font-size: .9rem; border-radius: 8px; margin: 8px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.week-header:hover { background: var(--week-hover); }
-.week-header .chevron { transition: transform .2s; font-size: .7rem; color: var(--muted); }
-.week-header.collapsed .chevron { transform: rotate(-90deg); }
-.week-body.hidden { display: none; }
-/* Week in Review */
 /* Today marker */
 tr.today-item { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 tr.today-item td:first-child { border-left: 3px solid var(--accent); }
@@ -1014,7 +1018,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div class="sticky-header">
 <div class="header-row">
   <div class="tabs">
-    <div class="tab active" data-tab="weekly">Weekly Plan</div>
+    <div class="tab active" data-tab="weekly">Roadmap</div>
     <div class="tab" data-tab="pytips">Python Toolkit</div>
     <div class="tab" data-tab="mechanics">Patterns</div>
   </div>
@@ -1044,21 +1048,107 @@ const START_MONDAY = '__START_MONDAY__';
 
 const STATUS_CYCLE = ['pending','done','struggled','review'];
 
-function weekDates(w) {
-  const [sy,sm,sd] = START_MONDAY.split('-').map(Number);
-  const d = new Date(sy, sm-1, sd + (w - 1) * 7);
-  const end = new Date(sy, sm-1, sd + (w - 1) * 7 + 6);
-  const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-  return `${fmt(d)} – ${fmt(end)}`;
+// Topic dependency graph (NeetCode roadmap order)
+const TOPIC_GRAPH = {
+  'Arrays & Hashing': [],
+  'Two Pointers': ['Arrays & Hashing'],
+  'Stack': ['Arrays & Hashing'],
+  'Binary Search': ['Two Pointers', 'Stack'],
+  'Sliding Window': ['Two Pointers', 'Stack'],
+  'Linked List': ['Two Pointers', 'Stack'],
+  'Trees': ['Linked List'],
+  'Backtracking': ['Trees'],
+  'Tries': ['Trees'],
+  'Heap / Priority Queue': ['Trees'],
+  'Graphs': ['Backtracking'],
+  '1-D DP': ['Backtracking'],
+  'Advanced Graphs': ['Graphs'],
+  'Intervals': ['Heap / Priority Queue'],
+  'Greedy': ['Heap / Priority Queue'],
+  '2-D DP': ['Graphs', '1-D DP'],
+  'Bit Manipulation': ['1-D DP'],
+  'Math & Geometry': ['2-D DP', 'Bit Manipulation'],
+};
+
+function topoSort(graph) {
+  const order = [];
+  const visited = new Set();
+  function visit(node) {
+    if (visited.has(node)) return;
+    visited.add(node);
+    (graph[node] || []).forEach(dep => visit(dep));
+    order.push(node);
+  }
+  Object.keys(graph).forEach(visit);
+  return order;
+}
+const TOPIC_ORDER = topoSort(TOPIC_GRAPH);
+
+function computeTopicStates() {
+  const states = {};
+  for (const topic of TOPIC_ORDER) {
+    const topicProblems = problems.filter(p => p.category === topic);
+    const done = topicProblems.filter(p => p.status === 'done').length;
+    const total = topicProblems.length;
+    const prereqs = TOPIC_GRAPH[topic] || [];
+    const allPrereqsDone = prereqs.length === 0 || prereqs.every(dep => {
+      const s = states[dep];
+      return s && s.done === s.total && s.total > 0;
+    });
+    let status;
+    if (total === 0) {
+      status = 'locked';
+    } else if (done === total) {
+      status = 'completed';
+    } else if (allPrereqsDone) {
+      status = done > 0 ? 'in-progress' : 'up-next';
+    } else {
+      status = 'locked';
+    }
+    states[topic] = { problems: topicProblems, done, total, status, unlocked: status !== 'locked' };
+  }
+  return states;
 }
 
-function getCurrentPlanWeek() {
-  const [sy,sm,sd] = START_MONDAY.split('-').map(Number);
-  const now = new Date();
-  const startLocal = new Date(sy, sm-1, sd);
-  const nowLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffDays = Math.round((nowLocal - startLocal) / (1000*60*60*24));
-  return Math.max(1, Math.floor(diffDays / 7) + 1);
+function computeTodayQueue(topicStates) {
+  todayIds.clear();
+  const weekend = isWeekend();
+  if (weekend) {
+    let latestCompleted = null;
+    for (const topic of [...TOPIC_ORDER].reverse()) {
+      if (topicStates[topic] && topicStates[topic].status === 'completed') {
+        latestCompleted = topic;
+        break;
+      }
+    }
+    if (latestCompleted) {
+      topicStates[latestCompleted].problems
+        .filter(p => p.status === 'done')
+        .forEach(p => todayIds.add(p.id));
+    }
+  } else {
+    let count = 0;
+    for (const topic of TOPIC_ORDER) {
+      if (count >= 2) break;
+      const ts = topicStates[topic];
+      if (!ts || !ts.unlocked || ts.status === 'completed') continue;
+      for (const p of ts.problems) {
+        if (count >= 2) break;
+        if (p.status === 'pending') {
+          todayIds.add(p.id);
+          count++;
+        }
+      }
+    }
+  }
+}
+
+const expandedTopics = new Set();
+
+function toggleTopic(topic) {
+  if (expandedTopics.has(topic)) expandedTopics.delete(topic);
+  else expandedTopics.add(topic);
+  renderHome();
 }
 
 function isWeekend() {
@@ -1211,43 +1301,6 @@ function computeLastSolved() {
   lastSolvedId = latest ? latest.id : null;
 }
 
-function showWeekPicker(event, pid, currentWeek) {
-  event.stopPropagation();
-  // Remove any existing picker
-  document.querySelectorAll('.week-picker').forEach(el => el.remove());
-  const picker = document.createElement('div');
-  picker.className = 'week-picker';
-  for (let w = 1; w <= 14; w++) {
-    const s = document.createElement('span');
-    s.textContent = w === 13 ? 'OF' : `W${w}`;
-    s.title = w === 13 ? 'Overflow' : `Week ${w}`;
-    if (w === currentWeek) s.classList.add('current');
-    s.onclick = (e) => { e.stopPropagation(); moveToWeek(pid, w); };
-    picker.appendChild(s);
-  }
-  event.currentTarget.style.position = 'relative';
-  event.currentTarget.appendChild(picker);
-  // Close on outside click
-  const close = (e) => { if (!picker.contains(e.target)) { picker.remove(); document.removeEventListener('click', close); } };
-  setTimeout(() => document.addEventListener('click', close), 0);
-}
-
-async function moveToWeek(pid, week) {
-  document.querySelectorAll('.week-picker').forEach(el => el.remove());
-  const isSD = pid.startsWith('sd-');
-  const url = isSD ? `/api/sd/problems/${pid}/week` : `/api/problems/${pid}/week`;
-  await fetch(url, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({week})
-  });
-  // Update local data and re-render
-  const arr = isSD ? sdProblems : problems;
-  const p = arr.find(x => x.id === pid);
-  if (p) p.week = week;
-  render();
-}
-
 // --- Sorting ---
 const sortState = {}; // key: context string, value: {col, asc}
 const diffOrder = {E:0, M:1, H:2};
@@ -1309,12 +1362,9 @@ function problemRow(p) {
   const notesCol = isSD ? sdNotesHTML(p) : notesHTML(p);
   const timerCol = isSD ? sdTimerHTML(p) : timerHTML(p);
   const isLast = p.id === lastSolvedId;
-  const marker = isLast ? '<span class="last-solved-marker">&#9654;</span>' : '';
-  const numCell = `<span class="week-num" onclick="showWeekPicker(event,'${p.id}',${p.week})" title="Move to another week">${marker}${p._rowNum || ''}</span>`;
   const isToday = todayIds.has(p.id);
   const trClass = [isLast && 'last-solved', isToday && 'today-item'].filter(Boolean).join(' ');
   return `<tr${trClass ? ` class="${trClass}"` : ''}>
-    <td>${numCell}</td>
     <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td>${cat}</td>
@@ -1326,101 +1376,67 @@ function problemRow(p) {
 }
 
 function tableHeader(ctx, renderFn) {
-  return `<table><thead><tr>${sortableTh(ctx,'#','#',renderFn)}${sortableTh(ctx,'title','Title',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'category','Category',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
+  return `<table><thead><tr>${sortableTh(ctx,'title','Title',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'category','Category',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
 }
 
 function sdTableHeader(ctx, renderFn) {
   return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
 }
 
-const collapsedWeeks = new Set();
-let breakdownOpen = false;
-
-function toggleBreakdown() {
-  breakdownOpen = !breakdownOpen;
-  renderWeekly();
-}
-
-function donutSvg(done, total, color) {
-  const r = 24, c = 2 * Math.PI * r;
-  const pct = total ? done / total : 0;
-  const offset = c * (1 - pct);
-  return `<svg width="56" height="56" viewBox="0 0 56 56">
-    <circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--border)" stroke-width="5"/>
-    <circle cx="28" cy="28" r="${r}" fill="none" stroke="${color}" stroke-width="5"
-      stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"
-      transform="rotate(-90 28 28)" style="transition:stroke-dashoffset .4s"/>
-    <text x="28" y="30" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">${total ? Math.round(pct*100) : 0}%</text>
-  </svg>`;
-}
-
-function renderWeekly() {
+function renderHome() {
   const el = document.getElementById('weekly');
+  const topicStates = computeTopicStates();
+  computeTodayQueue(topicStates);
 
-  // Compute today's queue
-  const curWeek = getCurrentPlanWeek();
-  todayIds.clear();
-  const weekend = isWeekend();
-  const curWeekProblems = problems.filter(p => p.week === curWeek);
-  if (weekend) {
-    // Weekend: mark done problems for review
-    curWeekProblems.filter(p => p.status === 'done').forEach(p => todayIds.add(p.id));
+  // Auto-expand first unlocked incomplete topic on first render
+  if (!expandedTopics._initialized) {
+    for (const topic of TOPIC_ORDER) {
+      const ts = topicStates[topic];
+      if (ts && ts.unlocked && ts.status !== 'completed') {
+        expandedTopics.add(topic);
+        break;
+      }
+    }
+    expandedTopics._initialized = true;
+  }
+
+  let html = '';
+
+  // Section 1: Today's Focus
+  html += '<div class="today-section">';
+  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">${isWeekend() ? 'Review Today' : "Today's Focus"}</div>`;
+  if (todayIds.size > 0) {
+    html += '<div class="today-cards">';
+    const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
+    todayProbs.forEach(p => {
+      const running = !!timers[p.id];
+      html += `<div class="today-card">
+        <div class="today-card-info">
+          <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
+          <div class="today-card-meta">
+            <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--text)">${p.category}</span>
+            ${diffHTML(p.difficulty)}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <span class="timer-display" id="td-${p.id}">${running ? '' : ''}</span>
+          <button class="timer-btn ${running?'running':''}" onclick="toggleTimer('${p.id}')">${running?'Stop':'Start'}</button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
   } else {
-    // Weekday: mark next 2 pending
-    curWeekProblems.filter(p => p.status === 'pending').slice(0, 2).forEach(p => todayIds.add(p.id));
+    html += '<div class="today-empty">All caught up! Keep going.</div>';
   }
+  html += '</div>';
 
-  // Auto-expand current week, collapse others (only on first render)
-  if (!collapsedWeeks._initialized) {
-    const allWeeks = [...new Set([...problems.map(p=>p.week), ...sdProblems.map(p=>p.week)])];
-    allWeeks.forEach(w => { if (String(w) !== String(curWeek)) collapsedWeeks.add(String(w)); });
-    collapsedWeeks._initialized = true;
-  }
-
-  // Compute progress
+  // Section 2: Overall Progress
   const lcDone = problems.filter(p => p.status === 'done').length;
-  const sdDone = sdProblems.filter(p => p.status === 'done').length;
-
-  // Category breakdown
-  const cats = {};
-  problems.forEach(p => {
-    if (!cats[p.category]) cats[p.category] = {total:0, done:0};
-    cats[p.category].total++;
-    if (p.status === 'done') cats[p.category].done++;
-  });
-  const sdDiffs = {E:{total:0,done:0}, M:{total:0,done:0}, H:{total:0,done:0}};
-  const diffLabels = {E:'Easy', M:'Medium', H:'Hard'};
-  const diffColors = {E:'var(--green)', M:'var(--yellow)', H:'var(--red)'};
-  sdProblems.forEach(p => {
-    if (sdDiffs[p.difficulty]) { sdDiffs[p.difficulty].total++; }
-    if (p.status === 'done' && sdDiffs[p.difficulty]) sdDiffs[p.difficulty].done++;
-  });
-
-  let breakdownHtml = `<div class="progress-breakdown${breakdownOpen ? '' : ' hidden'}">`;
-  Object.keys(cats).sort().forEach(c => {
-    const {total, done} = cats[c];
-    const p = total ? Math.round(done/total*100) : 0;
-    breakdownHtml += `<div class="breakdown-item"><span>${c}</span><div class="breakdown-bar"><div class="breakdown-fill" style="width:${p}%"></div></div><span class="breakdown-pct">${done}/${total}</span></div>`;
-  });
-  breakdownHtml += `<div style="grid-column:1/-1;margin-top:4px;font-size:.75rem;color:var(--muted);font-weight:600">System Design</div>`;
-  ['E','M','H'].forEach(d => {
-    const {total, done} = sdDiffs[d];
-    const p = total ? Math.round(done/total*100) : 0;
-    breakdownHtml += `<div class="breakdown-item"><span>${diffLabels[d]}</span><div class="breakdown-bar"><div class="breakdown-fill" style="width:${p}%;background:${diffColors[d]}"></div></div><span class="breakdown-pct">${done}/${total}</span></div>`;
-  });
-  breakdownHtml += '</div>';
-
-  let html = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:24px;">
-    <div class="progress-summary" onclick="toggleBreakdown()">
-      <div class="donut-wrap">${donutSvg(lcDone, problems.length, 'var(--green)')}
-        <div class="donut-label"><div class="donut-title">LeetCode</div><div class="donut-num">${lcDone}/${problems.length}</div></div>
-      </div>
-      <div class="donut-wrap">${donutSvg(sdDone, sdProblems.length, 'var(--accent)')}
-        <div class="donut-label"><div class="donut-title">System Design</div><div class="donut-num">${sdDone}/${sdProblems.length}</div></div>
-      </div>
-      <span class="chevron" style="margin-left:auto;font-size:.7rem;color:var(--muted);transition:transform .2s;${breakdownOpen ? '' : 'transform:rotate(-90deg)'}">▼</span>
-    </div>
-    ${breakdownHtml}
+  const pct = problems.length ? Math.round(lcDone / problems.length * 100) : 0;
+  html += `<div class="overall-progress">
+    <span class="overall-label">${lcDone}/${problems.length}</span>
+    <div class="overall-bar"><div class="overall-fill" style="width:${pct}%"></div></div>
+    <span class="overall-label">${pct}%</span>
   </div>`;
 
   // Filter bar
@@ -1433,7 +1449,7 @@ function renderWeekly() {
   </div>`;
 
   if (hasActiveFilter()) {
-    // Flat filtered view (LeetCode only)
+    // Flat filtered view
     const q = filterState.search.toLowerCase();
     let filtered = problems.filter(p =>
       (!filterState.cat || p.category === filterState.cat) &&
@@ -1448,62 +1464,74 @@ function renderWeekly() {
       filtered.forEach((p, i) => { p._rowNum = i + 1; });
       const sorted = sortProblems(filtered, 'filtered');
       sorted.forEach((p, i) => { p._rowNum = i + 1; });
-      html += tableHeader('filtered', 'renderWeekly');
+      html += tableHeader('filtered', 'renderHome');
       sorted.forEach(p => html += problemRow(p));
       html += '</tbody></table>';
     } else {
       html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
     }
   } else {
-    // Weekly grouped view
-    const weeks = {};
-    problems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).coding.push(p); });
-    sdProblems.forEach(p => { (weeks[p.week] = weeks[p.week]||{coding:[], sd:[]}).sd.push(p); });
-    Object.keys(weeks).sort((a,b)=>a-b).forEach(w => {
-      const wk = weeks[w];
-      const allProbs = [...wk.coding, ...wk.sd];
-      const isCur = String(w) === String(curWeek);
-      const label = w == 13 ? 'Overflow' : `Week ${w} · ${weekDates(Number(w))}`;
-      const done = allProbs.filter(p=>p.status==='done').length;
-      const total = allProbs.length;
-      const collapsed = collapsedWeeks.has(w);
-      const pct = Math.round(done/total*100);
-      const todayBadge = isCur ? `<span style="font-size:.7rem;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;margin-left:8px">${weekend ? 'Review Day' : todayIds.size + ' today'}</span>` : '';
-      html += `<div class="week-header ${collapsed?'collapsed':''}" onclick="toggleWeek('${w}')">
-        <span>${label} — ${done}/${total} done (${pct}%)${todayBadge}</span>
-        <span class="chevron">&#9660;</span>
-      </div>`;
-      html += `<div class="week-body ${collapsed?'hidden':''}">`;
-      const codingCtx = 'wk'+w+'c', sdCtx = 'wk'+w+'s';
-      if (wk.coding.length) {
-        if (wk.sd.length) html += `<p style="margin:8px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">Coding</p>`;
-        html += tableHeader(codingCtx, 'renderWeekly');
-        let rowNum = 1;
-        const sorted = sortProblems(wk.coding, codingCtx);
-        sorted.forEach(p => { p._rowNum = rowNum++; html += problemRow(p); });
-        html += '</tbody></table>';
-      }
-      if (wk.sd.length) {
-        if (wk.coding.length) html += `<p style="margin:12px 0 4px;color:var(--muted);font-size:.8rem;font-weight:600">System Design</p>`;
-        html += sdTableHeader(sdCtx, 'renderWeekly');
-        const sdSorted = sortProblems(wk.sd, sdCtx);
-        sdSorted.forEach(p => html += sdRow(p));
-        html += '</tbody></table>';
+    // Section 3: Topic Progression
+    for (const topic of TOPIC_ORDER) {
+      const ts = topicStates[topic];
+      if (!ts) continue;
+      const expanded = expandedTopics.has(topic);
+      const topicId = topic.replace(/[^a-zA-Z0-9]/g, '-');
+      html += `<div class="topic-row">
+        <div class="topic-header" onclick="toggleTopic('${topic}')">
+          <span class="topic-dot ${ts.status}"></span>
+          <span class="topic-name">${topic}</span>
+          <div class="topic-bar"><div class="topic-fill" style="width:${ts.total ? Math.round(ts.done/ts.total*100) : 0}%"></div></div>
+          <span class="topic-count">${ts.done}/${ts.total}</span>
+          <span class="topic-chevron ${expanded ? '' : 'collapsed'}">&#9660;</span>
+        </div>`;
+      if (expanded) {
+        html += '<div class="topic-body">';
+        if (!ts.unlocked) {
+          const deps = (TOPIC_GRAPH[topic] || []).join(', ');
+          html += `<div class="topic-locked-label">Locked — complete ${deps} first</div>`;
+        } else if (ts.problems.length) {
+          const ctx = 'topic-' + topicId;
+          ts.problems.forEach((p, i) => { p._rowNum = i + 1; });
+          const sorted = sortProblems(ts.problems, ctx);
+          sorted.forEach((p, i) => { p._rowNum = i + 1; });
+          html += tableHeader(ctx, 'renderHome');
+          sorted.forEach(p => html += problemRow(p));
+          html += '</tbody></table>';
+        }
+        html += '</div>';
       }
       html += '</div>';
-    });
+    }
+
+    // System Design as final expandable row (always unlocked)
+    const sdDone = sdProblems.filter(p => p.status === 'done').length;
+    const sdExpanded = expandedTopics.has('System Design');
+    const sdStatus = sdDone === sdProblems.length && sdProblems.length > 0 ? 'completed' : sdDone > 0 ? 'in-progress' : 'up-next';
+    html += `<div class="topic-row" style="margin-top:16px">
+      <div class="topic-header" onclick="toggleTopic('System Design')">
+        <span class="topic-dot ${sdStatus}"></span>
+        <span class="topic-name">System Design</span>
+        <div class="topic-bar"><div class="topic-fill" style="width:${sdProblems.length ? Math.round(sdDone/sdProblems.length*100) : 0}%"></div></div>
+        <span class="topic-count">${sdDone}/${sdProblems.length}</span>
+        <span class="topic-chevron ${sdExpanded ? '' : 'collapsed'}">&#9660;</span>
+      </div>`;
+    if (sdExpanded) {
+      html += '<div class="topic-body">';
+      html += sdTableHeader('sd-all', 'renderHome');
+      const sdSorted = sortProblems([...sdProblems], 'sd-all');
+      sdSorted.forEach(p => html += sdRow(p));
+      html += '</tbody></table>';
+      html += '</div>';
+    }
+    html += '</div>';
   }
+
   el.innerHTML = html;
 
   // Restore search focus
   const searchEl = document.getElementById('f-search');
   if (searchEl && filterState.search) { searchEl.focus(); searchEl.selectionStart = searchEl.selectionEnd = searchEl.value.length; }
-}
-
-function toggleWeek(w) {
-  if (collapsedWeeks.has(w)) collapsedWeeks.delete(w);
-  else collapsedWeeks.add(w);
-  renderWeekly();
 }
 
 let filterState = { cat: '', diff: '', status: '', search: '' };
@@ -1514,7 +1542,7 @@ function hasActiveFilter() {
 
 function applyFilter(field, value) {
   filterState[field] = value;
-  renderWeekly();
+  renderHome();
 }
 
 function getAllProblems() {
@@ -1787,7 +1815,7 @@ function sdRow(p) {
 function render() {
   computeLastSolved();
   const tab = activeTab();
-  if (tab === 'weekly') renderWeekly();
+  if (tab === 'weekly') renderHome();
 else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
 }
