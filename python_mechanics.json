@@ -1,27 +1,6 @@
 {
   "topics": [
     {
-      "id": "pattern-selector",
-      "name": "Pattern Selector",
-      "items": [
-        {
-          "label": "Keywords to Pattern Map",
-          "code": "\"subarray, contiguous, window\"    -> Sliding Window / Prefix Sum\n\"substring + condition\"            -> Sliding Window + HashMap\n\"sorted array + search\"            -> Binary Search\n\"top k, kth largest\"               -> Heap / Bucket Sort\n\"all combinations, permutations\"   -> Backtracking\n\"shortest path, minimum steps\"     -> BFS (unweighted) / Dijkstra\n\"connected, regions, islands\"      -> DFS / BFS / Union-Find\n\"parentheses, brackets, nesting\"   -> Stack\n\"next greater, next smaller\"       -> Monotonic Stack\n\"duplicate, seen before\"           -> Set / HashMap\n\"min cost, max profit, # of ways\" -> Dynamic Programming\n\"merge intervals, overlapping\"     -> Sort + Scan\n\"prefix, word dictionary\"          -> Trie\n\"locally optimal, scheduling\"      -> Greedy",
-          "note": "Read the problem statement and match keywords to narrow down the pattern before coding."
-        },
-        {
-          "label": "Constraints to Complexity",
-          "code": "n <= 20        -> O(2^n) or O(n!)   -> Backtracking, Bitmask DP\nn <= 500       -> O(n^2) or O(n^3)  -> DP (2D), nested loops\nn <= 10^5      -> O(n log n)        -> Sort, Heap, Binary Search\nn <= 10^6      -> O(n)              -> HashMap, Sliding Window, Prefix Sum\nn <= 10^9+     -> O(log n) or O(1)  -> Binary Search, Math",
-          "note": "Always check constraints first. They tell you the expected time complexity, which eliminates many patterns."
-        },
-        {
-          "label": "5-Step Problem Solving Checklist",
-          "code": "# 1. Understand: restate the problem, clarify edge cases\n# 2. Match: use keywords + constraints to pick a pattern\n# 3. Plan: write pseudocode using the pattern template\n# 4. Code: translate pseudocode to Python\n# 5. Verify: trace through examples, check edge cases\n#    - empty input, single element, duplicates, negatives",
-          "note": "Never skip step 2. Pattern matching is the highest-leverage skill in interviews."
-        }
-      ]
-    },
-    {
       "id": "two-pointers",
       "name": "Two Pointers",
       "items": [
@@ -32,7 +11,7 @@
         },
         {
           "label": "Data Structures",
-          "code": "# Sorted array or string\n# Two index variables: left, right (or slow, fast)\n# No extra space needed — O(1) space pattern",
+          "code": "# Sorted array or string\n# Two index variables: left, right (or slow, fast)\n# No extra space needed \u2014 O(1) space pattern",
           "note": "No extra space needed. This is an O(1) space pattern."
         },
         {
@@ -41,14 +20,14 @@
           "note": "O(n) time, O(1) space. Array must be sorted for this variant."
         },
         {
-          "label": "Example 1 — LC 167 Two Sum II (Sorted)",
+          "label": "Example 1 \u2014 LC 167 Two Sum II (Sorted)",
           "code": "def twoSum(numbers, target):\n    l, r = 0, len(numbers) - 1\n    while l < r:\n        s = numbers[l] + numbers[r]\n        if s == target:\n            return [l + 1, r + 1]  # 1-indexed\n        elif s < target:\n            l += 1\n        else:\n            r -= 1",
           "note": "Classic converging pointers. Guaranteed exactly one solution."
         },
         {
-          "label": "Example 2 — LC 11 Container With Most Water",
+          "label": "Example 2 \u2014 LC 11 Container With Most Water",
           "code": "def maxArea(height):\n    l, r = 0, len(height) - 1\n    ans = 0\n    while l < r:\n        ans = max(ans, min(height[l], height[r]) * (r - l))\n        if height[l] < height[r]:\n            l += 1\n        else:\n            r -= 1\n    return ans",
-          "note": "Move the shorter side inward — moving the taller side can never increase area."
+          "note": "Move the shorter side inward \u2014 moving the taller side can never increase area."
         },
         {
           "label": "Key Insight",
@@ -74,15 +53,15 @@
         {
           "label": "Template",
           "code": "def sliding_window(s):\n    window = defaultdict(int)\n    left = 0\n    ans = 0\n    for right in range(len(s)):\n        window[s[right]] += 1          # expand\n        while window_invalid():         # shrink\n            window[s[left]] -= 1\n            left += 1\n        ans = max(ans, right - left + 1)  # update\n    return ans",
-          "note": "O(n) time — each element enters and leaves the window at most once."
+          "note": "O(n) time \u2014 each element enters and leaves the window at most once."
         },
         {
-          "label": "Example 1 — LC 3 Longest Substring Without Repeating Characters",
+          "label": "Example 1 \u2014 LC 3 Longest Substring Without Repeating Characters",
           "code": "def lengthOfLongestSubstring(s):\n    seen = {}\n    left = 0\n    ans = 0\n    for right, ch in enumerate(s):\n        if ch in seen and seen[ch] >= left:\n            left = seen[ch] + 1\n        seen[ch] = right\n        ans = max(ans, right - left + 1)\n    return ans",
           "note": "Track last-seen index. Jump left pointer past the duplicate."
         },
         {
-          "label": "Example 2 — LC 567 Permutation in String",
+          "label": "Example 2 \u2014 LC 567 Permutation in String",
           "code": "from collections import Counter\ndef checkInclusion(s1, s2):\n    need = Counter(s1)\n    window = Counter()\n    left = 0\n    for right in range(len(s2)):\n        window[s2[right]] += 1\n        if right - left + 1 > len(s1):\n            ch = s2[left]\n            window[ch] -= 1\n            if window[ch] == 0:\n                del window[ch]\n            left += 1\n        if window == need:\n            return True\n    return False",
           "note": "Fixed-size window of len(s1). Compare frequency maps."
         },
@@ -99,7 +78,7 @@
       "items": [
         {
           "label": "Trigger",
-          "code": "Keywords: sorted, search, minimum/maximum that satisfies, rotated sorted\nStructure: monotonic property — if f(mid) is true, all values beyond also true",
+          "code": "Keywords: sorted, search, minimum/maximum that satisfies, rotated sorted\nStructure: monotonic property \u2014 if f(mid) is true, all values beyond also true",
           "note": "Binary search applies anytime there is a monotonic decision boundary."
         },
         {
@@ -113,12 +92,12 @@
           "note": "lo <= hi for exact match. lo < hi for boundary search. Know both variants."
         },
         {
-          "label": "Example 1 — LC 704 Binary Search",
+          "label": "Example 1 \u2014 LC 704 Binary Search",
           "code": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1",
           "note": "Textbook binary search. O(log n) time, O(1) space."
         },
         {
-          "label": "Example 2 — LC 875 Koko Eating Bananas",
+          "label": "Example 2 \u2014 LC 875 Koko Eating Bananas",
           "code": "import math\ndef minEatingSpeed(piles, h):\n    lo, hi = 1, max(piles)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        hours = sum(math.ceil(p / mid) for p in piles)\n        if hours <= h:\n            hi = mid       # mid speed works, try slower\n        else:\n            lo = mid + 1   # too slow, go faster\n    return lo",
           "note": "Binary search on the answer. Search space is [1, max(piles)]. Monotonic: higher speed -> fewer hours."
         },
@@ -144,17 +123,17 @@
           "note": "Monotonic stack processes elements and pops when the monotonic property is violated."
         },
         {
-          "label": "Template (Monotonic Stack — Next Greater)",
+          "label": "Template (Monotonic Stack \u2014 Next Greater)",
           "code": "def next_greater(nums):\n    n = len(nums)\n    result = [-1] * n\n    stack = []  # stores indices, decreasing values\n    for i in range(n):\n        while stack and nums[i] > nums[stack[-1]]:\n            idx = stack.pop()\n            result[idx] = nums[i]\n        stack.append(i)\n    return result",
-          "note": "O(n) — each element is pushed and popped at most once."
+          "note": "O(n) \u2014 each element is pushed and popped at most once."
         },
         {
-          "label": "Example 1 — LC 20 Valid Parentheses",
+          "label": "Example 1 \u2014 LC 20 Valid Parentheses",
           "code": "def isValid(s):\n    stack = []\n    pairs = {')': '(', ']': '[', '}': '{'}\n    for ch in s:\n        if ch in pairs:\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n        else:\n            stack.append(ch)\n    return len(stack) == 0",
           "note": "Push openers, pop on matching closer. Stack must be empty at end."
         },
         {
-          "label": "Example 2 — LC 739 Daily Temperatures",
+          "label": "Example 2 \u2014 LC 739 Daily Temperatures",
           "code": "def dailyTemperatures(temperatures):\n    n = len(temperatures)\n    ans = [0] * n\n    stack = []  # indices of unresolved days\n    for i in range(n):\n        while stack and temperatures[i] > temperatures[stack[-1]]:\n            prev = stack.pop()\n            ans[prev] = i - prev\n        stack.append(i)\n    return ans",
           "note": "Monotonic decreasing stack. When a warmer day appears, pop and record the gap."
         },
@@ -177,7 +156,7 @@
         {
           "label": "Data Structures",
           "code": "from collections import deque\nqueue = deque()    # FIFO queue\nvisited = set()    # track visited nodes",
-          "note": "Always use deque for O(1) popleft. Never use list — pop(0) is O(n)."
+          "note": "Always use deque for O(1) popleft. Never use list \u2014 pop(0) is O(n)."
         },
         {
           "label": "Template",
@@ -185,14 +164,14 @@
           "note": "The for-loop over len(queue) processes one level at a time."
         },
         {
-          "label": "Example 1 — LC 200 Number of Islands (BFS)",
+          "label": "Example 1 \u2014 LC 200 Number of Islands (BFS)",
           "code": "from collections import deque\ndef numIslands(grid):\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                queue = deque([(r, c)])\n                grid[r][c] = '0'\n                while queue:\n                    cr, cc = queue.popleft()\n                    for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n                        nr, nc = cr+dr, cc+dc\n                        if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]=='1':\n                            grid[nr][nc] = '0'\n                            queue.append((nr, nc))\n    return count",
           "note": "Flood-fill with BFS. Mark visited by setting to '0' (in-place)."
         },
         {
-          "label": "Example 2 — LC 994 Rotting Oranges",
+          "label": "Example 2 \u2014 LC 994 Rotting Oranges",
           "code": "from collections import deque\ndef orangesRotting(grid):\n    rows, cols = len(grid), len(grid[0])\n    queue = deque()\n    fresh = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 2:\n                queue.append((r, c))\n            elif grid[r][c] == 1:\n                fresh += 1\n    minutes = 0\n    while queue and fresh:\n        minutes += 1\n        for _ in range(len(queue)):\n            r, c = queue.popleft()\n            for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n                nr, nc = r+dr, c+dc\n                if 0<=nr<rows and 0<=nc<cols and grid[nr][nc]==1:\n                    grid[nr][nc] = 2\n                    fresh -= 1\n                    queue.append((nr, nc))\n    return minutes if fresh == 0 else -1",
-          "note": "Multi-source BFS — start from all rotten oranges simultaneously."
+          "note": "Multi-source BFS \u2014 start from all rotten oranges simultaneously."
         },
         {
           "label": "Key Insight",
@@ -221,18 +200,18 @@
           "note": "Graph DFS needs visited. Tree DFS does not (no cycles in trees)."
         },
         {
-          "label": "Example 1 — LC 104 Maximum Depth of Binary Tree",
+          "label": "Example 1 \u2014 LC 104 Maximum Depth of Binary Tree",
           "code": "def maxDepth(root):\n    if not root:\n        return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))",
           "note": "Base case: null -> 0. Recursive case: 1 + max of children. Simplest tree DFS."
         },
         {
-          "label": "Example 2 — LC 200 Number of Islands (DFS)",
+          "label": "Example 2 \u2014 LC 200 Number of Islands (DFS)",
           "code": "def numIslands(grid):\n    rows, cols = len(grid), len(grid[0])\n    def dfs(r, c):\n        if r<0 or r>=rows or c<0 or c>=cols or grid[r][c]!='1':\n            return\n        grid[r][c] = '0'  # mark visited\n        dfs(r+1,c); dfs(r-1,c); dfs(r,c+1); dfs(r,c-1)\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                dfs(r, c)\n    return count",
           "note": "Flood-fill with DFS. Same result as BFS but recursive. Mark cells '0' to avoid revisiting."
         },
         {
           "label": "Key Insight",
-          "code": "# DFS on trees: usually postorder (process children first)\n# DFS on graphs: need visited set to avoid infinite loops\n# Grid DFS: bounds check + visited check at top of recursion\n# Iterative DFS: use explicit stack (append, pop) — LIFO",
+          "code": "# DFS on trees: usually postorder (process children first)\n# DFS on graphs: need visited set to avoid infinite loops\n# Grid DFS: bounds check + visited check at top of recursion\n# Iterative DFS: use explicit stack (append, pop) \u2014 LIFO",
           "note": "DFS is about going deep before going wide. Return values bubble up from leaves to root."
         }
       ]
@@ -257,12 +236,12 @@
           "note": "The three knobs: start=i+1 (subsets), start=i (reuse), start=0 (permutations)."
         },
         {
-          "label": "Example 1 — LC 78 Subsets",
+          "label": "Example 1 \u2014 LC 78 Subsets",
           "code": "def subsets(nums):\n    result = []\n    def backtrack(start, path):\n        result.append(path[:])\n        for i in range(start, len(nums)):\n            path.append(nums[i])\n            backtrack(i + 1, path)\n            path.pop()\n    backtrack(0, [])\n    return result",
           "note": "Every node in the decision tree is a valid subset. Append at every call."
         },
         {
-          "label": "Example 2 — LC 39 Combination Sum",
+          "label": "Example 2 \u2014 LC 39 Combination Sum",
           "code": "def combinationSum(candidates, target):\n    result = []\n    def backtrack(start, path, remaining):\n        if remaining == 0:\n            result.append(path[:])\n            return\n        if remaining < 0:\n            return\n        for i in range(start, len(candidates)):\n            path.append(candidates[i])\n            backtrack(i, path, remaining - candidates[i])  # i: reuse\n            path.pop()\n    backtrack(0, [], target)\n    return result",
           "note": "Pass i (not i+1) to allow reusing the same candidate. Prune when remaining < 0."
         },
@@ -293,12 +272,12 @@
           "note": "Define: 1) State, 2) Base case, 3) Recurrence, 4) Answer location."
         },
         {
-          "label": "Example 1 — LC 70 Climbing Stairs",
+          "label": "Example 1 \u2014 LC 70 Climbing Stairs",
           "code": "def climbStairs(n):\n    if n <= 2:\n        return n\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    dp[2] = 2\n    for i in range(3, n + 1):\n        dp[i] = dp[i - 1] + dp[i - 2]\n    return dp[n]",
           "note": "dp[i] = ways to reach step i. Fibonacci variant. Can optimize to O(1) space with two variables."
         },
         {
-          "label": "Example 2 — LC 322 Coin Change",
+          "label": "Example 2 \u2014 LC 322 Coin Change",
           "code": "def coinChange(coins, amount):\n    dp = [float('inf')] * (amount + 1)\n    dp[0] = 0\n    for i in range(1, amount + 1):\n        for c in coins:\n            if c <= i:\n                dp[i] = min(dp[i], dp[i - c] + 1)\n    return dp[amount] if dp[amount] != float('inf') else -1",
           "note": "dp[i] = min coins for amount i. Try each coin, take min. Classic unbounded knapsack."
         },
@@ -329,12 +308,12 @@
           "note": "curr_sum - k in the map means a prefix with that sum exists, so the subarray between sums to k."
         },
         {
-          "label": "Example 1 — LC 560 Subarray Sum Equals K",
+          "label": "Example 1 \u2014 LC 560 Subarray Sum Equals K",
           "code": "def subarraySum(nums, k):\n    count = 0\n    curr_sum = 0\n    prefix_count = {0: 1}\n    for num in nums:\n        curr_sum += num\n        if curr_sum - k in prefix_count:\n            count += prefix_count[curr_sum - k]\n        prefix_count[curr_sum] = prefix_count.get(curr_sum, 0) + 1\n    return count",
           "note": "O(n) time, O(n) space. Cannot use sliding window because nums can have negatives."
         },
         {
-          "label": "Example 2 — LC 238 Product of Array Except Self",
+          "label": "Example 2 \u2014 LC 238 Product of Array Except Self",
           "code": "def productExceptSelf(nums):\n    n = len(nums)\n    ans = [1] * n\n    left = 1\n    for i in range(n):\n        ans[i] = left\n        left *= nums[i]\n    right = 1\n    for i in range(n - 1, -1, -1):\n        ans[i] *= right\n        right *= nums[i]\n    return ans",
           "note": "Prefix product from left, then multiply suffix product from right. O(1) extra space."
         },
@@ -365,18 +344,18 @@
           "note": "O(n log n) for sort. Two intervals overlap when start <= prev_end."
         },
         {
-          "label": "Example 1 — LC 56 Merge Intervals",
+          "label": "Example 1 \u2014 LC 56 Merge Intervals",
           "code": "def merge(intervals):\n    intervals.sort(key=lambda x: x[0])\n    merged = []\n    for start, end in intervals:\n        if merged and start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged",
           "note": "Classic merge. Compare current start with last merged end."
         },
         {
-          "label": "Example 2 — LC 435 Non-Overlapping Intervals",
+          "label": "Example 2 \u2014 LC 435 Non-Overlapping Intervals",
           "code": "def eraseOverlapIntervals(intervals):\n    intervals.sort(key=lambda x: x[1])  # sort by END\n    count = 0\n    prev_end = float('-inf')\n    for start, end in intervals:\n        if start >= prev_end:\n            prev_end = end  # keep this interval\n        else:\n            count += 1  # remove this interval\n    return count",
           "note": "Greedy: sort by end time, keep intervals that start after previous ends. Minimize removals."
         },
         {
           "label": "Key Insight",
-          "code": "# Overlap check: a.start <= b.end and b.start <= a.end\n# Merge: sort by start, extend end\n# Min removals: sort by end (greedy — pick earliest ending)\n# Insert: find position, merge with neighbors",
+          "code": "# Overlap check: a.start <= b.end and b.start <= a.end\n# Merge: sort by start, extend end\n# Min removals: sort by end (greedy \u2014 pick earliest ending)\n# Insert: find position, merge with neighbors",
           "note": "Sort by start for merge problems. Sort by end for scheduling/removal problems."
         }
       ]
@@ -392,7 +371,7 @@
         },
         {
           "label": "Data Structures",
-          "code": "import heapq\nheapq.heappush(heap, val)   # push — O(log n)\nheapq.heappop(heap)         # pop smallest — O(log n)\nheapq.heapify(arr)          # in-place — O(n)\n# Max-heap trick: negate values\nheapq.heappush(heap, -val)",
+          "code": "import heapq\nheapq.heappush(heap, val)   # push \u2014 O(log n)\nheapq.heappop(heap)         # pop smallest \u2014 O(log n)\nheapq.heapify(arr)          # in-place \u2014 O(n)\n# Max-heap trick: negate values\nheapq.heappush(heap, -val)",
           "note": "Python only has min-heap. For max-heap, push -val and negate on pop."
         },
         {
@@ -401,13 +380,13 @@
           "note": "For kth largest, keep a min-heap of size k. The top is the kth largest. O(n log k)."
         },
         {
-          "label": "Example 1 — LC 703 Kth Largest Element in a Stream",
+          "label": "Example 1 \u2014 LC 703 Kth Largest Element in a Stream",
           "code": "import heapq\nclass KthLargest:\n    def __init__(self, k, nums):\n        self.k = k\n        self.heap = nums\n        heapq.heapify(self.heap)\n        while len(self.heap) > k:\n            heapq.heappop(self.heap)\n\n    def add(self, val):\n        heapq.heappush(self.heap, val)\n        if len(self.heap) > self.k:\n            heapq.heappop(self.heap)\n        return self.heap[0]",
           "note": "Maintain a min-heap of size k. Top element is always the kth largest."
         },
         {
-          "label": "Example 2 — LC 347 Top K Frequent Elements",
-          "code": "from collections import Counter\nimport heapq\ndef topKFrequent(nums, k):\n    count = Counter(nums)\n    return heapq.nlargest(k, count.keys(), key=count.get)\n\n# Bucket sort alternative — O(n):\ndef topKFrequent_bucket(nums, k):\n    count = Counter(nums)\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for num, freq in count.items():\n        buckets[freq].append(num)\n    result = []\n    for i in range(len(buckets) - 1, -1, -1):\n        result.extend(buckets[i])\n        if len(result) >= k:\n            return result[:k]",
+          "label": "Example 2 \u2014 LC 347 Top K Frequent Elements",
+          "code": "from collections import Counter\nimport heapq\ndef topKFrequent(nums, k):\n    count = Counter(nums)\n    return heapq.nlargest(k, count.keys(), key=count.get)\n\n# Bucket sort alternative \u2014 O(n):\ndef topKFrequent_bucket(nums, k):\n    count = Counter(nums)\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for num, freq in count.items():\n        buckets[freq].append(num)\n    result = []\n    for i in range(len(buckets) - 1, -1, -1):\n        result.extend(buckets[i])\n        if len(result) >= k:\n            return result[:k]",
           "note": "heapq.nlargest is clean. Bucket sort avoids the heap entirely for O(n)."
         },
         {
@@ -437,12 +416,12 @@
           "note": "The 'complement lookup' pattern (Two Sum) appears everywhere. Store what you've seen, check for complement."
         },
         {
-          "label": "Example 1 — LC 1 Two Sum",
+          "label": "Example 1 \u2014 LC 1 Two Sum",
           "code": "def twoSum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i",
-          "note": "O(n) time, O(n) space. One pass — check then store."
+          "note": "O(n) time, O(n) space. One pass \u2014 check then store."
         },
         {
-          "label": "Example 2 — LC 36 Valid Sudoku",
+          "label": "Example 2 \u2014 LC 36 Valid Sudoku",
           "code": "def isValidSudoku(board):\n    rows = defaultdict(set)\n    cols = defaultdict(set)\n    boxes = defaultdict(set)\n    for r in range(9):\n        for c in range(9):\n            val = board[r][c]\n            if val == '.':\n                continue\n            box_id = (r // 3) * 3 + (c // 3)\n            if (val in rows[r] or val in cols[c]\n                    or val in boxes[box_id]):\n                return False\n            rows[r].add(val)\n            cols[c].add(val)\n            boxes[box_id].add(val)\n    return True",
           "note": "box_id = (row // 3) * 3 + (col // 3) maps each cell to its 3x3 box (0-8). Three sets track uniqueness."
         },
@@ -460,11 +439,11 @@
         {
           "label": "Trigger",
           "code": "Keywords: locally optimal, scheduling, maximum/minimum with greedy choice, jump game\nStructure: making the best local choice leads to global optimum",
-          "note": "Greedy works when the problem has the 'greedy choice property' — local optimum leads to global optimum."
+          "note": "Greedy works when the problem has the 'greedy choice property' \u2014 local optimum leads to global optimum."
         },
         {
           "label": "Data Structures",
-          "code": "# Often just variables tracking state\n# Sometimes sorted input\n# No special data structure — greedy is a strategy, not a structure",
+          "code": "# Often just variables tracking state\n# Sometimes sorted input\n# No special data structure \u2014 greedy is a strategy, not a structure",
           "note": "Greedy problems are about proving the strategy works, not about complex data structures."
         },
         {
@@ -473,12 +452,12 @@
           "note": "The hard part is proving greedy works. If you can't prove it, consider DP instead."
         },
         {
-          "label": "Example 1 — LC 55 Jump Game",
+          "label": "Example 1 \u2014 LC 55 Jump Game",
           "code": "def canJump(nums):\n    max_reach = 0\n    for i in range(len(nums)):\n        if i > max_reach:\n            return False\n        max_reach = max(max_reach, i + nums[i])\n    return True",
           "note": "Track the farthest index reachable. If current index > max_reach, stuck. O(n) time."
         },
         {
-          "label": "Example 2 — LC 134 Gas Station",
+          "label": "Example 2 \u2014 LC 134 Gas Station",
           "code": "def canCompleteCircuit(gas, cost):\n    if sum(gas) < sum(cost):\n        return -1\n    tank = 0\n    start = 0\n    for i in range(len(gas)):\n        tank += gas[i] - cost[i]\n        if tank < 0:\n            start = i + 1\n            tank = 0\n    return start",
           "note": "If total gas >= total cost, solution exists. Reset start whenever tank goes negative."
         },
@@ -501,7 +480,7 @@
         {
           "label": "Data Structures",
           "code": "# Parent array + rank array\n# Path compression + union by rank -> near O(1) per operation\nparent = list(range(n))\nrank = [0] * n",
-          "note": "Amortized O(alpha(n)) per operation — effectively constant."
+          "note": "Amortized O(alpha(n)) per operation \u2014 effectively constant."
         },
         {
           "label": "Template",
@@ -509,12 +488,12 @@
           "note": "find() with path compression. union() by rank. Track component count."
         },
         {
-          "label": "Example 1 — LC 323 Number of Connected Components",
+          "label": "Example 1 \u2014 LC 323 Number of Connected Components",
           "code": "def countComponents(n, edges):\n    uf = UnionFind(n)\n    for u, v in edges:\n        uf.union(u, v)\n    return uf.components",
           "note": "Start with n components, each union merges two. Final count is the answer."
         },
         {
-          "label": "Example 2 — LC 684 Redundant Connection",
+          "label": "Example 2 \u2014 LC 684 Redundant Connection",
           "code": "def findRedundantConnection(edges):\n    uf = UnionFind(len(edges) + 1)\n    for u, v in edges:\n        if not uf.union(u, v):\n            return [u, v]  # already connected -> redundant",
           "note": "The first edge connecting two already-connected nodes is the redundant one."
         },
@@ -545,12 +524,12 @@
           "note": "insert: O(m), search: O(m), startsWith: O(m) where m = word length."
         },
         {
-          "label": "Example 1 — LC 208 Implement Trie",
+          "label": "Example 1 \u2014 LC 208 Implement Trie",
           "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                node.children[ch] = TrieNode()\n            node = node.children[ch]\n        node.is_end = True\n\n    def search(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                return False\n            node = node.children[ch]\n        return node.is_end\n\n    def startsWith(self, prefix):\n        node = self.root\n        for ch in prefix:\n            if ch not in node.children:\n                return False\n            node = node.children[ch]\n        return True",
           "note": "Exact implementation tested on LeetCode. Clean and minimal."
         },
         {
-          "label": "Example 2 — LC 212 Word Search II",
+          "label": "Example 2 \u2014 LC 212 Word Search II",
           "code": "def findWords(board, words):\n    trie = Trie()\n    for w in words:\n        trie.insert(w)\n    rows, cols = len(board), len(board[0])\n    result = set()\n\n    def dfs(r, c, node, path):\n        if node.is_end:\n            result.add(path)\n            node.is_end = False  # avoid duplicates\n        if r<0 or r>=rows or c<0 or c>=cols:\n            return\n        ch = board[r][c]\n        if ch not in node.children:\n            return\n        board[r][c] = '#'  # mark visited\n        for dr, dc in [(0,1),(0,-1),(1,0),(-1,0)]:\n            dfs(r+dr, c+dc, node.children[ch], path+ch)\n        board[r][c] = ch  # restore\n\n    for r in range(rows):\n        for c in range(cols):\n            dfs(r, c, trie.root, '')\n    return list(result)",
           "note": "Trie + DFS backtracking. Trie prunes branches that can't form any word."
         },

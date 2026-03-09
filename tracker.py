@@ -909,7 +909,7 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .theme-opt.active svg { stroke: #fff; }
 /* Tabs */
 .tabs { display: flex; gap: 0; align-items: center; }
-.tab { padding: 8px 16px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; }
+.tab { padding: 8px 16px; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-color: var(--accent); }
 .panel { display: none; }
@@ -952,23 +952,23 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .notes-preview { font-size: .75rem; color: var(--muted); font-style: italic; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .notes-preview:hover { color: var(--accent); }
 /* Scroll + TOC layout (Python Toolkit & Patterns) */
-.ref-layout { display: flex; gap: 32px; }
-.ref-toc { position: sticky; top: 60px; align-self: flex-start; width: 160px; flex-shrink: 0; }
-.ref-toc a { display: block; padding: 7px 14px; font-size: .85rem; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
-.ref-toc a:hover { color: var(--text); }
-.ref-toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
-.ref-content { flex: 1; min-width: 0; }
-.ref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-size: .9rem; margin-bottom: 24px; }
+.ref-layout { display: flex; gap: 0; height: calc(100vh - 80px); }
+.ref-sidebar { width: 200px; flex-shrink: 0; border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 0; }
+.ref-sidebar a { display: block; padding: 8px 16px; font-size: .85rem; color: var(--muted); text-decoration: none; cursor: pointer; transition: all .15s; border-left: 3px solid transparent; }
+.ref-sidebar a:hover { color: var(--text); background: var(--week-hover); }
+.ref-sidebar a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; background: var(--week-hover); }
+.ref-main { flex: 1; overflow-y: auto; padding: 16px 24px; }
+.ref-search { display: block; width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: .85rem; margin: 0 0 8px; }
 .ref-search:focus { outline: none; border-color: var(--accent); }
-.ref-topic { margin-bottom: 44px; scroll-margin-top: 80px; }
-.ref-topic-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-.ref-item { margin-bottom: 16px; }
-.ref-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 6px; }
+.ref-topic-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.ref-item { margin-bottom: 24px; }
+.ref-item:last-child { margin-bottom: 0; }
+.ref-item-label { font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: var(--text); }
 .ref-item pre { background: var(--surface) !important; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 6px 0 0; }
 .ref-item pre code.hljs { background: transparent !important; padding: 0; }
 .ref-item pre code { font-size: .85rem; line-height: 1.6; color: var(--text); }
 .ref-item-note { font-size: .8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
-@media (max-width: 700px) { .ref-toc { display: none; } }
+@media (max-width: 700px) { .ref-sidebar { display: none; } .ref-layout { height: auto; } }
 /* Today's Focus */
 .today-section { margin-bottom: 24px; }
 .today-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -1018,7 +1018,8 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div class="sticky-header">
 <div class="header-row">
   <div class="tabs">
-    <div class="tab active" data-tab="weekly">Roadmap</div>
+    <div class="tab active" data-tab="weekly">Coding</div>
+    <div class="tab" data-tab="sysdesign">System Design</div>
     <div class="tab" data-tab="pytips">Python Toolkit</div>
     <div class="tab" data-tab="mechanics">Patterns</div>
   </div>
@@ -1036,6 +1037,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 </div>
 
 <div id="weekly" class="panel active"></div>
+<div id="sysdesign" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
 <footer style="text-align:center;padding:32px 0 16px;color:var(--border);font-size:.7rem;letter-spacing:.5px">Interview Prep Hub</footer>
@@ -1083,6 +1085,70 @@ function topoSort(graph) {
   return order;
 }
 const TOPIC_ORDER = topoSort(TOPIC_GRAPH);
+
+const TOPIC_TO_PATTERNS = {
+  'Arrays & Hashing': ['hashmap-set', 'prefix-sum'],
+  'Two Pointers': ['two-pointers'],
+  'Stack': ['stack'],
+  'Sliding Window': ['sliding-window'],
+  'Binary Search': ['binary-search'],
+  'Linked List': [],
+  'Trees': ['bfs', 'dfs'],
+  'Backtracking': ['backtracking'],
+  'Tries': ['trie'],
+  'Heap / Priority Q': ['heap'],
+  'Graphs': ['bfs', 'dfs', 'union-find'],
+  'Advanced Graphs': ['union-find'],
+  '1-D DP': ['dynamic-programming'],
+  '2-D DP': ['dynamic-programming'],
+  'Intervals': ['intervals'],
+  'Greedy': ['greedy'],
+  'Bit Manipulation': [],
+  'Math & Geometry': []
+};
+
+const TOPIC_TO_TOOLKIT = {
+  'Arrays & Hashing': ['list', 'dict', 'set'],
+  'Two Pointers': ['list', 'sorting'],
+  'Stack': ['stack-queue'],
+  'Sliding Window': ['dict', 'string'],
+  'Binary Search': ['list', 'sorting'],
+  'Linked List': [],
+  'Trees': ['stack-queue'],
+  'Backtracking': ['list'],
+  'Tries': ['dict', 'string'],
+  'Heap / Priority Q': ['heap'],
+  'Graphs': ['dict', 'set', 'stack-queue'],
+  'Advanced Graphs': ['dict', 'set', 'heap'],
+  '1-D DP': ['list', 'dict'],
+  '2-D DP': ['list', 'comprehensions'],
+  'Intervals': ['list', 'sorting', 'tuple'],
+  'Greedy': ['sorting', 'heap'],
+  'Bit Manipulation': ['builtins'],
+  'Math & Geometry': ['builtins']
+};
+
+function getQuickRefData(topicName) {
+  const patternIds = TOPIC_TO_PATTERNS[topicName] || [];
+  const toolkitIds = TOPIC_TO_TOOLKIT[topicName] || [];
+  const patterns = [];
+  const toolkit = [];
+  if (mechData && mechData.topics) {
+    for (const t of mechData.topics) {
+      if (patternIds.includes(t.id)) {
+        for (const item of t.items) patterns.push({ label: item.label, code: item.code, note: item.note, group: t.name });
+      }
+    }
+  }
+  if (pyrefData && pyrefData.topics) {
+    for (const t of pyrefData.topics) {
+      if (toolkitIds.includes(t.id)) {
+        for (const item of t.items) toolkit.push({ label: item.label, code: item.code, note: item.note, group: t.name });
+      }
+    }
+  }
+  return { patterns, toolkit };
+}
 
 function computeTopicStates() {
   const states = {};
@@ -1144,11 +1210,50 @@ function computeTodayQueue(topicStates) {
 }
 
 const expandedTopics = new Set();
+const expandedQuickRef = new Set();
 
 function toggleTopic(topic) {
   if (expandedTopics.has(topic)) expandedTopics.delete(topic);
   else expandedTopics.add(topic);
   renderHome();
+}
+
+function toggleQuickRef(topic) {
+  if (expandedQuickRef.has(topic)) expandedQuickRef.delete(topic);
+  else expandedQuickRef.add(topic);
+  renderHome();
+}
+
+function hasQuickRef(topic) {
+  const pIds = TOPIC_TO_PATTERNS[topic] || [];
+  const tIds = TOPIC_TO_TOOLKIT[topic] || [];
+  return pIds.length > 0 || tIds.length > 0;
+}
+
+function buildQuickRefHTML(topic) {
+  const data = getQuickRefData(topic);
+  if (data.patterns.length === 0 && data.toolkit.length === 0) return '';
+  let h = '<div class="qref-section">';
+  if (data.patterns.length) {
+    h += '<div class="qref-group-title">Patterns</div><div class="qref-cards">';
+    for (const item of data.patterns) {
+      h += `<div class="qref-card"><div class="qref-label">${esc(item.label)}</div><pre><code class="language-python">${esc(item.code)}</code></pre>`;
+      if (item.note) h += `<div class="qref-note">${esc(item.note)}</div>`;
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+  if (data.toolkit.length) {
+    h += '<div class="qref-group-title">Python Toolkit</div><div class="qref-cards">';
+    for (const item of data.toolkit) {
+      h += `<div class="qref-card"><div class="qref-label">${esc(item.label)}</div><pre><code class="language-python">${esc(item.code)}</code></pre>`;
+      if (item.note) h += `<div class="qref-note">${esc(item.note)}</div>`;
+      h += '</div>';
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
 }
 
 function isWeekend() {
@@ -1157,6 +1262,7 @@ function isWeekend() {
 }
 
 const todayIds = new Set();
+const sdTodayIds = new Set();
 
 async function fetchProblems() {
   const r = await fetch('/api/problems');
@@ -1369,36 +1475,21 @@ function problemRow(p) {
     <td>${diffHTML(p.difficulty)}</td>
     <td>${cat}</td>
     <td>${statusHtml}</td>
-    <td>${notesCol}</td>
-    <td>${lastAttempt}</td>
-    <td>${timerCol}</td>
   </tr>`;
 }
 
 function tableHeader(ctx, renderFn) {
-  return `<table><thead><tr>${sortableTh(ctx,'title','Title',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'category','Category',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
+  return `<table><thead><tr>${sortableTh(ctx,'title','Title',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'category','Category',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}</tr></thead><tbody>`;
 }
 
 function sdTableHeader(ctx, renderFn) {
-  return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}<th>Notes</th>${sortableTh(ctx,'last time','Last Time',renderFn)}<th>Timer</th></tr></thead><tbody>`;
+  return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}</tr></thead><tbody>`;
 }
 
 function renderHome() {
   const el = document.getElementById('weekly');
   const topicStates = computeTopicStates();
   computeTodayQueue(topicStates);
-
-  // Auto-expand first unlocked incomplete topic on first render
-  if (!expandedTopics._initialized) {
-    for (const topic of TOPIC_ORDER) {
-      const ts = topicStates[topic];
-      if (ts && ts.unlocked && ts.status !== 'completed') {
-        expandedTopics.add(topic);
-        break;
-      }
-    }
-    expandedTopics._initialized = true;
-  }
 
   let html = '';
 
@@ -1409,7 +1500,6 @@ function renderHome() {
     html += '<div class="today-cards">';
     const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
     todayProbs.forEach(p => {
-      const running = !!timers[p.id];
       html += `<div class="today-card">
         <div class="today-card-info">
           <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
@@ -1417,10 +1507,6 @@ function renderHome() {
             <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--text)">${p.category}</span>
             ${diffHTML(p.difficulty)}
           </div>
-        </div>
-        <div style="text-align:right">
-          <span class="timer-display" id="td-${p.id}">${running ? '' : ''}</span>
-          <button class="timer-btn ${running?'running':''}" onclick="toggleTimer('${p.id}')">${running?'Stop':'Start'}</button>
         </div>
       </div>`;
     });
@@ -1471,8 +1557,13 @@ function renderHome() {
       html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
     }
   } else {
-    // Section 3: Topic Progression
-    for (const topic of TOPIC_ORDER) {
+    // Section 3: Topic Progression (completed topics sink to bottom)
+    const sortedTopics = [...TOPIC_ORDER].sort((a, b) => {
+      const aComp = topicStates[a] && topicStates[a].status === 'completed' ? 1 : 0;
+      const bComp = topicStates[b] && topicStates[b].status === 'completed' ? 1 : 0;
+      return aComp - bComp;
+    });
+    for (const topic of sortedTopics) {
       const ts = topicStates[topic];
       if (!ts) continue;
       const expanded = expandedTopics.has(topic);
@@ -1503,31 +1594,10 @@ function renderHome() {
       }
       html += '</div>';
     }
-
-    // System Design as final expandable row (always unlocked)
-    const sdDone = sdProblems.filter(p => p.status === 'done').length;
-    const sdExpanded = expandedTopics.has('System Design');
-    const sdStatus = sdDone === sdProblems.length && sdProblems.length > 0 ? 'completed' : sdDone > 0 ? 'in-progress' : 'up-next';
-    html += `<div class="topic-row" style="margin-top:16px">
-      <div class="topic-header" onclick="toggleTopic('System Design')">
-        <span class="topic-dot ${sdStatus}"></span>
-        <span class="topic-name">System Design</span>
-        <div class="topic-bar"><div class="topic-fill" style="width:${sdProblems.length ? Math.round(sdDone/sdProblems.length*100) : 0}%"></div></div>
-        <span class="topic-count">${sdDone}/${sdProblems.length}</span>
-        <span class="topic-chevron ${sdExpanded ? '' : 'collapsed'}">&#9660;</span>
-      </div>`;
-    if (sdExpanded) {
-      html += '<div class="topic-body">';
-      html += sdTableHeader('sd-all', 'renderHome');
-      const sdSorted = sortProblems([...sdProblems], 'sd-all');
-      sdSorted.forEach(p => html += sdRow(p));
-      html += '</tbody></table>';
-      html += '</div>';
-    }
-    html += '</div>';
   }
 
   el.innerHTML = html;
+
 
   // Restore search focus
   const searchEl = document.getElementById('f-search');
@@ -1609,6 +1679,13 @@ async function fetchMech() {
 }
 
 // --- Shared scroll+TOC renderer ---
+const selectedRefTopic = {};
+
+function selectRefTopic(tabKey, topicId, renderFn) {
+  selectedRefTopic[tabKey] = topicId;
+  renderFn();
+}
+
 function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
   const q = search.toLowerCase();
   const filtered = q
@@ -1620,16 +1697,23 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
         ))
     : topics;
 
-  // TOC
-  let tocHtml = '';
+  // Default to first topic if none selected
+  if (!selectedRefTopic[searchVar] && filtered.length) {
+    selectedRefTopic[searchVar] = filtered[0].id;
+  }
+  const activeId = selectedRefTopic[searchVar];
+  const activeTopic = filtered.find(t => t.id === activeId) || filtered[0];
+
+  // Sidebar
+  let sidebarHtml = `<input class="ref-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
   for (const t of filtered) {
-    tocHtml += `<a href="#ref-${t.id}" onclick="event.preventDefault();document.getElementById('ref-${t.id}').scrollIntoView({behavior:'smooth'})">${t.name}</a>`;
+    sidebarHtml += `<a class="${t.id === activeTopic?.id ? 'active' : ''}" onclick="selectRefTopic('${searchVar}','${t.id}',${renderFn.name})">${t.name}</a>`;
   }
 
   // Content
-  let contentHtml = `<input class="ref-search" id="${searchId}" placeholder="Search..." value="${search.replace(/"/g,'&quot;')}" />`;
-  for (const t of filtered) {
-    let items = t.items;
+  let contentHtml = '';
+  if (activeTopic) {
+    let items = activeTopic.items;
     if (q) {
       items = items.filter(it =>
         it.label.toLowerCase().includes(q) ||
@@ -1637,8 +1721,7 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
         (it.note && it.note.toLowerCase().includes(q))
       );
     }
-    contentHtml += `<div class="ref-topic" id="ref-${t.id}">`;
-    contentHtml += `<div class="ref-topic-title">${t.name}</div>`;
+    contentHtml += `<div class="ref-topic-title">${activeTopic.name}</div>`;
     for (const item of items) {
       contentHtml += `<div class="ref-item">`;
       contentHtml += `<div class="ref-item-label">${esc(item.label)}</div>`;
@@ -1646,11 +1729,12 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
       if (item.note) contentHtml += `<div class="ref-item-note">${esc(item.note)}</div>`;
       contentHtml += `</div>`;
     }
-    contentHtml += `</div>`;
   }
 
-  el.innerHTML = `<div class="ref-layout"><nav class="ref-toc" id="${searchId}-toc">${tocHtml}</nav><div class="ref-content">${contentHtml}</div></div>`;
-  hljs.highlightAll();
+  el.innerHTML = `<div class="ref-layout"><nav class="ref-sidebar">${sidebarHtml}</nav><div class="ref-main">${contentHtml}</div></div>`;
+
+  // Highlight code
+  el.querySelectorAll('.ref-main pre code').forEach(b => hljs.highlightElement(b));
 
   // Search binding
   const searchEl = document.getElementById(searchId);
@@ -1662,24 +1746,6 @@ function renderRefTab(el, topics, search, searchId, searchVar, renderFn) {
       const newEl = document.getElementById(searchId);
       if (newEl) { newEl.focus(); newEl.selectionStart = newEl.selectionEnd = e.target.selectionStart; }
     };
-  }
-
-  // TOC scroll highlight
-  const tocEl = document.getElementById(searchId + '-toc');
-  if (tocEl) {
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          tocEl.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-          const link = tocEl.querySelector(`a[href="#${e.target.id}"]`);
-          if (link) link.classList.add('active');
-        }
-      });
-    }, { rootMargin: '-20% 0px -70% 0px' });
-    el.querySelectorAll('.ref-topic').forEach(t => obs.observe(t));
-    // Activate first
-    const firstLink = tocEl.querySelector('a');
-    if (firstLink) firstLink.classList.add('active');
   }
 }
 
@@ -1805,18 +1871,118 @@ function sdRow(p) {
     <td><a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a></td>
     <td>${diffHTML(p.difficulty)}</td>
     <td><span class="badge badge-${p.status}" onclick="sdCycleStatus('${p.id}')">${p.status}</span></td>
-    <td>${sdNotesHTML(p)}</td>
-    <td>${lastAttempt}</td>
-    <td>${sdTimerHTML(p)}</td>
   </tr>`;
 }
 
+
+let sdFilterState = { diff: '', status: '', search: '' };
+
+function sdApplyFilter(field, value) {
+  sdFilterState[field] = value;
+  renderSD();
+}
+
+function sdHasActiveFilter() {
+  return sdFilterState.diff || sdFilterState.status || sdFilterState.search;
+}
+
+function computeSDTodayQueue() {
+  sdTodayIds.clear();
+  // Show next 2 pending problems
+  let count = 0;
+  for (const p of sdProblems) {
+    if (count >= 2) break;
+    if (p.status === 'pending') {
+      sdTodayIds.add(p.id);
+      count++;
+    }
+  }
+}
+
+function renderSD() {
+  const el = document.getElementById('sysdesign');
+  computeSDTodayQueue();
+  let html = '';
+
+  // Section 1: Today's Focus
+  html += '<div class="today-section">';
+  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">Today's Focus</div>`;
+  if (sdTodayIds.size > 0) {
+    html += '<div class="today-cards">';
+    const todayProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
+    todayProbs.forEach(p => {
+      html += `<div class="today-card">
+        <div class="today-card-info">
+          <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
+          <div class="today-card-meta">
+            ${diffHTML(p.difficulty)}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="today-empty">All caught up! Keep going.</div>';
+  }
+  html += '</div>';
+
+  // Section 2: Overall Progress
+  const sdDone = sdProblems.filter(p => p.status === 'done').length;
+  const sdTotal = sdProblems.length;
+  const pct = sdTotal ? Math.round(sdDone / sdTotal * 100) : 0;
+  html += `<div class="overall-progress">
+    <span class="overall-label">${sdDone}/${sdTotal}</span>
+    <div class="overall-bar"><div class="overall-fill" style="width:${pct}%"></div></div>
+    <span class="overall-label">${pct}%</span>
+  </div>`;
+
+  // Filter bar
+  html += `<div class="filters">
+    <select id="sd-f-diff" onchange="sdApplyFilter('diff',this.value)"><option value="">All Difficulties</option>${['E','M','H'].map(d=>`<option value="${d}"${sdFilterState.diff===d?' selected':''}>${{E:'Easy',M:'Medium',H:'Hard'}[d]}</option>`).join('')}</select>
+    <select id="sd-f-status" onchange="sdApplyFilter('status',this.value)"><option value="">All Statuses</option>${['pending','done'].map(s=>`<option${sdFilterState.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <input id="sd-f-search" placeholder="Search title..." value="${sdFilterState.search.replace(/"/g,'&quot;')}" oninput="sdApplyFilter('search',this.value)" />
+  </div>`;
+
+  // SD table
+  if (sdTotal) {
+    const q = sdFilterState.search.toLowerCase();
+    let filtered = sdProblems.filter(p =>
+      (!sdFilterState.diff || p.difficulty === sdFilterState.diff) &&
+      (!sdFilterState.status || p.status === sdFilterState.status) &&
+      (!q || p.title.toLowerCase().includes(q))
+    );
+    if (sdHasActiveFilter()) {
+      const fDone = filtered.filter(p => p.status === 'done').length;
+      html += `<p style="color:var(--muted);font-size:.85rem;margin-bottom:8px">Filtered · ${fDone}/${filtered.length} done</p>`;
+    }
+    if (filtered.length) {
+      const ctx = 'sd-tab';
+      filtered.forEach((p, i) => { p._rowNum = i + 1; });
+      const sorted = sortProblems(filtered, ctx);
+      sorted.forEach((p, i) => { p._rowNum = i + 1; });
+      html += sdTableHeader(ctx, 'renderSD');
+      sorted.forEach(p => html += sdRow(p));
+      html += '</tbody></table>';
+    } else {
+      html += '<p style="color:var(--muted);padding:24px;text-align:center">No problems match your filters.</p>';
+    }
+  } else {
+    html += '<p style="color:var(--muted);padding:24px;text-align:center">No system design problems loaded.</p>';
+  }
+
+  el.innerHTML = html;
+
+  // Restore search focus
+  const searchEl = document.getElementById('sd-f-search');
+  if (searchEl && sdFilterState.search) { searchEl.focus(); searchEl.selectionStart = searchEl.selectionEnd = searchEl.value.length; }
+}
 
 function render() {
   computeLastSolved();
   const tab = activeTab();
   if (tab === 'weekly') renderHome();
-else if (tab === 'pytips') renderPyRef();
+  else if (tab === 'sysdesign') renderSD();
+  else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
 }
 
@@ -1835,7 +2001,7 @@ document.querySelectorAll('.tab').forEach(t => {
 
 // Restore saved tab
 const savedTab = localStorage.getItem('activeTab');
-if (savedTab && savedTab !== 'sysdesign' && savedTab !== 'stats' && savedTab !== 'all' && savedTab !== 'review') {
+if (savedTab && savedTab !== 'stats' && savedTab !== 'all' && savedTab !== 'review') {
   const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
   if (tabEl) {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -1884,7 +2050,7 @@ const savedMode = localStorage.getItem('themeMode') || 'dark';
 setThemeMode(savedMode);
 
 async function init() {
-  await Promise.all([fetchProblems(), fetchSD(), loadConfig()]);
+  await Promise.all([fetchProblems(), fetchSD(), loadConfig(), fetchPyRef(), fetchMech()]);
   render();
 }
 init();
