@@ -935,6 +935,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .badge-done { background: rgba(63,185,80,.15); color: var(--green); }
 .badge-struggled { background: rgba(248,81,73,.15); color: var(--red); }
 .badge-review { background: rgba(210,153,34,.15); color: var(--yellow); }
+.badge-skipped { background: rgba(139,148,158,.15); color: var(--muted); }
 .diff-E { color: var(--green); } .diff-M { color: var(--yellow); } .diff-H { color: var(--red); }
 /* Timer */
 .timer-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: .75rem; }
@@ -1049,7 +1050,7 @@ let problems = [];
 let timers = {};  // pid -> {start, interval}
 const START_MONDAY = '__START_MONDAY__';
 
-const STATUS_CYCLE = ['pending','done','struggled','review'];
+const STATUS_CYCLE = ['pending','done','struggled','review','skipped'];
 
 // Topic dependency graph (NeetCode roadmap order)
 const TOPIC_GRAPH = {
@@ -1160,12 +1161,17 @@ function computeTopicStates() {
     const prereqs = TOPIC_GRAPH[topic] || [];
     const allPrereqsDone = prereqs.length === 0 || prereqs.every(dep => {
       const s = states[dep];
-      return s && s.done === s.total && s.total > 0;
+      if (!s || s.total === 0) return false;
+      if (s.done === s.total) return true;
+      // Unlock next topic if only Hard problems remain
+      const remaining = s.problems.filter(p => p.status !== 'done' && p.status !== 'skipped');
+      return remaining.every(p => p.difficulty === 'H');
     });
+    const solved = topicProblems.filter(p => p.status === 'done' || p.status === 'skipped').length;
     let status;
     if (total === 0) {
       status = 'locked';
-    } else if (done === total) {
+    } else if (solved === total) {
       status = 'completed';
     } else if (allPrereqsDone) {
       status = done > 0 ? 'in-progress' : 'up-next';
@@ -1299,6 +1305,10 @@ function cycleStatus(pid) {
   const i = STATUS_CYCLE.indexOf(p.status);
   const next = STATUS_CYCLE[(i + 1) % STATUS_CYCLE.length];
   setStatus(pid, next);
+}
+
+function skipHard(pid) {
+  setStatus(pid, 'skipped');
 }
 
 function badgeHTML(p) {
@@ -1501,6 +1511,7 @@ function renderHome() {
     html += '<div class="today-cards">';
     const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
     todayProbs.forEach(p => {
+      const skipBtn = p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '';
       html += `<div class="today-card">
         <div class="today-card-info">
           <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
@@ -1509,6 +1520,7 @@ function renderHome() {
             ${diffHTML(p.difficulty)}
           </div>
         </div>
+        ${skipBtn}
       </div>`;
     });
     html += '</div>';
@@ -1531,7 +1543,7 @@ function renderHome() {
   html += `<div class="filters">
     <select id="f-cat" onchange="applyFilter('cat',this.value)"><option value="">All Categories</option>${allCats.map(c=>`<option${filterState.cat===c?' selected':''}>${c}</option>`).join('')}</select>
     <select id="f-diff" onchange="applyFilter('diff',this.value)"><option value="">All Difficulties</option>${['E','M','H'].map(d=>`<option value="${d}"${filterState.diff===d?' selected':''}>${{E:'Easy',M:'Medium',H:'Hard'}[d]}</option>`).join('')}</select>
-    <select id="f-status" onchange="applyFilter('status',this.value)"><option value="">All Statuses</option>${['pending','done','struggled','review'].map(s=>`<option${filterState.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select id="f-status" onchange="applyFilter('status',this.value)"><option value="">All Statuses</option>${['pending','done','struggled','review','skipped'].map(s=>`<option${filterState.status===s?' selected':''}>${s}</option>`).join('')}</select>
     <input id="f-search" placeholder="Search title..." value="${filterState.search.replace(/"/g,'&quot;')}" oninput="applyFilter('search',this.value)" />
   </div>`;
 
