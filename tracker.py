@@ -8,12 +8,14 @@ Open: http://localhost:5050
 import json, os, re, datetime, webbrowser, sys, urllib.request, urllib.error
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-PORT = 5050
+PORT = int(os.environ.get("PORT", 5050))
+HOST = os.environ.get("HOST", "localhost")
 # Week 1 starts on this Monday — adjust if you want a different start date
 START_MONDAY = "2026-02-23"
-DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progress.json")
+DATA_DIR = os.environ.get("DATA_DIR", os.path.dirname(os.path.abspath(__file__)))
+DATA_FILE = os.path.join(DATA_DIR, "progress.json")
 MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetcode_study_plan.md")
-SD_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sd_progress.json")
+SD_DATA_FILE = os.path.join(DATA_DIR, "sd_progress.json")
 REF_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_ref.json")
 MECH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_mechanics.json")
 
@@ -355,7 +357,7 @@ def load_mech():
 # LeetCode Sync — slug mapping, config, fetch, sync
 # ---------------------------------------------------------------------------
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+CONFIG_FILE = os.path.join(DATA_DIR, "config.json")
 
 # Hardcoded mapping: LeetCode title slug -> problem ID in progress.json
 # The NeetCode 150 list is static, so this is the most reliable matching strategy.
@@ -2078,8 +2080,8 @@ if __name__ == "__main__":
     print(f"Loaded {len(data)} problems")
     print(f"Data file: {DATA_FILE}")
     HTTPServer.allow_reuse_address = True
-    server = HTTPServer(("localhost", PORT), Handler)
-    url = f"http://localhost:{PORT}"
+    server = HTTPServer((HOST, PORT), Handler)
+    url = f"http://{HOST}:{PORT}"
     print(f"Dashboard: {url}")
     if "--no-open" not in sys.argv:
         webbrowser.open(url)

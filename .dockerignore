@@ -1,0 +1,9 @@
+.git
+.venv
+.claude
+__pycache__
+*.pyc
+progress.json
+sd_progress.json
+config.json
+server.log
