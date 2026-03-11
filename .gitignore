@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 progress.json
 sd_progress.json
-tips.json
 server.log
 config.json
 .venv/

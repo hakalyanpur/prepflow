@@ -1,0 +1,338 @@
+[
+  {
+    "cat": "List & Tuple",
+    "title": "List vs Tuple",
+    "code": "# Lists are mutable, tuples are not\nlst = [1, 2, 3]\nlst[0] = 10  # OK\n\nt = (1, 2, 3)\n# t[0] = 10  # TypeError!",
+    "note": "Use tuples for fixed data \u2014 they're hashable and slightly faster."
+  },
+  {
+    "cat": "Dict",
+    "title": "Dictionary \u2014 O(1) lookup",
+    "code": "d = {'a': 1, 'b': 2}\nprint(d['a'])        # O(1) average\nprint('a' in d)     # O(1) average\n\n# vs list lookup:\nlst = ['a', 'b']\nprint('a' in lst)   # O(n)",
+    "note": "Always prefer dict/set for membership checks over lists."
+  },
+  {
+    "cat": "Dict",
+    "title": "defaultdict \u2014 skip key checks",
+    "code": "from collections import defaultdict\n\ngraph = defaultdict(list)\ngraph['a'].append('b')  # No KeyError\ngraph['a'].append('c')\n\ncounts = defaultdict(int)\nfor ch in 'hello':\n    counts[ch] += 1  # No need to check if key exists",
+    "note": "Saves boilerplate if/else or .get() calls in graph and counting problems."
+  },
+  {
+    "cat": "Dict",
+    "title": "Counter \u2014 instant frequency map",
+    "code": "from collections import Counter\n\nc = Counter('abracadabra')\nprint(c)                  # Counter({'a':5,'b':2,'r':2,'c':1,'d':1})\nprint(c.most_common(2))   # [('a',5),('b',2)]\n\n# Counter arithmetic\nc2 = Counter('abra')\nprint(c - c2)             # Counter({'a':2,'b':1,'c':1,'d':1,'r':1})",
+    "note": "Use Counter for anagram checks, frequency problems, top-K."
+  },
+  {
+    "cat": "Deque",
+    "title": "deque \u2014 O(1) append/pop both ends",
+    "code": "from collections import deque\n\nq = deque([1, 2, 3])\nq.appendleft(0)  # O(1)\nq.append(4)      # O(1)\nq.popleft()      # O(1) \u2014 list.pop(0) is O(n)!\nq.pop()          # O(1)",
+    "note": "Essential for BFS and sliding window problems."
+  },
+  {
+    "cat": "Heap",
+    "title": "heapq \u2014 min-heap in Python",
+    "code": "import heapq\n\nh = [3, 1, 4, 1, 5]\nheapq.heapify(h)         # O(n)\nheapq.heappush(h, 2)     # O(log n)\nsmallest = heapq.heappop(h)  # O(log n), returns 1\n\n# Max-heap trick: negate values\nmax_h = []\nheapq.heappush(max_h, -5)\nheapq.heappush(max_h, -3)\nlargest = -heapq.heappop(max_h)  # 5",
+    "note": "Python only has min-heap. Negate values for max-heap."
+  },
+  {
+    "cat": "Set",
+    "title": "Set operations",
+    "code": "a = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\n\nprint(a & b)   # intersection: {3, 4}\nprint(a | b)   # union: {1,2,3,4,5,6}\nprint(a - b)   # difference: {1, 2}\nprint(a ^ b)   # symmetric diff: {1,2,5,6}\nprint(a <= b)  # subset check: False",
+    "note": "Set ops are great for finding common elements, duplicates."
+  },
+  {
+    "cat": "Dict",
+    "title": "OrderedDict as LRU building block",
+    "code": "from collections import OrderedDict\n\nclass LRU:\n    def __init__(self, cap):\n        self.cap = cap\n        self.cache = OrderedDict()\n    def get(self, key):\n        if key not in self.cache: return -1\n        self.cache.move_to_end(key)\n        return self.cache[key]\n    def put(self, key, val):\n        if key in self.cache:\n            self.cache.move_to_end(key)\n        self.cache[key] = val\n        if len(self.cache) > self.cap:\n            self.cache.popitem(last=False)",
+    "note": "move_to_end() and popitem(last=False) make LRU cache easy."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "String slicing tricks",
+    "code": "s = 'hello world'\nprint(s[::-1])     # 'dlrow olleh' \u2014 reverse\nprint(s[::2])      # 'hlowrd' \u2014 every 2nd char\nprint(s[-5:])      # 'world' \u2014 last 5\nprint(s[:5])       # 'hello' \u2014 first 5",
+    "note": "Slicing creates a new string. s[::-1] is the Pythonic way to reverse."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "Useful string methods",
+    "code": "s = '  Hello, World!  '\ns.strip()          # 'Hello, World!'\ns.lower()          # '  hello, world!  '\ns.split(', ')      # ['  Hello', 'World!  ']\n'-'.join(['a','b'])  # 'a-b'\n'abc'.isalnum()    # True\n'123'.isdigit()    # True\n'abc'.startswith('ab')  # True",
+    "note": "These come up often in string manipulation problems."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "String is immutable \u2014 use list for edits",
+    "code": "# Can't modify string in-place\ns = 'hello'\n# s[0] = 'H'  # TypeError!\n\n# Convert to list, modify, join back\nchars = list(s)\nchars[0] = 'H'\ns = ''.join(chars)  # 'Hello'",
+    "note": "Building strings char-by-char? Append to list, then join \u2014 O(n) vs O(n^2)."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "f-strings and formatting",
+    "code": "name, age = 'Alice', 30\nprint(f'{name} is {age} years old')\nprint(f'{3.14159:.2f}')     # '3.14'\nprint(f'{42:08b}')          # '00101010' (binary)\nprint(f'{1000000:,}')       # '1,000,000'",
+    "note": "f-strings are the modern Python way \u2014 faster than .format() or %."
+  },
+  {
+    "cat": "Comprehensions",
+    "title": "List comprehension basics",
+    "code": "# Squares of even numbers\nnums = range(10)\nevens_sq = [x**2 for x in nums if x % 2 == 0]\n# [0, 4, 16, 36, 64]\n\n# Flatten 2D list\nmatrix = [[1,2],[3,4],[5,6]]\nflat = [x for row in matrix for x in row]\n# [1, 2, 3, 4, 5, 6]",
+    "note": "Comprehensions are faster than equivalent for-loop + append."
+  },
+  {
+    "cat": "Comprehensions",
+    "title": "Dict and set comprehensions",
+    "code": "# Dict comprehension\nwords = ['hello', 'world', 'hi']\nlen_map = {w: len(w) for w in words}\n# {'hello':5, 'world':5, 'hi':2}\n\n# Set comprehension\nunique_lens = {len(w) for w in words}  # {2, 5}\n\n# Invert a dict\norig = {'a':1, 'b':2}\ninv = {v: k for k, v in orig.items()}  # {1:'a', 2:'b'}",
+    "note": "Same syntax as list comp but with {} or {k:v}."
+  },
+  {
+    "cat": "Comprehensions",
+    "title": "Generator expressions \u2014 lazy evaluation",
+    "code": "# Generator \u2014 doesn't build full list in memory\ntotal = sum(x**2 for x in range(1000000))\n\n# vs list comp (allocates entire list first)\ntotal = sum([x**2 for x in range(1000000)])\n\n# Use generators for large data processing\ndef read_chunks(file, size=1024):\n    while chunk := file.read(size):\n        yield chunk",
+    "note": "Generators use O(1) memory. Use for large sequences you iterate once."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "sorted() with key",
+    "code": "# Sort by second element\npairs = [(1,3),(2,1),(3,2)]\nsorted(pairs, key=lambda x: x[1])\n# [(2,1),(3,2),(1,3)]\n\n# Sort strings by length\nwords = ['banana','apple','fig']\nsorted(words, key=len)  # ['fig','apple','banana']\n\n# Sort descending\nsorted([3,1,2], reverse=True)  # [3,2,1]",
+    "note": "key= takes a function. Use lambda or operator.itemgetter."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "enumerate \u2014 index + value",
+    "code": "fruits = ['apple', 'banana', 'cherry']\nfor i, fruit in enumerate(fruits):\n    print(f'{i}: {fruit}')\n# 0: apple  1: banana  2: cherry\n\n# Start from custom index\nfor i, fruit in enumerate(fruits, start=1):\n    print(f'{i}: {fruit}')",
+    "note": "Always prefer enumerate over range(len(lst))."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "zip \u2014 iterate in parallel",
+    "code": "names = ['Alice', 'Bob']\nscores = [95, 87]\nfor name, score in zip(names, scores):\n    print(f'{name}: {score}')\n\n# Unzip\npairs = [('a',1),('b',2),('c',3)]\nletters, nums = zip(*pairs)\n# letters=('a','b','c'), nums=(1,2,3)",
+    "note": "zip stops at the shortest. Use itertools.zip_longest for unequal lengths."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "any() and all()",
+    "code": "nums = [2, 4, 6, 8]\nprint(all(x % 2 == 0 for x in nums))  # True\nprint(any(x > 5 for x in nums))       # True\n\n# Short-circuits \u2014 stops on first True/False\nprint(any(x > 100 for x in range(10**9)))  # eventually True",
+    "note": "Use with generator expr for clean, readable condition checks."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "map, filter, reduce",
+    "code": "# map \u2014 apply function to each element\nlist(map(str, [1,2,3]))  # ['1','2','3']\nlist(map(int, '123'))    # [1, 2, 3]\n\n# filter\nlist(filter(lambda x: x>0, [-1,0,1,2]))  # [1,2]\n\n# reduce \u2014 accumulate\nfrom functools import reduce\nreduce(lambda a,b: a*b, [1,2,3,4])  # 24",
+    "note": "List comprehensions often preferred over map/filter for readability."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "min/max with key",
+    "code": "words = ['banana', 'apple', 'fig', 'cherry']\nprint(min(words, key=len))  # 'fig'\nprint(max(words, key=len))  # 'banana'\n\n# Find point closest to origin\npoints = [(3,4),(1,2),(5,0)]\nclosest = min(points, key=lambda p: p[0]**2+p[1]**2)\n# (1, 2)",
+    "note": "Same key= pattern as sorted(). Avoids writing manual loops."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Two pointers pattern",
+    "code": "def two_sum_sorted(nums, target):\n    l, r = 0, len(nums) - 1\n    while l < r:\n        s = nums[l] + nums[r]\n        if s == target:\n            return [l, r]\n        elif s < target:\n            l += 1\n        else:\n            r -= 1\n    return []",
+    "note": "Use on sorted arrays. O(n) time, O(1) space."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Sliding window pattern",
+    "code": "def max_sum_subarray(nums, k):\n    window = sum(nums[:k])\n    best = window\n    for i in range(k, len(nums)):\n        window += nums[i] - nums[i-k]\n        best = max(best, window)\n    return best",
+    "note": "Fixed window: expand right, shrink left. Variable: use while loop to shrink."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Binary search template",
+    "code": "def binary_search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1  # or lo for insertion point\n\n# Python built-in:\nimport bisect\nbisect.bisect_left([1,3,5,7], 5)  # 2",
+    "note": "bisect module handles sorted list insertion/search."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "BFS template",
+    "code": "from collections import deque\n\ndef bfs(graph, start):\n    visited = {start}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)\n    return visited",
+    "note": "Use deque for O(1) popleft. Level-order: process len(queue) per loop."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "DFS template (iterative + recursive)",
+    "code": "# Recursive DFS\ndef dfs(graph, node, visited=None):\n    if visited is None: visited = set()\n    visited.add(node)\n    for neighbor in graph[node]:\n        if neighbor not in visited:\n            dfs(graph, neighbor, visited)\n    return visited\n\n# Iterative DFS\ndef dfs_iter(graph, start):\n    visited = set()\n    stack = [start]\n    while stack:\n        node = stack.pop()\n        if node in visited: continue\n        visited.add(node)\n        for neighbor in graph[node]:\n            stack.append(neighbor)\n    return visited",
+    "note": "Recursive is cleaner but can hit stack limit. Use iterative for deep graphs."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Backtracking template",
+    "code": "def permutations(nums):\n    res = []\n    def backtrack(path, remaining):\n        if not remaining:\n            res.append(path[:])\n            return\n        for i, num in enumerate(remaining):\n            path.append(num)\n            backtrack(path, remaining[:i]+remaining[i+1:])\n            path.pop()  # undo choice\n    backtrack([], nums)\n    return res",
+    "note": "Pattern: choose, explore, unchoose. Used in permutations, combinations, subsets."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Monotonic stack",
+    "code": "def next_greater_element(nums):\n    n = len(nums)\n    res = [-1] * n\n    stack = []  # indices of elements waiting for next greater\n    for i in range(n):\n        while stack and nums[i] > nums[stack[-1]]:\n            res[stack.pop()] = nums[i]\n        stack.append(i)\n    return res\n\n# [1,3,2,4] -> [3,4,4,-1]",
+    "note": "Stack keeps decreasing sequence. Pop when you find something greater."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Prefix sum",
+    "code": "def prefix_sum(nums):\n    prefix = [0] * (len(nums) + 1)\n    for i in range(len(nums)):\n        prefix[i+1] = prefix[i] + nums[i]\n    return prefix\n\n# Range sum query: sum(nums[l:r+1])\np = prefix_sum([1,2,3,4,5])\nrange_sum = p[4] - p[1]  # sum of index 1..3 = 2+3+4 = 9",
+    "note": "Prefix[i] = sum of first i elements. Range sum in O(1)."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "HashMap for two sum pattern",
+    "code": "def two_sum(nums, target):\n    seen = {}  # val -> index\n    for i, num in enumerate(nums):\n        comp = target - num\n        if comp in seen:\n            return [seen[comp], i]\n        seen[num] = i\n    return []",
+    "note": "Classic O(n) pattern: store complement in hashmap as you iterate."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Union-Find (Disjoint Set)",
+    "code": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.rank = [0] * n\n    def find(self, x):\n        if self.parent[x] != x:\n            self.parent[x] = self.find(self.parent[x])  # path compression\n        return self.parent[x]\n    def union(self, x, y):\n        px, py = self.find(x), self.find(y)\n        if px == py: return False\n        if self.rank[px] < self.rank[py]: px, py = py, px\n        self.parent[py] = px\n        if self.rank[px] == self.rank[py]: self.rank[px] += 1\n        return True",
+    "note": "Path compression + union by rank = near O(1) per operation."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Mutable default arguments",
+    "code": "# BUG: default list is shared across calls!\ndef bad(items=[]):\n    items.append(1)\n    return items\nbad()  # [1]\nbad()  # [1, 1] \u2014 oops!\n\n# FIX: use None as default\ndef good(items=None):\n    if items is None:\n        items = []\n    items.append(1)\n    return items",
+    "note": "Default mutable args are created ONCE at function definition time."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Shallow vs deep copy",
+    "code": "import copy\n\na = [[1,2],[3,4]]\nb = a[:]            # shallow copy\nb = list(a)         # shallow copy\nb = copy.copy(a)    # shallow copy\nc = copy.deepcopy(a)  # deep copy\n\nb[0][0] = 99\nprint(a[0][0])  # 99 \u2014 shallow copy shares inner lists!\nprint(c[0][0])  # 1  \u2014 deep copy is independent",
+    "note": "Slicing and list() only copy the outer list. Nested objects are shared."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Integer caching (-5 to 256)",
+    "code": "a = 256\nb = 256\nprint(a is b)  # True \u2014 cached\n\na = 257\nb = 257\nprint(a is b)  # False (may vary)\n\n# Always use == for value comparison\nprint(a == b)  # True",
+    "note": "'is' checks identity, '==' checks value. Always use '==' for comparisons."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Loop variable closure",
+    "code": "# BUG: all functions capture same variable i\nfuncs = []\nfor i in range(3):\n    funcs.append(lambda: i)\nprint([f() for f in funcs])  # [2, 2, 2]\n\n# FIX: capture with default arg\nfuncs = []\nfor i in range(3):\n    funcs.append(lambda i=i: i)\nprint([f() for f in funcs])  # [0, 1, 2]",
+    "note": "Lambda captures the variable, not its value. Use default arg to snapshot."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Modifying list while iterating",
+    "code": "# BUG: skips elements when removing\nnums = [1, 2, 3, 4, 5]\nfor n in nums:\n    if n % 2 == 0:\n        nums.remove(n)  # Don't do this!\n\n# FIX: iterate over a copy, or use list comp\nnums = [n for n in nums if n % 2 != 0]\n\n# Or iterate backwards\nfor i in range(len(nums)-1, -1, -1):\n    if nums[i] % 2 == 0:\n        nums.pop(i)",
+    "note": "Never modify a list while iterating forward over it."
+  },
+  {
+    "cat": "Complexity",
+    "title": "Common time complexities",
+    "code": "# O(1)   \u2014 dict/set lookup, append, pop\n# O(log n) \u2014 binary search, heap push/pop\n# O(n)   \u2014 linear scan, list.index()\n# O(n log n) \u2014 sorting (Timsort)\n# O(n^2) \u2014 nested loops, bubble sort\n# O(2^n) \u2014 subsets, recursive fibonacci\n# O(n!)  \u2014 permutations",
+    "note": "Know these cold for interviews."
+  },
+  {
+    "cat": "Complexity",
+    "title": "Python operation costs",
+    "code": "# LIST\n# append: O(1) amortized\n# pop():  O(1)     pop(0): O(n)!\n# insert(i): O(n)  index(x): O(n)\n# sort(): O(n log n)\n\n# DICT / SET\n# get/set/del/in: O(1) average\n# iteration: O(n)\n\n# STRING\n# concatenation: O(n) each time!\n# ''.join(list): O(n) total",
+    "note": "Key insight: use deque for O(1) popleft, list for stack, dict for lookup."
+  },
+  {
+    "cat": "Complexity",
+    "title": "Space complexity tips",
+    "code": "# In-place algorithms use O(1) extra space\n# Sorting: Timsort uses O(n) space\n# Recursion: O(depth) stack space\n# BFS queue: O(width of graph)\n# DFS stack: O(depth of graph)\n# HashMap: O(n) space\n\n# Trade-off: often space for time\n# Memoization: O(n) space saves O(2^n) time",
+    "note": "Interviewers love when you discuss space-time trade-offs."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "itertools essentials",
+    "code": "import itertools\n\n# All combinations of length 2\nlist(itertools.combinations([1,2,3], 2))\n# [(1,2),(1,3),(2,3)]\n\n# All permutations\nlist(itertools.permutations([1,2,3]))\n# [(1,2,3),(1,3,2),(2,1,3),...]\n\n# Cartesian product\nlist(itertools.product('ab', '12'))\n# [('a','1'),('a','2'),('b','1'),('b','2')]\n\n# Accumulate (prefix sums)\nlist(itertools.accumulate([1,2,3,4]))\n# [1, 3, 6, 10]",
+    "note": "itertools.accumulate is a clean alternative to manual prefix sums."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "functools.lru_cache for memoization",
+    "code": "from functools import lru_cache\n\n@lru_cache(maxsize=None)\ndef fib(n):\n    if n < 2: return n\n    return fib(n-1) + fib(n-2)\n\nfib(100)  # instant \u2014 O(n) instead of O(2^n)\n\n# For DP problems with 2D state:\n@lru_cache(maxsize=None)\ndef dp(i, j):\n    if i == 0 or j == 0: return 0\n    return max(dp(i-1,j), dp(i,j-1))",
+    "note": "Quick way to add memoization. Remember to use hashable args only."
+  },
+  {
+    "cat": "List & Tuple",
+    "title": "Tuple unpacking and starred assignment",
+    "code": "# Basic unpacking\na, b, c = [1, 2, 3]\n\n# Starred \u2014 capture the rest\nfirst, *middle, last = [1,2,3,4,5]\n# first=1, middle=[2,3,4], last=5\n\n# Swap without temp\na, b = b, a\n\n# Nested unpacking\n(a, b), (c, d) = (1, 2), (3, 4)",
+    "note": "Python's unpacking makes code cleaner than index-based access."
+  },
+  {
+    "cat": "Numbers",
+    "title": "Infinity and float tricks",
+    "code": "# Infinity for comparisons\nINF = float('inf')\nmin_val = float('inf')\nmax_val = float('-inf')\n\n# Useful in DP and graph algorithms\ndist = [float('inf')] * n\ndist[start] = 0\n\n# Integer limits (Python has arbitrary precision)\nimport sys\nsys.maxsize  # 2^63-1 on 64-bit",
+    "note": "float('inf') is cleaner than using sys.maxsize for min/max tracking."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "ord() and chr() for character math",
+    "code": "# Convert char <-> ASCII number\nord('a')  # 97\nchr(97)   # 'a'\n\n# Character arithmetic\nidx = ord('c') - ord('a')  # 2\n\n# Build alphabet frequency array\nfreq = [0] * 26\nfor ch in 'hello':\n    freq[ord(ch) - ord('a')] += 1",
+    "note": "Use ord() for bucket-sort style character counting \u2014 O(1) space."
+  },
+  {
+    "cat": "Comprehensions",
+    "title": "Walrus operator (:=) in comprehensions",
+    "code": "# Python 3.8+ \u2014 assign and use in one expression\n# Filter and transform in one pass\nresults = [\n    upper\n    for word in ['hello', '', 'world', '']\n    if (upper := word.upper())\n]\n# ['HELLO', 'WORLD']\n\n# Read and process\nimport re\nmatches = [\n    m.group()\n    for line in lines\n    if (m := re.search(r'\\\\d+', line))\n]",
+    "note": "Walrus := avoids computing an expression twice in filter+map combos."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Topological sort (Kahn's algorithm)",
+    "code": "from collections import deque, defaultdict\n\ndef topo_sort(n, edges):\n    graph = defaultdict(list)\n    indegree = [0] * n\n    for u, v in edges:\n        graph[u].append(v)\n        indegree[v] += 1\n    queue = deque(i for i in range(n) if indegree[i] == 0)\n    order = []\n    while queue:\n        node = queue.popleft()\n        order.append(node)\n        for nei in graph[node]:\n            indegree[nei] -= 1\n            if indegree[nei] == 0:\n                queue.append(nei)\n    return order if len(order) == n else []  # empty = cycle",
+    "note": "Used for course schedule, build order, dependency resolution."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Trie (Prefix Tree)",
+    "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n    def insert(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children:\n                node.children[ch] = TrieNode()\n            node = node.children[ch]\n        node.is_end = True\n    def search(self, word):\n        node = self.root\n        for ch in word:\n            if ch not in node.children: return False\n            node = node.children[ch]\n        return node.is_end",
+    "note": "O(m) insert/search where m = word length. Great for autocomplete, word search."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "Global vs local scope",
+    "code": "x = 10\n\ndef modify():\n    # x += 1  # UnboundLocalError!\n    # Need 'global' keyword:\n    global x\n    x += 1\n\n# For nested functions, use 'nonlocal'\ndef outer():\n    count = 0\n    def inner():\n        nonlocal count\n        count += 1\n    inner()\n    return count  # 1",
+    "note": "Use nonlocal in closures (common in DFS/backtracking helpers)."
+  },
+  {
+    "cat": "Complexity",
+    "title": "Sorting tricks for interviews",
+    "code": "# Sort by multiple keys\nintervals = [(1,3),(2,1),(1,2)]\nintervals.sort(key=lambda x: (x[0], x[1]))\n# [(1,2),(1,3),(2,1)]\n\n# Sort one key ascending, another descending\nstudents = [('Alice',90),('Bob',90),('Charlie',85)]\nstudents.sort(key=lambda x: (-x[1], x[0]))\n# [('Alice',90),('Bob',90),('Charlie',85)]\n\n# Python sort is stable!\n# Equal elements keep their original order",
+    "note": "Negate numeric keys for descending. Timsort is stable \u2014 exploit it."
+  },
+  {
+    "cat": "List & Tuple",
+    "title": "collections.namedtuple",
+    "code": "from collections import namedtuple\n\nPoint = namedtuple('Point', ['x', 'y'])\np = Point(3, 4)\nprint(p.x, p.y)  # 3 4\nprint(p[0])       # 3 \u2014 still indexable\n\n# Great for returning multiple values\ndef min_max(lst):\n    Result = namedtuple('Result', ['min', 'max'])\n    return Result(min(lst), max(lst))\nr = min_max([3,1,4])\nprint(r.min, r.max)  # 1 4",
+    "note": "More readable than plain tuples when fields have meaning."
+  },
+  {
+    "cat": "Built-in Functions",
+    "title": "divmod, pow, abs shortcuts",
+    "code": "# divmod \u2014 quotient and remainder at once\nq, r = divmod(17, 5)  # q=3, r=2\n\n# pow with modulus \u2014 for modular exponentiation\npow(2, 10, 1000)  # 1024 % 1000 = 24\n# Much faster than (2**10) % 1000 for large numbers\n\n# abs for distance\nabs(-5)  # 5\nabs(3+4j)  # 5.0 \u2014 works with complex!",
+    "note": "pow(base, exp, mod) is O(log exp) \u2014 essential for modular math problems."
+  },
+  {
+    "cat": "Strings & Slicing",
+    "title": "String matching with 'in' and find()",
+    "code": "s = 'hello world'\n\n# Substring check \u2014 O(n)\n'world' in s          # True\n'xyz' not in s        # True\n\n# Find index (returns -1 if not found)\ns.find('world')       # 6\ns.index('world')      # 6 (raises ValueError if not found)\n\n# Count occurrences\ns.count('l')          # 3\n\n# Replace\ns.replace('world', 'python')  # 'hello python'",
+    "note": "Use 'in' for simple checks. For complex patterns, use re module."
+  },
+  {
+    "cat": "Gotchas",
+    "title": "== vs 'is' for None checks",
+    "code": "# Always use 'is' for None\nx = None\nif x is None:     # Correct\n    pass\nif x == None:     # Works but bad practice\n    pass\n\n# Because a class can override __eq__\nclass Weird:\n    def __eq__(self, other):\n        return True\nw = Weird()\nw == None   # True (misleading!)\nw is None   # False (correct)",
+    "note": "PEP 8: use 'is' / 'is not' for singleton comparisons like None."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Linked list \u2014 fast & slow pointers",
+    "code": "# Detect cycle\ndef has_cycle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False\n\n# Find middle node\ndef find_middle(head):\n    slow = fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return slow",
+    "note": "Floyd's algorithm. Also used to find cycle start: reset one pointer to head."
+  },
+  {
+    "cat": "Interview Patterns",
+    "title": "Interval merge pattern",
+    "code": "def merge_intervals(intervals):\n    intervals.sort(key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        if start <= merged[-1][1]:\n            merged[-1] = (merged[-1][0], max(merged[-1][1], end))\n        else:\n            merged.append((start, end))\n    return merged\n\n# [(1,3),(2,6),(8,10),(15,18)]\n# -> [(1,6),(8,10),(15,18)]",
+    "note": "Sort by start time, then greedily merge overlapping intervals."
+  },
+  {
+    "cat": "Matrix",
+    "title": "Matrix traversal helpers",
+    "code": "# 4-directional neighbors\ndirs = [(0,1),(0,-1),(1,0),(-1,0)]\n\ndef neighbors(r, c, rows, cols):\n    for dr, dc in dirs:\n        nr, nc = r+dr, c+dc\n        if 0 <= nr < rows and 0 <= nc < cols:\n            yield nr, nc\n\n# 8-directional (include diagonals)\ndirs8 = [(-1,-1),(-1,0),(-1,1),(0,-1),\n         (0,1),(1,-1),(1,0),(1,1)]",
+    "note": "Use this helper pattern for grid BFS/DFS problems."
+  }
+]
