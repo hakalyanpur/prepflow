@@ -1921,6 +1921,7 @@ function renderSD() {
             ${diffHTML(p.difficulty)}
           </div>
         </div>
+        <button onclick="sdSetStatus('${p.id}','done')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap">✓ Done</button>
       </div>`;
     });
     html += '</div>';
