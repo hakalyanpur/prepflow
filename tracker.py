@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interview Prep Hub — Lightweight Web Dashboard
+"""PrepFlow — Lightweight Web Dashboard
 
 Run:  python tracker.py
 Open: http://localhost:5050
@@ -873,7 +873,7 @@ HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interview Prep Hub</title>
+<title>PrepFlow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1044,7 +1044,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div id="sysdesign" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
-<footer style="text-align:center;padding:32px 0 16px;color:var(--border);font-size:.7rem;letter-spacing:.5px">Interview Prep Hub</footer>
+<footer style="text-align:center;padding:32px 0 16px;color:var(--border);font-size:.7rem;letter-spacing:.5px">PrepFlow</footer>
 </div>
 
 <script>
