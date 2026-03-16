@@ -1189,18 +1189,10 @@ function computeTodayQueue(topicStates) {
   todayIds.clear();
   const weekend = isWeekend();
   if (weekend) {
-    let latestCompleted = null;
-    for (const topic of [...TOPIC_ORDER].reverse()) {
-      if (topicStates[topic] && topicStates[topic].status === 'completed') {
-        latestCompleted = topic;
-        break;
-      }
-    }
-    if (latestCompleted) {
-      topicStates[latestCompleted].problems
-        .filter(p => p.status === 'done')
-        .forEach(p => todayIds.add(p.id));
-    }
+    const today = new Date().toISOString().split('T')[0];
+    problems
+      .filter(p => p.status === 'done' && p.next_review && p.next_review <= today)
+      .forEach(p => todayIds.add(p.id));
   } else {
     let count = 0;
     for (const topic of TOPIC_ORDER) {
@@ -1311,6 +1303,10 @@ function cycleStatus(pid) {
 
 function skipHard(pid) {
   setStatus(pid, 'skipped');
+}
+
+async function markReviewed(pid) {
+  await setStatus(pid, 'done');
 }
 
 function badgeHTML(p) {
@@ -1513,7 +1509,10 @@ function renderHome() {
     html += '<div class="today-cards">';
     const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
     todayProbs.forEach(p => {
-      const skipBtn = p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '';
+      const weekend = isWeekend();
+      const actionBtn = weekend
+        ? `<button onclick="markReviewed('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap">Reviewed</button>`
+        : (p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '');
       html += `<div class="today-card">
         <div class="today-card-info">
           <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
@@ -1522,7 +1521,7 @@ function renderHome() {
             ${diffHTML(p.difficulty)}
           </div>
         </div>
-        ${skipBtn}
+        ${actionBtn}
       </div>`;
     });
     html += '</div>';
