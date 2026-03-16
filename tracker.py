@@ -1263,6 +1263,8 @@ function isWeekend() {
 }
 
 const todayIds = new Set();
+let reviewCollapsed = true;
+function toggleReviewCollapse() { reviewCollapsed = !reviewCollapsed; renderHome(); }
 const sdTodayIds = new Set();
 
 async function fetchProblems() {
@@ -1504,27 +1506,46 @@ function renderHome() {
 
   // Section 1: Today's Focus
   html += '<div class="today-section">';
-  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">${isWeekend() ? 'Review Today' : "Today's Focus"}</div>`;
-  if (todayIds.size > 0) {
-    html += '<div class="today-cards">';
-    const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
-    todayProbs.forEach(p => {
-      const weekend = isWeekend();
-      const actionBtn = weekend
-        ? `<button onclick="markReviewed('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap">Reviewed</button>`
-        : (p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '');
-      html += `<div class="today-card">
-        <div class="today-card-info">
-          <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
-          <div class="today-card-meta">
-            <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--text)">${p.category}</span>
+  const todayProbs = [...todayIds].map(id => problems.find(p => p.id === id)).filter(Boolean);
+  if (isWeekend()) {
+    const reviewCount = todayProbs.length;
+    html += `<div onclick="toggleReviewCollapse()" style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">Review Today <span style="font-size:.75rem;color:var(--muted)">(${reviewCount})</span><span style="font-size:.7rem;transition:transform .15s;transform:rotate(${reviewCollapsed?'-90':'0'}deg)">▼</span></div>`;
+  } else {
+    html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">Today's Focus</div>`;
+  }
+  if (todayProbs.length > 0) {
+    if (isWeekend()) {
+      // Compact review list
+      html += `<div style="display:flex;flex-direction:column;gap:4px;${reviewCollapsed ? 'display:none' : ''}">`;
+      todayProbs.forEach(p => {
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            <a class="prob-link" href="${probUrl(p)}" target="_blank" rel="noopener" style="font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.title}</a>
+            <span style="font-size:.7rem;padding:1px 6px;border-radius:8px;background:var(--border);color:var(--muted);white-space:nowrap">${p.category}</span>
             ${diffHTML(p.difficulty)}
           </div>
-        </div>
-        ${actionBtn}
-      </div>`;
-    });
-    html += '</div>';
+          <button onclick="markReviewed('${p.id}')" style="padding:2px 10px;font-size:.7rem;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap;margin-left:8px">Reviewed</button>
+        </div>`;
+      });
+      html += '</div>';
+    } else {
+      // Normal today's focus cards
+      html += '<div class="today-cards">';
+      todayProbs.forEach(p => {
+        const skipBtn = p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '';
+        html += `<div class="today-card">
+          <div class="today-card-info">
+            <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
+            <div class="today-card-meta">
+              <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--text)">${p.category}</span>
+              ${diffHTML(p.difficulty)}
+            </div>
+          </div>
+          ${skipBtn}
+        </div>`;
+      });
+      html += '</div>';
+    }
   } else {
     html += '<div class="today-empty">All caught up! Keep going.</div>';
   }
