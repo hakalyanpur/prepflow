@@ -1196,11 +1196,11 @@ function computeTodayQueue(topicStates) {
   } else {
     let count = 0;
     for (const topic of TOPIC_ORDER) {
-      if (count >= 2) break;
+      if (count >= 4) break;
       const ts = topicStates[topic];
       if (!ts || !ts.unlocked || ts.status === 'completed') continue;
       for (const p of ts.problems) {
-        if (count >= 2) break;
+        if (count >= 4) break;
         if (p.status === 'pending') {
           todayIds.add(p.id);
           count++;
@@ -1511,7 +1511,7 @@ function renderHome() {
     const reviewCount = todayProbs.length;
     html += `<div onclick="toggleReviewCollapse()" style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">Review Today <span style="font-size:.75rem;color:var(--muted)">(${reviewCount})</span><span style="font-size:.7rem;transition:transform .15s;transform:rotate(${reviewCollapsed?'-90':'0'}deg)">▼</span></div>`;
   } else {
-    html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">Today's Focus</div>`;
+    html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus</div>`;
   }
   if (todayProbs.length > 0) {
     if (isWeekend()) {
@@ -1931,7 +1931,7 @@ function renderSD() {
 
   // Section 1: Today's Focus
   html += '<div class="today-section">';
-  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">Today's Focus</div>`;
+  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus</div>`;
   if (sdTodayIds.size > 0) {
     html += '<div class="today-cards">';
     const todayProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
