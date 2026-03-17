@@ -846,6 +846,16 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(p)
             return self._json({"error": "not found"}, 404)
 
+        # /api/weekly-focus
+        if self.path == "/api/weekly-focus":
+            body = self._read_body()
+            cfg = load_config()
+            cfg["weekly_focus"] = body.get("coding", [])
+            cfg["weekly_focus_sd"] = body.get("sd", [])
+            cfg["weekly_focus_week"] = body.get("week", "")
+            save_config(cfg)
+            return self._json({"ok": True})
+
         # /api/sync/leetcode
         if self.path == "/api/sync/leetcode":
             body = self._read_body()
@@ -1185,6 +1195,58 @@ function computeTopicStates() {
   return states;
 }
 
+function computeWeeklyFocus(topicStates) {
+  // Pick next 4 pending coding problems
+  const ids = [];
+  for (const topic of TOPIC_ORDER) {
+    if (ids.length >= 4) break;
+    const ts = topicStates[topic];
+    if (!ts || !ts.unlocked || ts.status === 'completed') continue;
+    for (const p of ts.problems) {
+      if (ids.length >= 4) break;
+      if (p.status === 'pending') ids.push(p.id);
+    }
+  }
+  return ids;
+}
+
+function computeWeeklyFocusSD() {
+  const ids = [];
+  for (const p of sdProblems) {
+    if (ids.length >= 2) break;
+    if (p.status === 'pending') ids.push(p.id);
+  }
+  return ids;
+}
+
+async function ensureWeeklyFocus(topicStates) {
+  const currentWeek = getCurrentMonday();
+  const cfg = await (await fetch('/api/config')).json();
+  if (cfg.weekly_focus_week === currentWeek && cfg.weekly_focus && cfg.weekly_focus.length > 0) {
+    weeklyFocusIds = cfg.weekly_focus;
+    weeklyFocusSDIds = cfg.weekly_focus_sd || [];
+  } else {
+    weeklyFocusIds = computeWeeklyFocus(topicStates);
+    weeklyFocusSDIds = computeWeeklyFocusSD();
+    await fetch('/api/weekly-focus', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ coding: weeklyFocusIds, sd: weeklyFocusSDIds, week: currentWeek })
+    });
+  }
+}
+
+async function refreshWeeklyFocus() {
+  const topicStates = computeTopicStates();
+  weeklyFocusIds = computeWeeklyFocus(topicStates);
+  weeklyFocusSDIds = computeWeeklyFocusSD();
+  const currentWeek = getCurrentMonday();
+  await fetch('/api/weekly-focus', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ coding: weeklyFocusIds, sd: weeklyFocusSDIds, week: currentWeek })
+  });
+  render();
+}
+
 function computeTodayQueue(topicStates) {
   todayIds.clear();
   const weekend = isWeekend();
@@ -1194,19 +1256,7 @@ function computeTodayQueue(topicStates) {
       .filter(p => p.status === 'done' && p.next_review && p.next_review <= today)
       .forEach(p => todayIds.add(p.id));
   } else {
-    let count = 0;
-    for (const topic of TOPIC_ORDER) {
-      if (count >= 4) break;
-      const ts = topicStates[topic];
-      if (!ts || !ts.unlocked || ts.status === 'completed') continue;
-      for (const p of ts.problems) {
-        if (count >= 4) break;
-        if (p.status === 'pending') {
-          todayIds.add(p.id);
-          count++;
-        }
-      }
-    }
+    weeklyFocusIds.forEach(id => todayIds.add(id));
   }
 }
 
@@ -1263,9 +1313,18 @@ function isWeekend() {
 }
 
 const todayIds = new Set();
+let weeklyFocusIds = [];
+let weeklyFocusSDIds = [];
 let reviewCollapsed = true;
 function toggleReviewCollapse() { reviewCollapsed = !reviewCollapsed; renderHome(); }
 const sdTodayIds = new Set();
+
+function getCurrentMonday() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.getFullYear(), d.getMonth(), diff).toISOString().split('T')[0];
+}
 
 async function fetchProblems() {
   const r = await fetch('/api/problems');
@@ -1360,8 +1419,36 @@ function fmtTime(sec) {
   return `${Math.floor(sec/60)}m ${sec%60}s`;
 }
 
+const SLUG_OVERRIDES = {
+  '121': 'best-time-to-buy-and-sell-stock',
+  '124': 'binary-tree-maximum-path-sum',
+  '309': 'best-time-to-buy-and-sell-stock-with-cooldown',
+  '787': 'cheapest-flights-within-k-stops',
+  '323': 'number-of-connected-components-in-an-undirected-graph',
+  '105': 'construct-binary-tree-from-preorder-and-inorder-traversal',
+  '1448': 'count-good-nodes-in-binary-tree',
+  '211': 'design-add-and-search-words-data-structure',
+  '208': 'implement-trie-prefix-tree',
+  '215': 'kth-largest-element-in-an-array',
+  '703': 'kth-largest-element-in-a-stream',
+  '230': 'kth-smallest-element-in-a-bst',
+  '235': 'lowest-common-ancestor-of-a-binary-search-tree',
+  '17': 'letter-combinations-of-a-phone-number',
+  '102': 'binary-tree-level-order-traversal',
+  '329': 'longest-increasing-path-in-a-matrix',
+  '424': 'longest-repeating-character-replacement',
+  '3': 'longest-substring-without-repeating-characters',
+  '1899': 'merge-triplets-to-form-target-triplet',
+  '1851': 'minimum-interval-to-include-each-query',
+  '50': 'powx-n',
+  '19': 'remove-nth-node-from-end-of-list',
+  '199': 'binary-tree-right-side-view',
+  '297': 'serialize-and-deserialize-binary-tree',
+  '167': 'two-sum-ii-input-array-is-sorted',
+  '98': 'validate-binary-search-tree',
+};
 function lcUrl(p) {
-  const slug = p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const slug = SLUG_OVERRIDES[p.id] || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   return `https://leetcode.com/problems/${slug}/`;
 }
 
@@ -1497,9 +1584,10 @@ function sdTableHeader(ctx, renderFn) {
   return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}</tr></thead><tbody>`;
 }
 
-function renderHome() {
+async function renderHome() {
   const el = document.getElementById('weekly');
   const topicStates = computeTopicStates();
+  await ensureWeeklyFocus(topicStates);
   computeTodayQueue(topicStates);
 
   let html = '';
@@ -1529,22 +1617,31 @@ function renderHome() {
       });
       html += '</div>';
     } else {
-      // Normal today's focus cards
+      // Weekly focus cards
       html += '<div class="today-cards">';
       todayProbs.forEach(p => {
-        const skipBtn = p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '';
-        html += `<div class="today-card">
+        const isDone = p.status === 'done' || p.status === 'skipped';
+        const doneStyle = isDone ? 'opacity:.5;' : '';
+        const doneLabel = isDone ? `<span style="font-size:.7rem;padding:2px 8px;border-radius:8px;background:rgba(63,185,80,.15);color:var(--green)">${p.status === 'skipped' ? 'skipped' : 'done'}</span>` : '';
+        const skipBtn = !isDone && p.difficulty === 'H' ? `<button onclick="skipHard('${p.id}')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;white-space:nowrap">Skip</button>` : '';
+        html += `<div class="today-card" style="${doneStyle}">
           <div class="today-card-info">
             <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
             <div class="today-card-meta">
               <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--text)">${p.category}</span>
               ${diffHTML(p.difficulty)}
+              ${doneLabel}
             </div>
           </div>
           ${skipBtn}
         </div>`;
       });
       html += '</div>';
+      // Show "New Problems" button when all weekly focus are done
+      const allDone = todayProbs.every(p => p.status === 'done' || p.status === 'skipped');
+      if (allDone && todayProbs.length > 0) {
+        html += `<div style="margin-top:12px;text-align:center"><button onclick="refreshWeeklyFocus()" style="padding:6px 16px;font-size:.8rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--accent);cursor:pointer">Pull New Problems</button></div>`;
+      }
     }
   } else {
     html += '<div class="today-empty">All caught up! Keep going.</div>';
@@ -1913,15 +2010,7 @@ function sdHasActiveFilter() {
 
 function computeSDTodayQueue() {
   sdTodayIds.clear();
-  // Show next 2 pending problems
-  let count = 0;
-  for (const p of sdProblems) {
-    if (count >= 2) break;
-    if (p.status === 'pending') {
-      sdTodayIds.add(p.id);
-      count++;
-    }
-  }
+  weeklyFocusSDIds.forEach(id => sdTodayIds.add(id));
 }
 
 function renderSD() {
