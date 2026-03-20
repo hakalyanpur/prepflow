@@ -1228,23 +1228,29 @@ async function ensureWeeklyFocus(topicStates) {
   } else {
     weeklyFocusIds = computeWeeklyFocus(topicStates);
     weeklyFocusSDIds = computeWeeklyFocusSD();
-    await fetch('/api/weekly-focus', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ coding: weeklyFocusIds, sd: weeklyFocusSDIds, week: currentWeek })
-    });
+    await saveWeeklyFocus();
   }
 }
 
 async function refreshWeeklyFocus() {
   const topicStates = computeTopicStates();
   weeklyFocusIds = computeWeeklyFocus(topicStates);
+  await saveWeeklyFocus();
+  render();
+}
+
+async function refreshSDWeeklyFocus() {
   weeklyFocusSDIds = computeWeeklyFocusSD();
+  await saveWeeklyFocus();
+  render();
+}
+
+async function saveWeeklyFocus() {
   const currentWeek = getCurrentMonday();
   await fetch('/api/weekly-focus', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ coding: weeklyFocusIds, sd: weeklyFocusSDIds, week: currentWeek })
   });
-  render();
 }
 
 function computeTodayQueue(topicStates) {
@@ -2020,21 +2026,30 @@ function renderSD() {
   // Section 1: Today's Focus
   html += '<div class="today-section">';
   html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus</div>`;
-  if (sdTodayIds.size > 0) {
+  const sdFocusProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
+  if (sdFocusProbs.length > 0) {
     html += '<div class="today-cards">';
-    const todayProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
-    todayProbs.forEach(p => {
-      html += `<div class="today-card">
+    sdFocusProbs.forEach(p => {
+      const isDone = p.status === 'done';
+      const doneStyle = isDone ? 'opacity:.5;' : '';
+      const doneLabel = isDone ? `<span style="font-size:.7rem;padding:2px 8px;border-radius:8px;background:rgba(63,185,80,.15);color:var(--green)">done</span>` : '';
+      const doneBtn = !isDone ? `<button onclick="sdSetStatus('${p.id}','done')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap">✓ Done</button>` : '';
+      html += `<div class="today-card" style="${doneStyle}">
         <div class="today-card-info">
           <a class="prob-link today-card-title" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>
           <div class="today-card-meta">
             ${diffHTML(p.difficulty)}
+            ${doneLabel}
           </div>
         </div>
-        <button onclick="sdSetStatus('${p.id}','done')" style="padding:4px 12px;font-size:.75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--green);cursor:pointer;white-space:nowrap">✓ Done</button>
+        ${doneBtn}
       </div>`;
     });
     html += '</div>';
+    const allSDDone = sdFocusProbs.every(p => p.status === 'done');
+    if (allSDDone) {
+      html += `<div style="margin-top:12px;text-align:center"><button onclick="refreshSDWeeklyFocus()" style="padding:6px 16px;font-size:.8rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--accent);cursor:pointer">Pull New Problems</button></div>`;
+    }
   } else {
     html += '<div class="today-empty">All caught up! Keep going.</div>';
   }
