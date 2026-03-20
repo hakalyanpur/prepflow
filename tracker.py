@@ -898,18 +898,22 @@ HTML = r"""<!DOCTYPE html>
   --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
   --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #bc8cff;
   --hover-row: rgba(88,166,255,.08); --week-hover: #212838;
+  --noise-opacity: 0.06; --gradient: radial-gradient(ellipse at 15% 0%, rgba(88,166,255,.12) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(188,140,255,.08) 0%, transparent 55%);
 }
 [data-theme="light"] {
   --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
   --text: #1f2328; --muted: #656d76; --accent: #0969da;
   --green: #1a7f37; --yellow: #9a6700; --red: #cf222e; --purple: #8250df;
   --hover-row: rgba(9,105,218,.06); --week-hover: #eaeef2;
+  --noise-opacity: 0.04; --gradient: radial-gradient(ellipse at 15% 0%, rgba(9,105,218,.08) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(130,80,223,.06) 0%, transparent 55%);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); letter-spacing: -0.01em; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); letter-spacing: -0.01em; position: relative; min-height: 100vh; }
+body::before { content: ''; position: fixed; inset: 0; z-index: -1; opacity: var(--noise-opacity); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px 256px; pointer-events: none; }
+body::after { content: ''; position: fixed; inset: 0; z-index: -1; background: var(--gradient); pointer-events: none; }
 code, pre, .mono { font-family: 'Hack Nerd Font Mono', 'Hack Nerd Font', 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
 .container { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
-.sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding: 12px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding: 12px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; backdrop-filter: blur(8px); background: color-mix(in srgb, var(--bg) 85%, transparent); }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
