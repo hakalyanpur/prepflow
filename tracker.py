@@ -1584,10 +1584,9 @@ function sdTableHeader(ctx, renderFn) {
   return `<table><thead><tr>${sortableTh(ctx,'problem','Problem',renderFn)}${sortableTh(ctx,'diff','Diff',renderFn)}${sortableTh(ctx,'status','Status',renderFn)}</tr></thead><tbody>`;
 }
 
-async function renderHome() {
+function renderHome() {
   const el = document.getElementById('weekly');
   const topicStates = computeTopicStates();
-  await ensureWeeklyFocus(topicStates);
   computeTodayQueue(topicStates);
 
   let html = '';
@@ -2113,29 +2112,42 @@ function render() {
 }
 
 // Tabs
+const TAB_HASH = { weekly: 'coding', sysdesign: 'system-design', pytips: 'python-toolkit', mechanics: 'patterns' };
+const HASH_TAB = Object.fromEntries(Object.entries(TAB_HASH).map(([k,v]) => [v, k]));
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  const tabEl = document.querySelector(`.tab[data-tab="${tabId}"]`);
+  if (tabEl) {
+    tabEl.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    localStorage.setItem('activeTab', tabId);
+    window.location.hash = TAB_HASH[tabId] || tabId;
+    render();
+  }
+}
+
 document.querySelectorAll('.tab').forEach(t => {
   t.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById(t.dataset.tab).classList.add('active');
-    localStorage.setItem('activeTab', t.dataset.tab);
+    switchTab(t.dataset.tab);
     window.scrollTo(0, 0);
-    render();
   });
 });
 
-// Restore saved tab
-const savedTab = localStorage.getItem('activeTab');
-if (savedTab && savedTab !== 'stats' && savedTab !== 'all' && savedTab !== 'review') {
-  const tabEl = document.querySelector(`.tab[data-tab="${savedTab}"]`);
-  if (tabEl) {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
-    tabEl.classList.add('active');
-    document.getElementById(savedTab).classList.add('active');
+// Restore tab from hash or localStorage
+function restoreTab() {
+  const hash = window.location.hash.slice(1);
+  const tabFromHash = HASH_TAB[hash];
+  const tabId = tabFromHash || localStorage.getItem('activeTab') || 'weekly';
+  if (tabId !== 'weekly' && tabId !== 'stats' && tabId !== 'all' && tabId !== 'review') {
+    switchTab(tabId);
+  } else if (tabFromHash) {
+    switchTab(tabId);
   }
 }
+restoreTab();
+window.addEventListener('hashchange', restoreTab);
 
 function setHljsTheme(theme) {
   document.getElementById('hljs-dark').disabled = (theme === 'light');
@@ -2177,6 +2189,8 @@ setThemeMode(savedMode);
 
 async function init() {
   await Promise.all([fetchProblems(), fetchSD(), loadConfig(), fetchPyRef(), fetchMech()]);
+  const topicStates = computeTopicStates();
+  await ensureWeeklyFocus(topicStates);
   render();
 }
 init();
