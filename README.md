@@ -1,8 +1,10 @@
 # Interview Prep Hub
 
-Local web dashboard for interview preparation — NeetCode 150, System Design, and Python tips. Zero dependencies — just Python stdlib.
+Web dashboard for interview preparation — NeetCode 150, System Design, and Python tips. Zero dependencies — just Python stdlib.
 
-## Run
+**Live at [prepflow.dev](https://prepflow.dev/)** — hosted on Fly.io.
+
+## Run locally
 
 ```bash
 python3 tracker.py
