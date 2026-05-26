@@ -11,7 +11,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 PORT = int(os.environ.get("PORT", 5050))
 HOST = os.environ.get("HOST", "localhost")
 # Week 1 starts on this Monday — adjust if you want a different start date
-START_MONDAY = "2026-02-23"
+START_MONDAY = "2026-05-25"
 DATA_DIR = os.environ.get("DATA_DIR", os.path.dirname(os.path.abspath(__file__)))
 DATA_FILE = os.path.join(DATA_DIR, "progress.json")
 MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetcode_study_plan.md")
