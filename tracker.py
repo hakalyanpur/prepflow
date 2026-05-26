@@ -1018,6 +1018,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .wp-input { width: 100%; box-sizing: border-box; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: .85rem; font-family: inherit; }
 .wp-input:focus { outline: none; border-color: var(--accent); }
 textarea.wp-input { resize: vertical; min-height: 70px; }
+.wp-grouplabel { font-size: .72rem; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
 .wp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .wp-chip { font-size: .78rem; padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; user-select: none; transition: all .15s; }
 .wp-chip:hover { color: var(--text); }
@@ -1042,6 +1043,7 @@ textarea.wp-input { resize: vertical; min-height: 70px; }
 .topic-body { padding: 0 16px 16px; }
 .topic-body.hidden { display: none; }
 .topic-locked-label { color: var(--muted); font-size: .8rem; font-style: italic; padding: 8px 0; }
+.topic-ahead-label { color: var(--yellow); font-size: .78rem; padding: 8px 4px 4px; }
 /* Sync pill in header */
 .sync-pill { display: flex; align-items: center; gap: 6px; }
 .sync-pill button { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 1.1rem; line-height: 1; }
@@ -1743,10 +1745,11 @@ function renderHome() {
         </div>`;
       if (expanded) {
         html += '<div class="topic-body">';
-        if (!ts.unlocked) {
+        if (!ts.unlocked && ts.problems.length) {
           const deps = (TOPIC_GRAPH[topic] || []).join(', ');
-          html += `<div class="topic-locked-label">Locked — complete ${deps} first</div>`;
-        } else if (ts.problems.length) {
+          html += `<div class="topic-ahead-label">⚠ Ahead of recommended order${deps ? ` — usually done after ${deps}` : ''}</div>`;
+        }
+        if (ts.problems.length) {
           const ctx = 'topic-' + topicId;
           ts.problems.forEach((p, i) => { p._rowNum = i + 1; });
           const sorted = sortProblems(ts.problems, ctx);
@@ -2197,6 +2200,10 @@ function plannerUpdate(field, value) {
   plan[field] = value;
   savePlan(plannerNextKey, plan);
 }
+function plannerChip(value, label, selected) {
+  const esc = value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return `<span class="wp-chip ${selected.has(value) ? 'on' : ''}" data-topic="${value.replace(/"/g, '&quot;')}" onclick="plannerToggleTopic('${esc}')">${label.replace(/</g, '&lt;')}</span>`;
+}
 function plannerToggleTopic(topic) {
   const plan = loadPlan(plannerNextKey);
   const topics = new Set(plan.topics || []);
@@ -2256,12 +2263,17 @@ function renderPlanner() {
     <label class="wp-label" for="wp-target">Target problems</label>
     <input class="wp-input" id="wp-target" type="number" min="0" placeholder="e.g. 10" value="${plan.target != null ? plan.target : ''}" oninput="plannerUpdate('target', this.value)" style="max-width:160px">
   </div>`;
-  html += '<div class="wp-field"><label class="wp-label">Focus areas</label><div class="wp-chips">';
+  html += '<div class="wp-field"><label class="wp-label">Focus areas</label>';
   const selected = new Set(plan.topics || []);
-  TOPIC_ORDER.forEach(t => {
-    html += `<span class="wp-chip ${selected.has(t) ? 'on' : ''}" data-topic="${t}" onclick="plannerToggleTopic('${t.replace(/'/g, "\\'")}')">${t}</span>`;
-  });
-  html += '</div></div>';
+  html += '<div class="wp-grouplabel">Coding</div><div class="wp-chips">';
+  TOPIC_ORDER.forEach(t => { html += plannerChip(t, t, selected); });
+  html += '</div>';
+  if (sdProblems.length) {
+    html += '<div class="wp-grouplabel" style="margin-top:14px">System Design</div><div class="wp-chips">';
+    sdProblems.forEach(p => { html += plannerChip('sd:' + p.id, p.title, selected); });
+    html += '</div>';
+  }
+  html += '</div>';
   html += `<div class="wp-field">
     <label class="wp-label" for="wp-notes">Goals &amp; notes</label>
     <textarea class="wp-input" id="wp-notes" placeholder="What do you want to accomplish next week?" oninput="plannerUpdate('notes', this.value)">${(plan.notes || '').replace(/</g, '&lt;')}</textarea>
