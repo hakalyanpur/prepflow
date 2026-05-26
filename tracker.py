@@ -1004,7 +1004,7 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 /* Weekly Planner */
 .wp-section { margin-bottom: 32px; }
 .wp-head { font-size: .8rem; color: var(--muted); font-weight: 600; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 4px; }
-.wp-range { font-size: .75rem; color: var(--border); margin-bottom: 14px; }
+.wp-range { font-size: .75rem; color: var(--muted); margin-bottom: 14px; }
 .wp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
 .wp-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
 .wp-stat-num { font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1.1; }
@@ -1229,13 +1229,29 @@ function computeTopicStates() {
   return states;
 }
 
+// Focus areas the user planned for the CURRENT week (in the planner tab).
+// Split into coding topic names and System Design problem ids.
+function plannedFocusAreas() {
+  const topics = (loadPlan(getCurrentMonday()).topics) || [];
+  return {
+    codingTopics: topics.filter(t => !t.startsWith('sd:')),
+    sdIds: topics.filter(t => t.startsWith('sd:')).map(t => t.slice(3)),
+  };
+}
+
 function computeWeeklyFocus(topicStates) {
-  // Pick next 4 pending coding problems
+  // If the user planned coding topics for this week, draw the focus from those
+  // (in roadmap order, ignoring lock gating). Otherwise pick the next pending
+  // problems along the roadmap.
+  const { codingTopics } = plannedFocusAreas();
+  const planned = codingTopics.length > 0;
+  const topicsToScan = planned ? TOPIC_ORDER.filter(t => codingTopics.includes(t)) : TOPIC_ORDER;
   const ids = [];
-  for (const topic of TOPIC_ORDER) {
+  for (const topic of topicsToScan) {
     if (ids.length >= 4) break;
     const ts = topicStates[topic];
-    if (!ts || !ts.unlocked || ts.status === 'completed') continue;
+    if (!ts || ts.status === 'completed') continue;
+    if (!planned && !ts.unlocked) continue;
     for (const p of ts.problems) {
       if (ids.length >= 4) break;
       if (p.status === 'pending') ids.push(p.id);
@@ -1245,6 +1261,14 @@ function computeWeeklyFocus(topicStates) {
 }
 
 function computeWeeklyFocusSD() {
+  // Planned designs for this week (still pending) take priority.
+  const { sdIds } = plannedFocusAreas();
+  if (sdIds.length) {
+    return sdIds.filter(id => {
+      const p = sdProblems.find(x => x.id === id);
+      return p && p.status === 'pending';
+    }).slice(0, 4);
+  }
   const ids = [];
   for (const p of sdProblems) {
     if (ids.length >= 2) break;
@@ -1255,6 +1279,15 @@ function computeWeeklyFocusSD() {
 
 async function ensureWeeklyFocus(topicStates) {
   const currentWeek = getCurrentMonday();
+  const { codingTopics, sdIds } = plannedFocusAreas();
+  // A plan for the current week always drives the focus (recomputed each load
+  // so solved items drop off). No plan → reuse the server-cached auto pick.
+  if (codingTopics.length || sdIds.length) {
+    weeklyFocusIds = computeWeeklyFocus(topicStates);
+    weeklyFocusSDIds = computeWeeklyFocusSD();
+    await saveWeeklyFocus();
+    return;
+  }
   const cfg = await (await fetch('/api/config')).json();
   if (cfg.weekly_focus_week === currentWeek && cfg.weekly_focus && cfg.weekly_focus.length > 0) {
     weeklyFocusIds = cfg.weekly_focus;
@@ -1628,6 +1661,7 @@ function renderHome() {
   const el = document.getElementById('weekly');
   const topicStates = computeTopicStates();
   computeTodayQueue(topicStates);
+  const codingPlanned = plannedFocusAreas().codingTopics.length > 0;
 
   let html = '';
 
@@ -1638,7 +1672,7 @@ function renderHome() {
     const reviewCount = todayProbs.length;
     html += `<div onclick="toggleReviewCollapse()" style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">Review Today <span style="font-size:.75rem;color:var(--muted)">(${reviewCount})</span><span style="font-size:.7rem;transition:transform .15s;transform:rotate(${reviewCollapsed?'-90':'0'}deg)">▼</span></div>`;
   } else {
-    html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus</div>`;
+    html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus${codingPlanned ? ' <span style="font-weight:400;color:var(--accent)">· from your plan</span>' : ''}</div>`;
   }
   if (todayProbs.length > 0) {
     if (isWeekend()) {
@@ -2059,8 +2093,9 @@ function renderSD() {
   let html = '';
 
   // Section 1: Today's Focus
+  const sdPlanned = plannedFocusAreas().sdIds.length > 0;
   html += '<div class="today-section">';
-  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus</div>`;
+  html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus${sdPlanned ? ' <span style="font-weight:400;color:var(--accent)">· from your plan</span>' : ''}</div>`;
   const sdFocusProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
   if (sdFocusProbs.length > 0) {
     html += '<div class="today-cards">';
