@@ -1000,6 +1000,30 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .overall-bar { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
 .overall-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .4s; }
 .overall-label { font-size: .9rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+/* Weekly Planner */
+.wp-section { margin-bottom: 32px; }
+.wp-head { font-size: .8rem; color: var(--muted); font-weight: 600; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 4px; }
+.wp-range { font-size: .75rem; color: var(--border); margin-bottom: 14px; }
+.wp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.wp-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.wp-stat-num { font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+.wp-stat-num .wp-delta { font-size: .75rem; font-weight: 600; margin-left: 6px; }
+.wp-delta.up { color: var(--green); } .wp-delta.down { color: var(--red); }
+.wp-stat-label { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+.wp-list { margin-top: 14px; display: flex; flex-direction: column; gap: 4px; }
+.wp-list-item { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: .85rem; }
+.wp-empty { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px; text-align: center; color: var(--muted); font-size: .85rem; }
+.wp-field { margin-bottom: 16px; }
+.wp-label { display: block; font-size: .8rem; color: var(--text); font-weight: 500; margin-bottom: 6px; }
+.wp-input { width: 100%; box-sizing: border-box; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: .85rem; font-family: inherit; }
+.wp-input:focus { outline: none; border-color: var(--accent); }
+textarea.wp-input { resize: vertical; min-height: 70px; }
+.wp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wp-chip { font-size: .78rem; padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; user-select: none; transition: all .15s; }
+.wp-chip:hover { color: var(--text); }
+.wp-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.wp-saved { font-size: .72rem; color: var(--green); opacity: 0; transition: opacity .2s; }
+.wp-saved.show { opacity: 1; }
 /* Topic Progression */
 .topic-row { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; }
 .topic-row:hover { background: var(--week-hover); }
@@ -1038,8 +1062,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
   <div class="tabs">
     <div class="tab active" data-tab="weekly">Coding</div>
     <div class="tab" data-tab="sysdesign">System Design</div>
-    <div class="tab" data-tab="pytips">Python Toolkit</div>
-    <div class="tab" data-tab="mechanics">Patterns</div>
+    <div class="tab" data-tab="planner">Weekly Planner</div>
   </div>
   <div class="header-actions">
     <div class="sync-pill" id="sync-pill">
@@ -1056,6 +1079,7 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 
 <div id="weekly" class="panel active"></div>
 <div id="sysdesign" class="panel"></div>
+<div id="planner" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
 <footer style="text-align:center;padding:32px 0 16px;color:var(--border);font-size:.7rem;letter-spacing:.5px">PrepFlow</footer>
@@ -2121,17 +2145,145 @@ function renderSD() {
   if (searchEl && sdFilterState.search) { searchEl.focus(); searchEl.selectionStart = searchEl.selectionEnd = searchEl.value.length; }
 }
 
+// --- Weekly Planner tab ---
+function localISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function mondayOf(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  const offset = (d.getDay() + 6) % 7; // Mon=0 ... Sun=6
+  d.setDate(d.getDate() - offset);
+  return d;
+}
+function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
+function fmtDay(d) {
+  return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+}
+
+// Stats for problems with an attempt dated in [start, end] (inclusive ISO strings).
+function weekStats(startISO, endISO) {
+  const all = [...problems, ...sdProblems];
+  const solved = [];   // distinct problems solved (a done attempt) in range
+  let attempted = 0, seconds = 0;
+  const diff = {E: 0, M: 0, H: 0};
+  const seen = new Set();
+  all.forEach(p => {
+    const inRange = (p.attempts || []).filter(a => a.date >= startISO && a.date <= endISO);
+    if (!inRange.length) return;
+    if (!seen.has(p.id)) { seen.add(p.id); attempted++; }
+    inRange.forEach(a => { seconds += a.duration_sec || 0; });
+    if (inRange.some(a => a.result === 'done')) {
+      solved.push(p);
+      if (diff[p.difficulty] !== undefined) diff[p.difficulty]++;
+    }
+  });
+  return {solved, attempted, seconds, diff};
+}
+
+function loadPlan(key) {
+  try { return JSON.parse(localStorage.getItem('plan:' + key) || '{}'); }
+  catch (e) { return {}; }
+}
+function savePlan(key, plan) {
+  localStorage.setItem('plan:' + key, JSON.stringify(plan));
+  const s = document.getElementById('wp-saved');
+  if (s) { s.classList.add('show'); clearTimeout(window._wpSaveT); window._wpSaveT = setTimeout(() => s.classList.remove('show'), 1500); }
+}
+
+let plannerNextKey = null;
+function plannerUpdate(field, value) {
+  const plan = loadPlan(plannerNextKey);
+  plan[field] = value;
+  savePlan(plannerNextKey, plan);
+}
+function plannerToggleTopic(topic) {
+  const plan = loadPlan(plannerNextKey);
+  const topics = new Set(plan.topics || []);
+  if (topics.has(topic)) topics.delete(topic); else topics.add(topic);
+  plan.topics = [...topics];
+  savePlan(plannerNextKey, plan);
+  document.querySelector(`.wp-chip[data-topic="${CSS.escape(topic)}"]`)?.classList.toggle('on');
+}
+
+function renderPlanner() {
+  const el = document.getElementById('planner');
+  const thisMon = mondayOf(new Date());
+  const lastMon = addDays(thisMon, -7);
+  const lastSun = addDays(thisMon, -1);
+  const prevMon = addDays(thisMon, -14);
+  const prevSun = addDays(thisMon, -8);
+  const nextMon = addDays(thisMon, 7);
+  const nextSun = addDays(thisMon, 13);
+
+  const last = weekStats(localISO(lastMon), localISO(lastSun));
+  const prev = weekStats(localISO(prevMon), localISO(prevSun));
+  const delta = last.solved.length - prev.solved.length;
+  const deltaHtml = delta === 0 ? ''
+    : `<span class="wp-delta ${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '▲' : '▼'} ${Math.abs(delta)}</span>`;
+  const hrs = Math.round(last.seconds / 360) / 10; // hours, 1 decimal
+
+  let html = '';
+
+  // Section 1 — Last week review
+  html += '<div class="wp-section">';
+  html += '<div class="wp-head">Last Week</div>';
+  html += `<div class="wp-range">${fmtDay(lastMon)} – ${fmtDay(lastSun)}</div>`;
+  html += '<div class="wp-stats">';
+  html += `<div class="wp-stat"><div class="wp-stat-num">${last.solved.length}${deltaHtml}</div><div class="wp-stat-label">solved</div></div>`;
+  html += `<div class="wp-stat"><div class="wp-stat-num">${last.attempted}</div><div class="wp-stat-label">attempted</div></div>`;
+  html += `<div class="wp-stat"><div class="wp-stat-num">${hrs}h</div><div class="wp-stat-label">time spent</div></div>`;
+  html += `<div class="wp-stat"><div class="wp-stat-num"><span class="diff-E">${last.diff.E}</span> · <span class="diff-M">${last.diff.M}</span> · <span class="diff-H">${last.diff.H}</span></div><div class="wp-stat-label">easy · med · hard</div></div>`;
+  html += '</div>';
+  if (last.solved.length) {
+    html += '<div class="wp-list">';
+    last.solved.forEach(p => {
+      html += `<div class="wp-list-item"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>${diffHTML(p.difficulty)}<span style="font-size:.72rem;color:var(--muted)">${p.category || 'System Design'}</span></div>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="wp-empty" style="margin-top:14px">No tracked activity last week. Use the timer on a problem to log attempts.</div>';
+  }
+  html += '</div>';
+
+  // Section 2 — Plan next week
+  plannerNextKey = localISO(nextMon);
+  const plan = loadPlan(plannerNextKey);
+  html += '<div class="wp-section">';
+  html += '<div class="wp-head">Plan Next Week</div>';
+  html += `<div class="wp-range">${fmtDay(nextMon)} – ${fmtDay(nextSun)}</div>`;
+  html += `<div class="wp-field">
+    <label class="wp-label" for="wp-target">Target problems</label>
+    <input class="wp-input" id="wp-target" type="number" min="0" placeholder="e.g. 10" value="${plan.target != null ? plan.target : ''}" oninput="plannerUpdate('target', this.value)" style="max-width:160px">
+  </div>`;
+  html += '<div class="wp-field"><label class="wp-label">Focus areas</label><div class="wp-chips">';
+  const selected = new Set(plan.topics || []);
+  TOPIC_ORDER.forEach(t => {
+    html += `<span class="wp-chip ${selected.has(t) ? 'on' : ''}" data-topic="${t}" onclick="plannerToggleTopic('${t.replace(/'/g, "\\'")}')">${t}</span>`;
+  });
+  html += '</div></div>';
+  html += `<div class="wp-field">
+    <label class="wp-label" for="wp-notes">Goals &amp; notes</label>
+    <textarea class="wp-input" id="wp-notes" placeholder="What do you want to accomplish next week?" oninput="plannerUpdate('notes', this.value)">${(plan.notes || '').replace(/</g, '&lt;')}</textarea>
+  </div>`;
+  html += '<div style="text-align:right"><span class="wp-saved" id="wp-saved">Saved ✓</span></div>';
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
 function render() {
   computeLastSolved();
   const tab = activeTab();
   if (tab === 'weekly') renderHome();
   else if (tab === 'sysdesign') renderSD();
+  else if (tab === 'planner') renderPlanner();
   else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
 }
 
 // Tabs
-const TAB_HASH = { weekly: 'coding', sysdesign: 'system-design', pytips: 'python-toolkit', mechanics: 'patterns' };
+const TAB_HASH = { weekly: 'coding', sysdesign: 'system-design', planner: 'weekly-planner' };
 const HASH_TAB = Object.fromEntries(Object.entries(TAB_HASH).map(([k,v]) => [v, k]));
 
 function switchTab(tabId) {
