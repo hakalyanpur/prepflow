@@ -1019,6 +1019,9 @@ tr.last-solved .last-solved-marker { color: var(--red); font-size: .7rem; margin
 .wp-input:focus { outline: none; border-color: var(--accent); }
 textarea.wp-input { resize: vertical; min-height: 70px; }
 .wp-grouplabel { font-size: .72rem; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+.wp-now { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.wp-now-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+@media (max-width: 640px) { .wp-now { grid-template-columns: 1fr; } }
 .wp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .wp-chip { font-size: .78rem; padding: 5px 12px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; user-select: none; transition: all .15s; }
 .wp-chip:hover { color: var(--text); }
@@ -2184,6 +2187,17 @@ function weekStats(startISO, endISO) {
   return {solved, attempted, seconds, diff};
 }
 
+// Category of the most recently solved coding problem — the topic you're "on".
+function recentCodingTopic() {
+  let best = null, bestDate = '';
+  problems.forEach(p => {
+    if (p.status !== 'done') return;
+    const d = (p.attempts && p.attempts.length) ? p.attempts[p.attempts.length - 1].date : (p.next_review || '');
+    if (d >= bestDate) { bestDate = d; best = p; }
+  });
+  return best ? best.category : null;
+}
+
 function loadPlan(key) {
   try { return JSON.parse(localStorage.getItem('plan:' + key) || '{}'); }
   catch (e) { return {}; }
@@ -2253,7 +2267,58 @@ function renderPlanner() {
   }
   html += '</div>';
 
-  // Section 2 — Plan next week
+  // Section 2 — Where you are now (current focus carried into the plan)
+  const topicStates = computeTopicStates();
+  let curTopic = recentCodingTopic();
+  if (!curTopic) {
+    curTopic = TOPIC_ORDER.find(t => topicStates[t] && (topicStates[t].status === 'in-progress' || topicStates[t].status === 'up-next')) || null;
+  }
+  html += '<div class="wp-section">';
+  html += '<div class="wp-head">Where You Are Now</div>';
+  html += '<div class="wp-range">Your current focus — use it to shape next week\'s plan</div>';
+  html += '<div class="wp-now">';
+
+  // Coding — current topic + what's left in it
+  html += '<div><div class="wp-grouplabel">Coding topic</div>';
+  if (curTopic && topicStates[curTopic]) {
+    const ts = topicStates[curTopic];
+    const tpct = ts.total ? Math.round(ts.done / ts.total * 100) : 0;
+    html += `<div class="wp-now-title">${curTopic}</div>`;
+    html += `<div class="overall-progress" style="margin:8px 0 10px"><span class="overall-label">${ts.done}/${ts.total}</span><div class="overall-bar"><div class="overall-fill" style="width:${tpct}%"></div></div><span class="overall-label">${tpct}%</span></div>`;
+    const pending = ts.problems.filter(p => p.status === 'pending').slice(0, 5);
+    if (pending.length) {
+      html += '<div class="wp-list">';
+      pending.forEach(p => {
+        html += `<div class="wp-list-item"><a class="prob-link" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>${diffHTML(p.difficulty)}</div>`;
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="wp-empty">Topic complete — pick a new focus below.</div>';
+    }
+  } else {
+    html += '<div class="wp-empty">No coding activity yet.</div>';
+  }
+  html += '</div>';
+
+  // System Design — in-progress then next pending designs
+  html += '<div><div class="wp-grouplabel">System Design</div>';
+  const sdInProgress = sdProblems.filter(p => p.status === 'struggled' || p.status === 'review');
+  const sdPending = sdProblems.filter(p => p.status === 'pending');
+  const sdShow = [...sdInProgress, ...sdPending].slice(0, 4);
+  if (sdShow.length) {
+    html += '<div class="wp-list">';
+    sdShow.forEach(p => {
+      html += `<div class="wp-list-item"><a class="prob-link" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>${diffHTML(p.difficulty)}<span style="font-size:.72rem;color:var(--muted)">${p.status}</span></div>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="wp-empty">All designs done.</div>';
+  }
+  html += '</div>';
+
+  html += '</div></div>';
+
+  // Section 3 — Plan next week
   plannerNextKey = localISO(nextMon);
   const plan = loadPlan(plannerNextKey);
   html += '<div class="wp-section">';
