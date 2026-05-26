@@ -886,32 +886,33 @@ HTML = r"""<!DOCTYPE html>
 <title>PrepFlow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%234f8ff7'/><stop offset='100%25' stop-color='%2334d399'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='%231a1a2e'/><path d='M28 65 L45 35 L52 50 L72 28' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='72' cy='28' r='6' fill='%2334d399'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%230a7a70'/><stop offset='100%25' stop-color='%232dd4bf'/></linearGradient></defs><rect width='100' height='100' rx='20' fill='%23181511'/><path d='M28 65 L45 35 L52 50 L72 28' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='72' cy='28' r='6' fill='%232dd4bf'/></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light" disabled>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
 <style>
 :root, [data-theme="dark"] {
-  --bg: #0b0f15; --surface: #1c2230; --border: #3d4556;
-  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
-  --green: #3fb950; --yellow: #d29922; --red: #f85149; --purple: #bc8cff;
-  --hover-row: rgba(88,166,255,.08); --week-hover: #212838;
-  --noise-opacity: 0.06; --gradient: radial-gradient(ellipse at 15% 0%, rgba(88,166,255,.12) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(188,140,255,.08) 0%, transparent 55%);
+  --bg: #181511; --surface: #2a2620; --border: #3c362c;
+  --text: #c4c4c5; --muted: #9b9c9d; --accent: #2dd4bf;
+  --green: #4ade80; --yellow: #e3b341; --red: #f87171; --purple: #c4b5fd;
+  --hover-row: rgba(45,212,191,.08); --week-hover: #221e18;
+  --noise-opacity: 0.05; --gradient: radial-gradient(ellipse at 15% 0%, rgba(45,212,191,.10) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(45,212,191,.05) 0%, transparent 55%);
 }
 [data-theme="light"] {
-  --bg: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
-  --text: #1f2328; --muted: #656d76; --accent: #0969da;
+  --bg: #f5f1eb; --surface: #fcfaf6; --border: #e8e4de;
+  --text: #1f1f1f; --muted: #6c6c6c; --accent: #0a7a70;
   --green: #1a7f37; --yellow: #9a6700; --red: #cf222e; --purple: #8250df;
-  --hover-row: rgba(9,105,218,.06); --week-hover: #eaeef2;
-  --noise-opacity: 0.04; --gradient: radial-gradient(ellipse at 15% 0%, rgba(9,105,218,.08) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(130,80,223,.06) 0%, transparent 55%);
+  --hover-row: rgba(10,122,112,.06); --week-hover: #ece7df;
+  --noise-opacity: 0.035; --gradient: radial-gradient(ellipse at 15% 0%, rgba(10,122,112,.08) 0%, transparent 55%), radial-gradient(ellipse at 85% 100%, rgba(10,122,112,.04) 0%, transparent 55%);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); letter-spacing: -0.01em; position: relative; min-height: 100vh; }
+body { font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; background: var(--bg); color: var(--text); letter-spacing: 0; position: relative; min-height: 100vh; }
+h1, h2, h3, h4 { font-family: 'Cormorant', Georgia, serif; font-weight: 600; letter-spacing: .01em; }
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; opacity: var(--noise-opacity); background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px 256px; pointer-events: none; }
 body::after { content: ''; position: fixed; inset: 0; z-index: -1; background: var(--gradient); pointer-events: none; }
-code, pre, .mono { font-family: 'Hack Nerd Font Mono', 'Hack Nerd Font', 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
+code, pre, .mono { font-family: 'Space Mono', 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
 .container { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
 .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--bg); padding: 12px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; backdrop-filter: blur(8px); background: color-mix(in srgb, var(--bg) 85%, transparent); }
 h1 { font-size: 1.4rem; margin-bottom: 4px; }
@@ -925,7 +926,7 @@ h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .theme-opt.active svg { stroke: #fff; }
 /* Tabs */
 .tabs { display: flex; gap: 0; align-items: center; }
-.tab { padding: 8px 16px; color: var(--muted); border-bottom: 2px solid transparent; font-size: .9rem; cursor: pointer; transition: color .15s, border-color .15s; user-select: none; }
+.tab { font-family: 'Cormorant', Georgia, serif; padding: 8px 16px; color: var(--muted); border-bottom: 2px solid transparent; font-size: 1.15rem; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s; user-select: none; }
 .tab:hover { color: var(--text); }
 .tab:active { opacity: .7; }
 .tab.active { color: var(--accent); border-color: var(--accent); font-weight: 600; }
