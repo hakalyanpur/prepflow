@@ -8,3 +8,6 @@ config.json
 .claude/
 .env
 .env.*
+
+# skills ledger live data (seeded from skills_seed.json)
+skills.json
