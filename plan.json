@@ -5,7 +5,7 @@
     "problem_ids": ["226", "104", "100", "572", "543"]
   },
   "system_design": {
-    "problem_ids": ["sd-12", "sd-14"]
+    "problem_ids": ["sd-5", "sd-6"]
   },
   "project": {
     "name": "fraud-detector",
