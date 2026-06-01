@@ -18,8 +18,7 @@ MD_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "leetco
 SD_DATA_FILE = os.path.join(DATA_DIR, "sd_progress.json")
 REF_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_ref.json")
 MECH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "python_mechanics.json")
-SKILLS_FILE = os.path.join(DATA_DIR, "skills.json")
-SKILLS_SEED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills_seed.json")
+PLAN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plan.json")
 
 # ---------------------------------------------------------------------------
 # Markdown parser — seeds progress.json on first run
@@ -533,25 +532,20 @@ def save_config(cfg):
     os.replace(tmp, CONFIG_FILE)
 
 
-def load_skills():
-    """Skills ledger. Seeds from the repo's skills.json on first run (handles a
-    separate DATA_DIR, e.g. a mounted volume), then persists to DATA_DIR."""
-    path = SKILLS_FILE
-    if not os.path.exists(path) and os.path.exists(SKILLS_SEED) and SKILLS_SEED != path:
-        with open(SKILLS_SEED, "r") as f:
-            seed = json.load(f)
-        save_skills(seed)
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return {"updated": "", "domains": []}
-
-
-def save_skills(data):
-    tmp = SKILLS_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(data, f, indent=2)
-    os.replace(tmp, SKILLS_FILE)
+def load_plan():
+    """Current week's plan, read fresh from the repo so a deploy updates it
+    instantly. Project-task done-state lives in config.json (the writable
+    DATA_DIR) keyed by task id, and is merged in here."""
+    if not os.path.exists(PLAN_FILE):
+        return {}
+    with open(PLAN_FILE, "r") as f:
+        plan = json.load(f)
+    done = load_config().get("project_done", {})
+    proj = plan.get("project")
+    if proj:
+        for t in proj.get("tasks", []):
+            t["done"] = bool(done.get(t.get("id"), False))
+    return plan
 
 
 def fetch_leetcode_accepted(username):
@@ -722,8 +716,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(load_mech())
         if self.path == "/api/config":
             return self._json(load_config())
-        if self.path == "/api/skills":
-            return self._json(load_skills())
+        if self.path == "/api/plan":
+            return self._json(load_plan())
         self.send_error(404)
 
     def do_POST(self):
@@ -871,27 +865,18 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(p)
             return self._json({"error": "not found"}, 404)
 
-        # /api/skills  — update one skill cell {id, level, project}
-        if self.path == "/api/skills":
+        # /api/plan/task — toggle a project task's done-state {id, done}
+        if self.path == "/api/plan/task":
             body = self._read_body()
-            sid = body.get("id")
-            data = load_skills()
-            today = datetime.date.today().isoformat()
-            found = None
-            for dom in data.get("domains", []):
-                for sk in dom.get("skills", []):
-                    if sk.get("id") == sid:
-                        if "level" in body:
-                            sk["level"] = body.get("level")
-                        if "project" in body:
-                            sk["project"] = body.get("project", "")
-                        sk["updated"] = today
-                        found = sk
-            if found is None:
-                return self._json({"error": "skill not found"}, 404)
-            data["updated"] = today
-            save_skills(data)
-            return self._json({"ok": True, "skill": found})
+            tid = body.get("id")
+            if not tid:
+                return self._json({"error": "id required"}, 400)
+            cfg = load_config()
+            done = cfg.get("project_done", {})
+            done[tid] = bool(body.get("done"))
+            cfg["project_done"] = done
+            save_config(cfg)
+            return self._json({"ok": True})
 
         # /api/weekly-focus
         if self.path == "/api/weekly-focus":
@@ -1133,7 +1118,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
     <div class="tab active" data-tab="weekly">Coding</div>
     <div class="tab" data-tab="sysdesign">System Design</div>
     <div class="tab" data-tab="planner">Weekly Planner</div>
-    <div class="tab" data-tab="skills">Skills</div>
   </div>
   <div class="header-actions">
     <div class="sync-pill" id="sync-pill">
@@ -1151,7 +1135,6 @@ a.prob-link:hover { color: var(--accent); text-decoration: underline; }
 <div id="weekly" class="panel active"></div>
 <div id="sysdesign" class="panel"></div>
 <div id="planner" class="panel"></div>
-<div id="skills" class="panel"></div>
 <div id="pytips" class="panel"></div>
 <div id="mechanics" class="panel"></div>
 <footer style="text-align:center;padding:32px 0 16px;color:var(--border);font-size:.7rem;letter-spacing:.5px">PrepFlow</footer>
@@ -1297,94 +1280,24 @@ function computeTopicStates() {
 
 // Focus areas the user planned for the CURRENT week (in the planner tab).
 // Split into coding topic names and System Design problem ids.
-function plannedFocusAreas() {
-  const topics = (loadPlan(getCurrentMonday()).topics) || [];
-  return {
-    codingTopics: topics.filter(t => !t.startsWith('sd:')),
-    sdIds: topics.filter(t => t.startsWith('sd:')).map(t => t.slice(3)),
-  };
-}
+let serverPlan = {};
 
-function computeWeeklyFocus(topicStates) {
-  // If the user planned coding topics for this week, draw the focus from those
-  // (in roadmap order, ignoring lock gating). Otherwise pick the next pending
-  // problems along the roadmap.
-  const { codingTopics } = plannedFocusAreas();
-  const planned = codingTopics.length > 0;
-  const topicsToScan = planned ? TOPIC_ORDER.filter(t => codingTopics.includes(t)) : TOPIC_ORDER;
-  const ids = [];
-  for (const topic of topicsToScan) {
-    if (ids.length >= 4) break;
-    const ts = topicStates[topic];
-    if (!ts || ts.status === 'completed') continue;
-    if (!planned && !ts.unlocked) continue;
-    for (const p of ts.problems) {
-      if (ids.length >= 4) break;
-      if (p.status === 'pending') ids.push(p.id);
-    }
-  }
-  return ids;
+// Weekly focus is driven entirely by the plan (plan.json, maintained in chat).
+function computeWeeklyFocus() {
+  return (serverPlan.coding && serverPlan.coding.problem_ids) || [];
 }
 
 function computeWeeklyFocusSD() {
-  // Planned designs for this week (still pending) take priority.
-  const { sdIds } = plannedFocusAreas();
-  if (sdIds.length) {
-    return sdIds.filter(id => {
-      const p = sdProblems.find(x => x.id === id);
-      return p && p.status === 'pending';
-    }).slice(0, 4);
-  }
-  const ids = [];
-  for (const p of sdProblems) {
-    if (ids.length >= 2) break;
-    if (p.status === 'pending') ids.push(p.id);
-  }
-  return ids;
+  return (serverPlan.system_design && serverPlan.system_design.problem_ids) || [];
 }
 
-async function ensureWeeklyFocus(topicStates) {
-  const currentWeek = getCurrentMonday();
-  const { codingTopics, sdIds } = plannedFocusAreas();
-  // A plan for the current week always drives the focus (recomputed each load
-  // so solved items drop off). No plan → reuse the server-cached auto pick.
-  if (codingTopics.length || sdIds.length) {
-    weeklyFocusIds = computeWeeklyFocus(topicStates);
-    weeklyFocusSDIds = computeWeeklyFocusSD();
-    await saveWeeklyFocus();
-    return;
-  }
-  const cfg = await (await fetch('/api/config')).json();
-  if (cfg.weekly_focus_week === currentWeek && cfg.weekly_focus && cfg.weekly_focus.length > 0) {
-    weeklyFocusIds = cfg.weekly_focus;
-    weeklyFocusSDIds = cfg.weekly_focus_sd || [];
-  } else {
-    weeklyFocusIds = computeWeeklyFocus(topicStates);
-    weeklyFocusSDIds = computeWeeklyFocusSD();
-    await saveWeeklyFocus();
-  }
-}
-
-async function refreshWeeklyFocus() {
-  const topicStates = computeTopicStates();
-  weeklyFocusIds = computeWeeklyFocus(topicStates);
-  await saveWeeklyFocus();
-  render();
-}
-
-async function refreshSDWeeklyFocus() {
+async function ensureWeeklyFocus() {
+  weeklyFocusIds = computeWeeklyFocus();
   weeklyFocusSDIds = computeWeeklyFocusSD();
-  await saveWeeklyFocus();
-  render();
 }
 
-async function saveWeeklyFocus() {
-  const currentWeek = getCurrentMonday();
-  await fetch('/api/weekly-focus', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ coding: weeklyFocusIds, sd: weeklyFocusSDIds, week: currentWeek })
-  });
-}
+function refreshWeeklyFocus() { render(); }
+function refreshSDWeeklyFocus() { render(); }
 
 function computeTodayQueue(topicStates) {
   todayIds.clear();
@@ -1727,7 +1640,7 @@ function renderHome() {
   const el = document.getElementById('weekly');
   const topicStates = computeTopicStates();
   computeTodayQueue(topicStates);
-  const codingPlanned = plannedFocusAreas().codingTopics.length > 0;
+  const codingPlanned = weeklyFocusIds.length > 0;
 
   let html = '';
 
@@ -2159,7 +2072,7 @@ function renderSD() {
   let html = '';
 
   // Section 1: Today's Focus
-  const sdPlanned = plannedFocusAreas().sdIds.length > 0;
+  const sdPlanned = weeklyFocusSDIds.length > 0;
   html += '<div class="today-section">';
   html += `<div style="font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px">This Week's Focus${sdPlanned ? ' <span style="font-weight:400;color:var(--accent)">· from your plan</span>' : ''}</div>`;
   const sdFocusProbs = [...sdTodayIds].map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
@@ -2254,335 +2167,111 @@ function renderSD() {
 }
 
 // --- Weekly Planner tab ---
-function localISO(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function mondayOf(date) {
-  const d = new Date(date);
-  d.setHours(0,0,0,0);
-  const offset = (d.getDay() + 6) % 7; // Mon=0 ... Sun=6
-  d.setDate(d.getDate() - offset);
-  return d;
-}
-function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate() + n); return d; }
-function fmtDay(d) {
-  return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'});
+async function fetchPlan() {
+  try { const r = await fetch('/api/plan'); serverPlan = await r.json(); }
+  catch (e) { serverPlan = {}; }
 }
 
-// Stats for problems with an attempt dated in [start, end] (inclusive ISO strings).
-function weekStats(startISO, endISO) {
-  const all = [...problems, ...sdProblems];
-  const solved = [];   // distinct problems solved (a done attempt) in range
-  let attempted = 0, seconds = 0;
-  const diff = {E: 0, M: 0, H: 0};
-  const seen = new Set();
-  all.forEach(p => {
-    const inRange = (p.attempts || []).filter(a => a.date >= startISO && a.date <= endISO);
-    if (!inRange.length) return;
-    if (!seen.has(p.id)) { seen.add(p.id); attempted++; }
-    inRange.forEach(a => { seconds += a.duration_sec || 0; });
-    if (inRange.some(a => a.result === 'done')) {
-      solved.push(p);
-      if (diff[p.difficulty] !== undefined) diff[p.difficulty]++;
-    }
+function planProgress(done, total) {
+  const pct = total ? Math.round(done / total * 100) : 0;
+  return `<div class="overall-progress" style="margin:10px 0 0"><span class="overall-label">${done}/${total}</span><div class="overall-bar"><div class="overall-fill" style="width:${pct}%"></div></div><span class="overall-label">${pct}%</span></div>`;
+}
+
+function planChecklist(items, emptyMsg) {
+  if (!items.length) return `<div class="wp-empty">${emptyMsg}</div>`;
+  let h = '<div class="wp-list" style="margin-top:10px">';
+  items.forEach(it => {
+    const strike = it.done ? 'opacity:.55;text-decoration:line-through' : '';
+    const title = it.href
+      ? `<a class="prob-link" href="${it.href}" target="_blank" rel="noopener" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${strike}">${esc(it.label)}</a>`
+      : `<span style="flex:1;min-width:0;${strike}">${esc(it.label)}</span>`;
+    h += `<label class="wp-list-item" style="cursor:pointer">
+      <input type="checkbox" ${it.done ? 'checked' : ''} onchange="${it.onclick}">
+      ${title}
+      ${it.difficulty ? diffHTML(it.difficulty) : ''}
+    </label>`;
   });
-  return {solved, attempted, seconds, diff};
-}
-
-// Category of the most recently solved coding problem — the topic you're "on".
-function recentCodingTopic() {
-  let best = null, bestDate = '';
-  problems.forEach(p => {
-    if (p.status !== 'done') return;
-    const d = (p.attempts && p.attempts.length) ? p.attempts[p.attempts.length - 1].date : (p.next_review || '');
-    if (d >= bestDate) { bestDate = d; best = p; }
-  });
-  return best ? best.category : null;
-}
-
-function loadPlan(key) {
-  try { return JSON.parse(localStorage.getItem('plan:' + key) || '{}'); }
-  catch (e) { return {}; }
-}
-function savePlan(key, plan) {
-  localStorage.setItem('plan:' + key, JSON.stringify(plan));
-  const s = document.getElementById('wp-saved');
-  if (s) { s.classList.add('show'); clearTimeout(window._wpSaveT); window._wpSaveT = setTimeout(() => s.classList.remove('show'), 1500); }
-}
-
-let plannerNextKey = null;
-function plannerUpdate(field, value) {
-  const plan = loadPlan(plannerNextKey);
-  plan[field] = value;
-  savePlan(plannerNextKey, plan);
-}
-function plannerChip(value, label, selected) {
-  const esc = value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-  return `<span class="wp-chip ${selected.has(value) ? 'on' : ''}" data-topic="${value.replace(/"/g, '&quot;')}" onclick="plannerToggleTopic('${esc}')">${label.replace(/</g, '&lt;')}</span>`;
-}
-function plannerToggleTopic(topic) {
-  const plan = loadPlan(plannerNextKey);
-  const topics = new Set(plan.topics || []);
-  if (topics.has(topic)) topics.delete(topic); else topics.add(topic);
-  plan.topics = [...topics];
-  savePlan(plannerNextKey, plan);
-  document.querySelector(`.wp-chip[data-topic="${CSS.escape(topic)}"]`)?.classList.toggle('on');
+  h += '</div>';
+  return h;
 }
 
 function renderPlanner() {
   const el = document.getElementById('planner');
-  const thisMon = mondayOf(new Date());
-  const lastMon = addDays(thisMon, -7);
-  const lastSun = addDays(thisMon, -1);
-  const prevMon = addDays(thisMon, -14);
-  const prevSun = addDays(thisMon, -8);
-  const nextMon = addDays(thisMon, 7);
-  const nextSun = addDays(thisMon, 13);
-
-  const last = weekStats(localISO(lastMon), localISO(lastSun));
-  const prev = weekStats(localISO(prevMon), localISO(prevSun));
-  const delta = last.solved.length - prev.solved.length;
-  const deltaHtml = delta === 0 ? ''
-    : `<span class="wp-delta ${delta > 0 ? 'up' : 'down'}">${delta > 0 ? '▲' : '▼'} ${Math.abs(delta)}</span>`;
-  const hrs = Math.round(last.seconds / 360) / 10; // hours, 1 decimal
-
   let html = '';
 
-  // Section 1 — Last week review
   html += '<div class="wp-section">';
-  html += '<div class="wp-head">Last Week</div>';
-  html += `<div class="wp-range">${fmtDay(lastMon)} – ${fmtDay(lastSun)}</div>`;
-  html += '<div class="wp-stats">';
-  html += `<div class="wp-stat"><div class="wp-stat-num">${last.solved.length}${deltaHtml}</div><div class="wp-stat-label">solved</div></div>`;
-  html += `<div class="wp-stat"><div class="wp-stat-num">${last.attempted}</div><div class="wp-stat-label">attempted</div></div>`;
-  html += `<div class="wp-stat"><div class="wp-stat-num">${hrs}h</div><div class="wp-stat-label">time spent</div></div>`;
-  html += `<div class="wp-stat"><div class="wp-stat-num"><span class="diff-E">${last.diff.E}</span> · <span class="diff-M">${last.diff.M}</span> · <span class="diff-H">${last.diff.H}</span></div><div class="wp-stat-label">easy · med · hard</div></div>`;
-  html += '</div>';
-  if (last.solved.length) {
-    html += '<div class="wp-list">';
-    last.solved.forEach(p => {
-      html += `<div class="wp-list-item"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>${diffHTML(p.difficulty)}<span style="font-size:.72rem;color:var(--muted)">${p.category || 'System Design'}</span></div>`;
-    });
-    html += '</div>';
-  } else {
-    html += '<div class="wp-empty" style="margin-top:14px">No tracked activity last week. Use the timer on a problem to log attempts.</div>';
-  }
-  // Last week's portfolio goal — did it ship?
-  const lastKey = localISO(lastMon);
-  const lastPlan = loadPlan(lastKey);
-  if (lastPlan.increment || lastPlan.project) {
-    html += `<div class="wp-list" style="margin-top:14px"><div class="wp-list-item"><span style="flex:1">${lastPlan.project ? '[' + esc(lastPlan.project) + '] ' : ''}${esc(lastPlan.increment || '')}</span><label style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);cursor:pointer"><input type="checkbox" ${lastPlan.shipped ? 'checked' : ''} onchange="plannerMarkShipped('${lastKey}', this.checked)"> shipped</label></div></div>`;
-  }
+  html += `<div class="wp-head">${esc(serverPlan.week_label || 'This Week')}</div>`;
+  html += '<div class="wp-range">Planned with Claude — check things off as you go</div>';
   html += '</div>';
 
-  // Section 2 — Where you are now (current focus carried into the plan)
-  const topicStates = computeTopicStates();
-  let curTopic = recentCodingTopic();
-  if (!curTopic) {
-    curTopic = TOPIC_ORDER.find(t => topicStates[t] && (topicStates[t].status === 'in-progress' || topicStates[t].status === 'up-next')) || null;
-  }
+  // LeetCode
+  const cIds = (serverPlan.coding && serverPlan.coding.problem_ids) || [];
+  const cProbs = cIds.map(id => problems.find(p => p.id === id)).filter(Boolean);
+  const cDone = cProbs.filter(p => p.status === 'done' || p.status === 'skipped').length;
   html += '<div class="wp-section">';
-  html += '<div class="wp-head">Where You Are Now</div>';
-  html += '<div class="wp-range">Your current focus — use it to shape next week\'s plan</div>';
-  html += '<div class="wp-now">';
+  html += `<div class="wp-head">LeetCode${serverPlan.coding && serverPlan.coding.topic ? ' · ' + esc(serverPlan.coding.topic) : ''}</div>`;
+  html += planChecklist(cProbs.map(p => ({
+    label: p.title, difficulty: p.difficulty,
+    done: (p.status === 'done' || p.status === 'skipped'),
+    href: probUrl(p), onclick: `plannerToggleProblem('${p.id}')`
+  })), 'No coding problems planned.');
+  if (cProbs.length) html += planProgress(cDone, cProbs.length);
+  html += '</div>';
 
-  // Coding — current topic + what's left in it
-  html += '<div><div class="wp-grouplabel">Coding topic</div>';
-  if (curTopic && topicStates[curTopic]) {
-    const ts = topicStates[curTopic];
-    const tpct = ts.total ? Math.round(ts.done / ts.total * 100) : 0;
-    html += `<div class="wp-now-title">${curTopic}</div>`;
-    html += `<div class="overall-progress" style="margin:8px 0 10px"><span class="overall-label">${ts.done}/${ts.total}</span><div class="overall-bar"><div class="overall-fill" style="width:${tpct}%"></div></div><span class="overall-label">${tpct}%</span></div>`;
-    const pending = ts.problems.filter(p => p.status === 'pending').slice(0, 5);
-    if (pending.length) {
-      html += '<div class="wp-list">';
-      pending.forEach(p => {
-        html += `<div class="wp-list-item"><a class="prob-link" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>${diffHTML(p.difficulty)}</div>`;
-      });
+  // System Design
+  const sIds = (serverPlan.system_design && serverPlan.system_design.problem_ids) || [];
+  const sProbs = sIds.map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
+  const sDone = sProbs.filter(p => p.status === 'done').length;
+  html += '<div class="wp-section">';
+  html += '<div class="wp-head">System Design</div>';
+  html += planChecklist(sProbs.map(p => ({
+    label: p.title, difficulty: p.difficulty, done: p.status === 'done',
+    href: probUrl(p), onclick: `plannerToggleSD('${p.id}')`
+  })), 'No system design planned.');
+  if (sProbs.length) html += planProgress(sDone, sProbs.length);
+  html += '</div>';
+
+  // Project
+  const proj = serverPlan.project;
+  if (proj) {
+    const tasks = proj.tasks || [];
+    const tDone = tasks.filter(t => t.done).length;
+    html += '<div class="wp-section">';
+    html += `<div class="wp-head">Project${proj.name ? ' · ' + esc(proj.name) : ''}</div>`;
+    if (proj.summary) html += `<div class="wp-range">${esc(proj.summary)}</div>`;
+    html += planChecklist(tasks.map(t => ({
+      label: t.text, done: !!t.done, onclick: `plannerToggleTask('${t.id}')`
+    })), 'No project tasks planned.');
+    if (tasks.length) html += planProgress(tDone, tasks.length);
+    if (proj.skills && proj.skills.length) {
+      html += '<div class="wp-grouplabel" style="margin-top:14px">Skills this ships</div><div class="wp-chips">';
+      proj.skills.forEach(s => { html += `<span class="wp-chip" style="cursor:default">${esc(s)}</span>`; });
       html += '</div>';
-    } else {
-      html += '<div class="wp-empty">Topic complete — pick a new focus below.</div>';
     }
-  } else {
-    html += '<div class="wp-empty">No coding activity yet.</div>';
-  }
-  html += '</div>';
-
-  // System Design — in-progress then next pending designs
-  html += '<div><div class="wp-grouplabel">System Design</div>';
-  const sdInProgress = sdProblems.filter(p => p.status === 'struggled' || p.status === 'review');
-  const sdPending = sdProblems.filter(p => p.status === 'pending');
-  const sdShow = [...sdInProgress, ...sdPending].slice(0, 4);
-  if (sdShow.length) {
-    html += '<div class="wp-list">';
-    sdShow.forEach(p => {
-      html += `<div class="wp-list-item"><a class="prob-link" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" href="${probUrl(p)}" target="_blank" rel="noopener">${p.title}</a>${diffHTML(p.difficulty)}<span style="font-size:.72rem;color:var(--muted)">${p.status}</span></div>`;
-    });
-    html += '</div>';
-  } else {
-    html += '<div class="wp-empty">All designs done.</div>';
-  }
-  html += '</div>';
-
-  html += '</div></div>';
-
-  // Section 2.5 — Skills in motion (ties the Skills ledger into the weekly view)
-  const inMotion = [];
-  (skills.domains || []).forEach(d => d.skills.forEach(s => { if (s.level != null && s.level < 3) inMotion.push(s); }));
-  html += '<div class="wp-section">';
-  html += '<div class="wp-head">Skills In Motion</div>';
-  html += '<div class="wp-range">Cells you\'ve started but not yet made Fluent — pick the next to push</div>';
-  if (inMotion.length) {
-    inMotion.sort((a, b) => b.level - a.level);
-    html += '<div class="wp-list">';
-    inMotion.forEach(s => {
-      const col = s.level >= 2 ? 'var(--green)' : 'var(--accent)';
-      html += `<div class="wp-list-item"><span style="flex:1">${s.name}</span><span style="font-size:.72rem;color:${col}">${SK_LABELS[s.level]}</span>${s.project ? '<span style="font-size:.7rem;color:var(--muted)">' + esc(s.project) + '</span>' : ''}</div>`;
-    });
-    html += '</div>';
-  } else {
-    html += '<div class="wp-empty">No skills tracked yet — open the Skills tab and set where you are.</div>';
-  }
-  html += '</div>';
-
-  // Section 3 — Plan next week
-  plannerNextKey = localISO(nextMon);
-  const plan = loadPlan(plannerNextKey);
-  html += '<div class="wp-section">';
-  html += '<div class="wp-head">Plan Next Week</div>';
-  html += `<div class="wp-range">${fmtDay(nextMon)} – ${fmtDay(nextSun)}</div>`;
-
-  // Portfolio — the main ~5-hr block
-  html += '<div class="wp-field"><label class="wp-label">🛠 Portfolio project — main block (~5h)</label>';
-  html += `<input class="wp-input" placeholder="Current project (e.g. fraud-detect)" value="${(plan.project || '').replace(/"/g, '&quot;')}" oninput="plannerUpdate('project', this.value)" style="margin-bottom:8px">`;
-  html += `<input class="wp-input" placeholder="This week's shippable increment" value="${(plan.increment || '').replace(/"/g, '&quot;')}" oninput="plannerUpdate('increment', this.value)" style="margin-bottom:8px">`;
-  html += `<input class="wp-input" placeholder="Build-log entry you intend to write" value="${(plan.buildlog || '').replace(/"/g, '&quot;')}" oninput="plannerUpdate('buildlog', this.value)">`;
-  html += '</div>';
-
-  // Skills to push — sourced from the Skills ledger
-  html += '<div class="wp-field"><label class="wp-label">Skills to push this week</label><div class="wp-chips">';
-  const selSkills = new Set(plan.skills || []);
-  (skills.domains || []).forEach(d => d.skills.forEach(s => {
-    const cur = (s.level == null) ? '' : ' · ' + SK_LABELS[s.level];
-    html += plannerSkillChip('skill:' + s.id, s.name + cur, selSkills);
-  }));
-  html += '</div></div>';
-
-  html += '<label class="wp-label" style="display:block;margin-top:18px">🔁 Interview maintenance (~2h)</label>';
-  html += `<div class="wp-field">
-    <label class="wp-label" for="wp-target">Target problems</label>
-    <input class="wp-input" id="wp-target" type="number" min="0" placeholder="e.g. 10" value="${plan.target != null ? plan.target : ''}" oninput="plannerUpdate('target', this.value)" style="max-width:160px">
-  </div>`;
-  html += '<div class="wp-field"><label class="wp-label">Focus areas</label>';
-  const selected = new Set(plan.topics || []);
-  html += '<div class="wp-grouplabel">Coding</div><div class="wp-chips">';
-  TOPIC_ORDER.forEach(t => { html += plannerChip(t, t, selected); });
-  html += '</div>';
-  if (sdProblems.length) {
-    html += '<div class="wp-grouplabel" style="margin-top:14px">System Design</div><div class="wp-chips">';
-    sdProblems.forEach(p => { html += plannerChip('sd:' + p.id, p.title, selected); });
     html += '</div>';
   }
-  html += '</div>';
-  html += '<div class="wp-field"><label class="wp-label">📖 Intuition (~1h)</label>';
-  html += `<input class="wp-input" placeholder="One reading tied to this week's project problem" value="${(plan.intuition || '').replace(/"/g, '&quot;')}" oninput="plannerUpdate('intuition', this.value)">`;
-  html += '</div>';
-  html += `<div class="wp-field">
-    <label class="wp-label" for="wp-notes">Goals &amp; notes</label>
-    <textarea class="wp-input" id="wp-notes" placeholder="What do you want to accomplish next week?" oninput="plannerUpdate('notes', this.value)">${(plan.notes || '').replace(/</g, '&lt;')}</textarea>
-  </div>`;
-  html += '<div style="text-align:right"><span class="wp-saved" id="wp-saved">Saved ✓</span></div>';
-  html += '</div>';
 
   el.innerHTML = html;
 }
 
-// --- Skills ledger tab ---
-let skills = { domains: [] };
-const SK_LABELS = ['Aware', 'Applied', 'Shipped', 'Fluent'];
-
-async function fetchSkills() {
-  try { const r = await fetch('/api/skills'); skills = await r.json(); } catch(e) {}
+function plannerToggleProblem(id) {
+  const p = problems.find(x => x.id === id);
+  setStatus(id, (p && p.status === 'done') ? 'pending' : 'done');
 }
-function skillById(id) {
-  for (const d of (skills.domains || [])) for (const s of d.skills) if (s.id === id) return s;
-  return null;
+function plannerToggleSD(id) {
+  const p = sdProblems.find(x => x.id === id);
+  sdSetStatus(id, (p && p.status === 'done') ? 'pending' : 'done');
 }
-async function saveSkill(id, patch) {
-  try {
-    await fetch('/api/skills', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(Object.assign({ id }, patch)) });
-    const s = skillById(id);
-    if (s) Object.assign(s, patch);
-  } catch(e) {}
-}
-function setSkillLevel(id, dotIndex) {
-  const s = skillById(id);
-  if (!s) return;
-  const next = (dotIndex === 0 && s.level === 0) ? null : dotIndex;
-  saveSkill(id, { level: next }).then(renderSkills);
-}
-function setSkillProject(id, val) { saveSkill(id, { project: val }); }
-function skillCounts() {
-  const c = { tracked: 0, shipped: 0, fluent: 0 };
-  (skills.domains || []).forEach(d => d.skills.forEach(s => {
-    if (s.level != null) c.tracked++;
-    if (s.level >= 2) c.shipped++;
-    if (s.level >= 3) c.fluent++;
-  }));
-  return c;
-}
-function renderSkills() {
-  const el = document.getElementById('skills');
-  if (!el) return;
-  const c = skillCounts();
-  let html = '';
-  html += '<div class="wp-head">Skills Ledger</div>';
-  html += '<div class="wp-range">Only shipped work moves a cell past Applied. The needle moves when a cell levels up.</div>';
-  html += '<div class="sk-summary">';
-  html += `<div class="sk-sumcard"><div class="sk-sumnum">${c.tracked}</div><div class="sk-sumlabel">tracked</div></div>`;
-  html += `<div class="sk-sumcard"><div class="sk-sumnum" style="color:var(--green)">${c.shipped}</div><div class="sk-sumlabel">shipped+</div></div>`;
-  html += `<div class="sk-sumcard"><div class="sk-sumnum">${c.fluent}</div><div class="sk-sumlabel">fluent</div></div>`;
-  html += '</div>';
-  (skills.domains || []).forEach(d => {
-    html += '<div class="sk-domain"><div class="sk-domain-head">' + d.name + '</div>';
-    d.skills.forEach(s => {
-      const lvl = s.level;
-      html += '<div class="sk-row">';
-      html += `<span class="sk-name">${s.name}</span>`;
-      html += '<span class="sk-levels">';
-      for (let i = 0; i < 4; i++) {
-        const on = lvl != null && i <= lvl;
-        const shipped = on && lvl >= 2 ? ' shipped' : '';
-        html += `<span class="sk-dot${on ? ' on' + shipped : ''}" title="${SK_LABELS[i]}" onclick="setSkillLevel('${s.id}', ${i})"></span>`;
-      }
-      html += '</span>';
-      html += `<span class="sk-level-label">${lvl == null ? '—' : SK_LABELS[lvl]}</span>`;
-      html += `<input class="sk-proj" placeholder="earned by…" value="${(s.project || '').replace(/"/g, '&quot;')}" onchange="setSkillProject('${s.id}', this.value)">`;
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  el.innerHTML = html;
+function plannerToggleTask(id) {
+  const proj = serverPlan.project;
+  if (!proj) return;
+  const t = (proj.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  fetch('/api/plan/task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id, done: t.done }) });
+  renderPlanner();
 }
 
-// --- Planner helpers for skills / portfolio ---
-function plannerSkillChip(value, label, selected) {
-  const esc2 = value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-  return `<span class="wp-chip ${selected.has(value) ? 'on' : ''}" data-skill="${value.replace(/"/g, '&quot;')}" onclick="plannerToggleSkill('${esc2}')">${label.replace(/</g, '&lt;')}</span>`;
-}
-function plannerToggleSkill(value) {
-  const plan = loadPlan(plannerNextKey);
-  const set = new Set(plan.skills || []);
-  if (set.has(value)) set.delete(value); else set.add(value);
-  plan.skills = [...set];
-  savePlan(plannerNextKey, plan);
-  document.querySelector(`.wp-chip[data-skill="${CSS.escape(value)}"]`)?.classList.toggle('on');
-}
-function plannerMarkShipped(key, val) {
-  const plan = loadPlan(key);
-  plan.shipped = val;
-  savePlan(key, plan);
-}
 
 function render() {
   computeLastSolved();
@@ -2590,13 +2279,12 @@ function render() {
   if (tab === 'weekly') renderHome();
   else if (tab === 'sysdesign') renderSD();
   else if (tab === 'planner') renderPlanner();
-  else if (tab === 'skills') renderSkills();
   else if (tab === 'pytips') renderPyRef();
   else if (tab === 'mechanics') renderMech();
 }
 
 // Tabs
-const TAB_HASH = { weekly: 'coding', sysdesign: 'system-design', planner: 'weekly-planner', skills: 'skills' };
+const TAB_HASH = { weekly: 'coding', sysdesign: 'system-design', planner: 'weekly-planner' };
 const HASH_TAB = Object.fromEntries(Object.entries(TAB_HASH).map(([k,v]) => [v, k]));
 
 function switchTab(tabId) {
@@ -2672,7 +2360,7 @@ const savedMode = localStorage.getItem('themeMode') || 'dark';
 setThemeMode(savedMode);
 
 async function init() {
-  await Promise.all([fetchProblems(), fetchSD(), loadConfig(), fetchPyRef(), fetchMech(), fetchSkills()]);
+  await Promise.all([fetchProblems(), fetchSD(), loadConfig(), fetchPyRef(), fetchMech(), fetchPlan()]);
   const topicStates = computeTopicStates();
   await ensureWeeklyFocus(topicStates);
   render();

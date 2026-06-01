@@ -1,0 +1,22 @@
+{
+  "week_label": "Week 2 · Jun 1 – 7",
+  "coding": {
+    "topic": "Trees",
+    "problem_ids": ["226", "104", "100", "572", "543"]
+  },
+  "system_design": {
+    "problem_ids": ["sd-1", "sd-2"]
+  },
+  "project": {
+    "name": "fraud-detector",
+    "summary": "Anomaly / fraud detection — Week 2 slice: data + EDA + an honest baseline.",
+    "tasks": [
+      {"id": "w2-acquire", "text": "Acquire the ULB Credit Card Fraud dataset"},
+      {"id": "w2-store", "text": "Store as parquet + a reproducible ingest.py"},
+      {"id": "w2-eda", "text": "EDA: class imbalance, feature distributions, time / velocity signal"},
+      {"id": "w2-baseline", "text": "Baseline: logistic regression"},
+      {"id": "w2-eval", "text": "Eval on PR-AUC + precision/recall @ threshold; write results to README"}
+    ],
+    "skills": ["Data acquisition", "Storage / parquet", "EDA", "Baselines", "Honest eval (PR-AUC)"]
+  }
+}

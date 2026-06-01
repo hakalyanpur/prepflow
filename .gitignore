@@ -1,13 +1,20 @@
+# Python
 __pycache__/
 *.pyc
-progress.json
-sd_progress.json
-server.log
-config.json
 .venv/
-.claude/
+*.tmp
+
+# Secrets / env
 .env
 .env.*
 
-# skills ledger live data (seeded from skills_seed.json)
+# Local / volume-backed runtime data (not source)
+data/
+progress.json
+sd_progress.json
+config.json
 skills.json
+server.log
+
+# Editor / agent
+.claude/
