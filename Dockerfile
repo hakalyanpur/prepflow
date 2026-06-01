@@ -3,6 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY tracker.py .
+COPY plan.json .
 COPY python_ref.json .
 COPY python_mechanics.json .
 COPY patterns.md .
