@@ -541,10 +541,11 @@ def load_plan():
     with open(PLAN_FILE, "r") as f:
         plan = json.load(f)
     done = load_config().get("project_done", {})
-    proj = plan.get("project")
-    if proj:
-        for t in proj.get("tasks", []):
-            t["done"] = bool(done.get(t.get("id"), False))
+    for section in ("project", "work"):
+        sec = plan.get(section)
+        if sec:
+            for t in sec.get("tasks", []):
+                t["done"] = bool(done.get(t.get("id"), False))
     return plan
 
 
@@ -2201,43 +2202,16 @@ function renderPlanner() {
 
   html += '<div class="wp-section">';
   html += `<div class="wp-head">${esc(serverPlan.week_label || 'This Week')}</div>`;
-  html += '<div class="wp-range">Planned with Claude — check things off as you go</div>';
+  html += '<div class="wp-range">Planned with Claude — project + work first, interview prep third</div>';
   html += '</div>';
 
-  // LeetCode
-  const cIds = (serverPlan.coding && serverPlan.coding.problem_ids) || [];
-  const cProbs = cIds.map(id => problems.find(p => p.id === id)).filter(Boolean);
-  const cDone = cProbs.filter(p => p.status === 'done' || p.status === 'skipped').length;
-  html += '<div class="wp-section">';
-  html += `<div class="wp-head">LeetCode${serverPlan.coding && serverPlan.coding.topic ? ' · ' + esc(serverPlan.coding.topic) : ''}</div>`;
-  html += planChecklist(cProbs.map(p => ({
-    label: p.title, difficulty: p.difficulty,
-    done: (p.status === 'done' || p.status === 'skipped'),
-    href: probUrl(p), onclick: `plannerToggleProblem('${p.id}')`
-  })), 'No coding problems planned.');
-  if (cProbs.length) html += planProgress(cDone, cProbs.length);
-  html += '</div>';
-
-  // System Design
-  const sIds = (serverPlan.system_design && serverPlan.system_design.problem_ids) || [];
-  const sProbs = sIds.map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
-  const sDone = sProbs.filter(p => p.status === 'done').length;
-  html += '<div class="wp-section">';
-  html += '<div class="wp-head">System Design</div>';
-  html += planChecklist(sProbs.map(p => ({
-    label: p.title, difficulty: p.difficulty, done: p.status === 'done',
-    href: probUrl(p), onclick: `plannerToggleSD('${p.id}')`
-  })), 'No system design planned.');
-  if (sProbs.length) html += planProgress(sDone, sProbs.length);
-  html += '</div>';
-
-  // Project
+  // ① Project (primary focus)
   const proj = serverPlan.project;
   if (proj) {
     const tasks = proj.tasks || [];
     const tDone = tasks.filter(t => t.done).length;
     html += '<div class="wp-section">';
-    html += `<div class="wp-head">Project${proj.name ? ' · ' + esc(proj.name) : ''}</div>`;
+    html += `<div class="wp-head">① Project${proj.name ? ' · ' + esc(proj.name) : ''}</div>`;
     if (proj.summary) html += `<div class="wp-range">${esc(proj.summary)}</div>`;
     html += planChecklist(tasks.map(t => ({
       label: t.text, done: !!t.done, onclick: `plannerToggleTask('${t.id}')`
@@ -2251,6 +2225,48 @@ function renderPlanner() {
     html += '</div>';
   }
 
+  // ② Work
+  const work = serverPlan.work;
+  if (work) {
+    const wtasks = work.tasks || [];
+    const wDone = wtasks.filter(t => t.done).length;
+    html += '<div class="wp-section">';
+    html += `<div class="wp-head">② Work${work.name ? ' · ' + esc(work.name) : ''}</div>`;
+    if (work.summary) html += `<div class="wp-range">${esc(work.summary)}</div>`;
+    html += planChecklist(wtasks.map(t => ({
+      label: t.text, done: !!t.done, onclick: `plannerToggleTask('${t.id}')`
+    })), 'No work tasks planned.');
+    if (wtasks.length) html += planProgress(wDone, wtasks.length);
+    html += '</div>';
+  }
+
+  // ③ Interview Readiness (LeetCode + System Design) — maintenance, cut first
+  html += '<div class="wp-section">';
+  html += '<div class="wp-head">③ Interview Readiness</div>';
+  html += '<div class="wp-range">Maintenance only — cut this first if the week gets tight</div>';
+
+  const cIds = (serverPlan.coding && serverPlan.coding.problem_ids) || [];
+  const cProbs = cIds.map(id => problems.find(p => p.id === id)).filter(Boolean);
+  const cDone = cProbs.filter(p => p.status === 'done' || p.status === 'skipped').length;
+  html += `<div class="wp-grouplabel" style="margin-top:14px">LeetCode${serverPlan.coding && serverPlan.coding.topic ? ' · ' + esc(serverPlan.coding.topic) : ''}</div>`;
+  html += planChecklist(cProbs.map(p => ({
+    label: p.title, difficulty: p.difficulty,
+    done: (p.status === 'done' || p.status === 'skipped'),
+    href: probUrl(p), onclick: `plannerToggleProblem('${p.id}')`
+  })), 'No coding problems planned.');
+  if (cProbs.length) html += planProgress(cDone, cProbs.length);
+
+  const sIds = (serverPlan.system_design && serverPlan.system_design.problem_ids) || [];
+  const sProbs = sIds.map(id => sdProblems.find(p => p.id === id)).filter(Boolean);
+  const sDone = sProbs.filter(p => p.status === 'done').length;
+  html += '<div class="wp-grouplabel" style="margin-top:14px">System Design</div>';
+  html += planChecklist(sProbs.map(p => ({
+    label: p.title, difficulty: p.difficulty, done: p.status === 'done',
+    href: probUrl(p), onclick: `plannerToggleSD('${p.id}')`
+  })), 'No system design planned.');
+  if (sProbs.length) html += planProgress(sDone, sProbs.length);
+  html += '</div>';
+
   el.innerHTML = html;
 }
 
@@ -2263,9 +2279,9 @@ function plannerToggleSD(id) {
   sdSetStatus(id, (p && p.status === 'done') ? 'pending' : 'done');
 }
 function plannerToggleTask(id) {
-  const proj = serverPlan.project;
-  if (!proj) return;
-  const t = (proj.tasks || []).find(x => x.id === id);
+  let t = null;
+  if (serverPlan.project) t = (serverPlan.project.tasks || []).find(x => x.id === id);
+  if (!t && serverPlan.work) t = (serverPlan.work.tasks || []).find(x => x.id === id);
   if (!t) return;
   t.done = !t.done;
   fetch('/api/plan/task', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ id, done: t.done }) });

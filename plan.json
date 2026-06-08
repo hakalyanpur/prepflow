@@ -1,22 +1,32 @@
 {
   "week_label": "Week 3 · Jun 8 – 14",
+  "project": {
+    "name": "gpu-failure-detector",
+    "summary": "Fail-slow / silent-failure detection for large-scale GPU training clusters (DCGM + NCCL telemetry → K8s auto-remediation). Building v0→v3 over the coming weeks. This week = v0 kickoff.",
+    "tasks": [
+      {"id": "gpu-data", "text": "Pull GWDG DCGM dataset (Zenodo 10.5281/zenodo.19052367) + skim \"When GPUs Fail Quietly\""},
+      {"id": "gpu-explore", "text": "Set up repo + EDA the telemetry (DCGM metrics + Slurm node-state transitions)"},
+      {"id": "gpu-signal", "text": "Reproduce the fail-quiet signals (thermal drift; scrape-latency / sample-loss / metric-disappearance)"},
+      {"id": "gpu-v0", "text": "Prototype v0 detector — μ+kσ fail-slow flag over a sliding window"},
+      {"id": "gpu-readme", "text": "README — problem statement, data sources, v0→v3 roadmap"}
+    ],
+    "skills": ["DCGM / GPU telemetry", "Time-series anomaly detection", "Go / Python", "Reproducible data pipeline", "Fail-slow / straggler detection"]
+  },
+  "work": {
+    "name": "SRX anomaly detection",
+    "summary": "Day-job staff project. Data engineering + moving the anomaly/RCA engine from static rules toward ML.",
+    "tasks": [
+      {"id": "work-dataeng", "text": "Data engineering — organize OTel / Prometheus telemetry pipeline"},
+      {"id": "work-rca", "text": "Improve the current static / rule-based anomaly + RCA engine"},
+      {"id": "work-ml", "text": "Explore ML-based RCA — scope the approach"},
+      {"id": "work-read", "text": "Read DMLS (Chip Huyen) — apply a chapter to the pipeline"}
+    ]
+  },
   "coding": {
     "topic": "Trees",
-    "problem_ids": ["543", "572", "110", "102"]
+    "problem_ids": ["543", "572", "110"]
   },
   "system_design": {
     "problem_ids": ["sd-5", "sd-6"]
-  },
-  "project": {
-    "name": "fraud-detector",
-    "summary": "Anomaly / fraud detection — Week 3 slice (carried from W2): data + EDA + an honest baseline.",
-    "tasks": [
-      {"id": "w3-acquire", "text": "Acquire the ULB Credit Card Fraud dataset"},
-      {"id": "w3-store", "text": "Store as parquet + a reproducible ingest.py"},
-      {"id": "w3-eda", "text": "EDA: class imbalance, feature distributions, time / velocity signal"},
-      {"id": "w3-baseline", "text": "Baseline: logistic regression"},
-      {"id": "w3-eval", "text": "Eval on PR-AUC + precision/recall @ threshold; write results to README"}
-    ],
-    "skills": ["Data acquisition", "Storage / parquet", "EDA", "Baselines", "Honest eval (PR-AUC)"]
   }
 }
